@@ -4,10 +4,11 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public class Lamp : IConnectable
 {
-    public int Id { get; set; }
-    public LampID Type { get; set; }
-    public int X { get; set; }
-    public int Y { get; set; }
+    public int Id { get; init; }
+    
+    public LampID Type { get; init; }
+    public int X { get; init; }
+    public int Y { get; init; }
 
     public HashSet<IConnectable> Fanin { get; } = [];
     public HashSet<IConnectable> Fanout { get; } = [];
