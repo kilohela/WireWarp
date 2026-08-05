@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class Processor
 {
-    static void WireBulb(WiringGraph graph, Output output)
+    private static void WireBulb(WiringGraph graph, Output output)
     {
         foreach (var op in output.Fanin.OfType<OutputPort>())
         {

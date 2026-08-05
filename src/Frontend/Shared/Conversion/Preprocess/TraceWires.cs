@@ -28,7 +28,7 @@ internal static class TraceWires
             if (wireByTile.ContainsKey((start, color))) continue;
 
             var wire = graph.AddWire(color);
-            var found = TraceWire(wire, 0, start, start, graph, wireByTile);
+            var found = TraceWire(wire, start, start, graph, wireByTile);
             ConnectComponents(wire, found, graph);
         }
     }
@@ -38,7 +38,7 @@ internal static class TraceWires
         List<IConnectable> found,
         WiringGraph graph)
     {
-        foreach (var component in found)
+        foreach (var component in found.Distinct())
         {
             switch (component)
             {
@@ -88,7 +88,6 @@ internal static class TraceWires
 
     public static List<IConnectable> TraceWire(
         Wire wire,
-        int level,
         (int x, int y) start,
         (int x, int y) prevStart,
         WiringGraph graph,
@@ -96,12 +95,12 @@ internal static class TraceWires
     {
         var found = new List<IConnectable>();
 
-        var queue = new Queue<((int x, int y) cur, (int x, int y) prev, int level)>();
-        queue.Enqueue((start, prevStart, level));
+        var queue = new Queue<((int x, int y) cur, (int x, int y) prev)>();
+        queue.Enqueue((start, prevStart));
 
         while (queue.Count > 0)
         {
-            var (cur, prev, curLevel) = queue.Dequeue();
+            var (cur, prev) = queue.Dequeue();
 
             if (cur.x < 0 || cur.x >= Main.maxTilesX ||
                 cur.y < 0 || cur.y >= Main.maxTilesY)
@@ -128,7 +127,7 @@ internal static class TraceWires
             if (jb != JunctionBoxID.None)
             {
                 var next = RouteJunction(cur, prev, jb);
-                queue.Enqueue((next, cur, curLevel + 1));
+                queue.Enqueue((next, cur));
             }
             else
             {
@@ -138,7 +137,7 @@ internal static class TraceWires
                 {
                     var next = (x: cur.x + dx, y: cur.y + dy);
                     if (prevJb && prev == next) continue;
-                    queue.Enqueue((next, cur, curLevel + 1));
+                    queue.Enqueue((next, cur));
                 }
             }
         }

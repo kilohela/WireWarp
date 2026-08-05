@@ -2,6 +2,21 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Data;
 
+public interface IConnectable
+{
+    int Id { get; }
+    
+    HashSet<IConnectable> Fanin { get; }
+    HashSet<IConnectable> Fanout { get; }
+}
+
+public class ExtraData
+{
+    public Dictionary<OutputPort, (Output source, Output target)> Teleporter { get; } = [];
+    public Dictionary<OutputPort, (List<Output> inlets, List<Output> outlets)> Pumps { get; } = [];
+    public Dictionary<OutputPort, WireID> WireBulb { get; } = [];
+}
+
 public class WiringGraph
 {
     public ExtraData ExtraData { get; } = new();
@@ -51,7 +66,7 @@ public class WiringGraph
     internal Wire AddWire(WireID type)
     {
         var node = new Wire { Id = _nextComponentId++, Type = type };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _wires.Add(node);
         return node;
     }
@@ -59,7 +74,7 @@ public class WiringGraph
     internal Gate AddGate(GateID type, int x, int y)
     {
         var node = new Gate { Id = _nextComponentId++, Type = type, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _gates.Add(node);
         return node;
     }
@@ -67,7 +82,7 @@ public class WiringGraph
     internal Lamp AddLamp(LampID type, int x, int y)
     {
         var node = new Lamp { Id = _nextComponentId++, Type = type, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _lamps.Add(node);
         return node;
     }
@@ -75,7 +90,7 @@ public class WiringGraph
     internal Input AddInput(InputID type, int x, int y)
     {
         var node = new Input { Id = _nextComponentId++, Type = type, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _inputs.Add(node);
         return node;
     }
@@ -83,7 +98,7 @@ public class WiringGraph
     internal InputPort AddInputPort(int x, int y)
     {
         var node = new InputPort { Id = _nextComponentId++, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _inputPorts.Add(node);
         return node;
     }
@@ -91,7 +106,7 @@ public class WiringGraph
     internal Output AddOutput(OutputID type, int x, int y)
     {
         var node = new Output { Id = _nextComponentId++, Type = type, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _outputs.Add(node);
         return node;
     }
@@ -99,7 +114,7 @@ public class WiringGraph
     internal OutputPort AddOutputPort(int x, int y)
     {
         var node = new OutputPort { Id = _nextComponentId++, X = x, Y = y };
-        _components.Add(node.Id, node);
+        _components[node.Id] = node;
         _outputPorts.Add(node);
         return node;
     }

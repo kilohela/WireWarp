@@ -5,49 +5,38 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class Processor
 {
-    static void Teleporter(WiringGraph graph, Output output)
+    private static void Teleporter(WiringGraph graph, Output output)
     {
         foreach (var op in output.Fanin.OfType<OutputPort>().ToList())
         {
             var wire = op.Fanin.OfType<Wire>().First();
 
-            var (minPort, source, target) = Analyze(wire, graph);
+            if (graph.ExtraData.Teleporter.Keys.Any(k =>
+                    k.X == op.X && k.Y == op.Y &&
+                    k.Fanin.OfType<Wire>().First() == wire))
+                goto remove;
 
-            if (minPort != null && source != null && target != null && minPort == op)
-                graph.ExtraData.Teleporter[op] = (source, target);
-            else
-                graph.RemoveNode(op);
-        }
+            var wireMap = new Dictionary<((int, int), WireID), Wire>();
+            var found = Conversion.TraceWires.TraceWire(
+                wire, (op.X, op.Y), (op.X, op.Y), graph, wireMap);
 
-        static (OutputPort? minPort, Output? source, Output? target) Analyze(
-            Wire wire, WiringGraph graph)
-        {
-            var visited = new Dictionary<((int, int), WireID), Wire>();
-            var found = new List<(Output output, OutputPort port, int level)>();
+            var teleporters = found
+                .OfType<Output>()
+                .Where(o => o.Type == OutputID.Teleporter)
+                .ToList();
 
-            Conversion.TraceWires.TraceWire(
-                wire, 0, (wire.X, wire.Y), (wire.X, wire.Y),
-                graph, visited,
-                (w, pos, level) =>
-                {
-                    if (!graph.OutputPos.TryGetValue(pos, out var foundOutput)) return;
-                    if (foundOutput.Type != OutputID.Teleporter) return;
+            if (teleporters.Count < 2) goto remove;
 
-                    var foundPort = w.Fanout
-                        .OfType<OutputPort>()
-                        .FirstOrDefault(p => p.Fanout.Contains(foundOutput));
-                    if (foundPort != null)
-                        found.Add((foundOutput, foundPort, level));
-                });
+            var source = teleporters[0];
+            var target = teleporters[^1];
 
-            if (found.Count < 2) return (null, null, null);
+            if (source == target) goto remove;
 
-            var min = found.MinBy(f => f.level);
-            var max = found.MaxBy(f => f.level);
+            graph.ExtraData.Teleporter[op] = (source, target);
+            continue;
 
-            if (min.port == max.port) return (null, null, null);
-
-            return (min.port, min.output, max.output);
+        remove:
+            graph.RemoveNode(op);
         }
     }
 }

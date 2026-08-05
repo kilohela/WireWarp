@@ -7,46 +7,40 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class Processor
 {
-    static void Pumps(WiringGraph graph, Output output)
+    private static void Pumps(WiringGraph graph, Output output)
     {
         foreach (var op in output.Fanin.OfType<OutputPort>().ToList())
         {
             var wire = op.Fanin.OfType<Wire>().First();
 
-            var (inlets, outlets) = Analyze(wire, graph);
+            if (graph.ExtraData.Pumps.Keys.Any(k =>
+                    k.X == op.X && k.Y == op.Y &&
+                    k.Fanin.OfType<Wire>().First() == wire))
+                goto remove;
 
-            if (inlets != null && inlets[0] == output)
-                graph.ExtraData.Pumps[op] = (inlets, outlets!);
-            else
-                graph.RemoveNode(op);
-        }
+            var wireMap = new Dictionary<((int, int), WireID), Wire>();
+            var found = Conversion.TraceWires.TraceWire(
+                wire, (op.X, op.Y), (op.X, op.Y), graph, wireMap);
 
-        static (List<Output>? inlets, List<Output>? outlets) Analyze(
-            Wire wire, WiringGraph graph)
-        {
             var inlets = new List<Output>();
             var outlets = new List<Output>();
-            var visited = new Dictionary<((int, int), WireID), Wire>();
 
-            Conversion.TraceWires.TraceWire(
-                wire, 0, (wire.X, wire.Y), (wire.X, wire.Y),
-                graph, visited,
-                (w, pos, _) =>
-                {
-                    if (!graph.OutputPos.TryGetValue(pos, out var o)) return;
-                    if (o.Type != OutputID.Pumps) return;
+            foreach (var pump in found.OfType<Output>().Where(o => o.Type == OutputID.Pumps))
+            {
+                var tileType = Main.tile(pump.X, pump.Y).type;
+                if (tileType == TileID.InletPump && !inlets.Contains(pump))
+                    inlets.Add(pump);
+                else if (tileType == TileID.OutletPump && !outlets.Contains(pump))
+                    outlets.Add(pump);
+            }
 
-                    var tileType = Main.tile(pos.x, pos.y).type;
-                    if (tileType == TileID.InletPump && !inlets.Contains(o))
-                        inlets.Add(o);
-                    else if (tileType == TileID.OutletPump && !outlets.Contains(o))
-                        outlets.Add(o);
-                });
+            if (inlets.Count == 0 || outlets.Count == 0) goto remove;
 
-            if (inlets.Count == 0 || outlets.Count == 0)
-                return (null, null);
+            graph.ExtraData.Pumps[op] = (inlets, outlets);
+            continue;
 
-            return (inlets, outlets);
+        remove:
+            graph.RemoveNode(op);
         }
     }
 }

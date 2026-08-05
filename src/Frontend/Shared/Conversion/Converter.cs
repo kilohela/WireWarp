@@ -16,7 +16,6 @@ public static class Converter
         Prune.Execute(graph);
         Normalize.Execute(graph);
         Prune.Execute(graph);
-        Split.Execute(graph);
         Applier.Execute(graph);
         Prune.Execute(graph);
         Assign.Execute(graph);
