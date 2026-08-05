@@ -9,7 +9,6 @@ internal static class ScanComponents
     public static void Execute(WiringGraph graph)
     {
         Scan(graph);
-        CreatePorts(graph);
     }
 
     private static void Scan(WiringGraph graph)
@@ -74,17 +73,6 @@ internal static class ScanComponents
                 }
             }
         }
-    }
-
-    private static void CreatePorts(WiringGraph graph)
-    {
-        foreach (var input in graph.Inputs)
-            if (!input.Fanout.OfType<InputPort>().Any())
-                WiringGraph.AddEdge(input, graph.AddInputPort());
-
-        foreach (var output in graph.Outputs)
-            if (!output.Fanin.OfType<OutputPort>().Any())
-                WiringGraph.AddEdge(graph.AddOutputPort(), output);
     }
 
     private static bool InRange(int x, int y, (int x, int y) origin, (int x, int y) size)
