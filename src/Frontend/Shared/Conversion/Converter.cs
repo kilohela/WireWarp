@@ -19,6 +19,7 @@ public static class Converter
         Applier.Execute(graph);
         Prune.Execute(graph);
         Assign.Execute(graph);
+        Validate.Execute(graph);
 
         return graph;
     }
