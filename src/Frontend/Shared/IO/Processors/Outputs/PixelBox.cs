@@ -4,11 +4,9 @@ using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-internal class PixelBox : IOutputProcessor
+partial class Processor
 {
-    public static readonly PixelBox Instance = new();
-
-    public void Process(WiringGraph graph, Output output)
+    static void PixelBox(WiringGraph graph, Output output)
     {
         var sources = new HashSet<IConnectable>();
         foreach (var op in output.Fanin.OfType<OutputPort>())
@@ -37,31 +35,31 @@ internal class PixelBox : IOutputProcessor
             if (!keep.Contains(source))
                 graph.RemoveNode(op);
         }
-    }
 
-    private static void TraceDir(
-        (int x, int y) s, (int x, int y) c,
-        HashSet<IConnectable> sources,
-        HashSet<IConnectable> result,
-        WireID color,
-        WiringGraph graph)
-    {
-        var visited = new Dictionary<((int, int), WireID), Wire>();
-        var tempWire = new Wire { Type = color };
+        static void TraceDir(
+            (int x, int y) s, (int x, int y) c,
+            HashSet<IConnectable> sources,
+            HashSet<IConnectable> result,
+            WireID color,
+            WiringGraph graph)
+        {
+            var visited = new Dictionary<((int, int), WireID), Wire>();
+            var tempWire = new Wire { Type = color };
 
-        Conversion.TraceWires.TraceWire(
-            tempWire, 0, s, c,
-            graph, visited,
-            (w, pos, _) =>
-            {
-                if (graph.GatePos.TryGetValue(pos, out var gate) && sources.Contains(gate))
-                    result.Add(gate);
-                else if (graph.InputPos.TryGetValue(pos, out var input))
+            Conversion.TraceWires.TraceWire(
+                tempWire, 0, s, c,
+                graph, visited,
+                (w, pos, _) =>
                 {
-                    var ip = input.Fanout.OfType<InputPort>().FirstOrDefault();
-                    if (ip != null && sources.Contains(ip))
-                        result.Add(ip);
-                }
-            });
+                    if (graph.GatePos.TryGetValue(pos, out var gate) && sources.Contains(gate))
+                        result.Add(gate);
+                    else if (graph.InputPos.TryGetValue(pos, out var input))
+                    {
+                        var ip = input.Fanout.OfType<InputPort>().FirstOrDefault();
+                        if (ip != null && sources.Contains(ip))
+                            result.Add(ip);
+                    }
+                });
+        }
     }
 }

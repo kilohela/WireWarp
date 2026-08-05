@@ -35,7 +35,7 @@ internal static class TraceWires
 
     private static void ConnectComponents(
         Wire wire,
-        HashSet<IConnectable> found,
+        List<IConnectable> found,
         WiringGraph graph)
     {
         foreach (var component in found)
@@ -86,7 +86,7 @@ internal static class TraceWires
         }
     }
 
-    public static HashSet<IConnectable> TraceWire(
+    public static List<IConnectable> TraceWire(
         Wire wire,
         int level,
         (int x, int y) start,
@@ -94,7 +94,7 @@ internal static class TraceWires
         WiringGraph graph,
         Dictionary<((int, int), WireID), Wire> wireByTile)
     {
-        var found = new HashSet<IConnectable>();
+        var found = new List<IConnectable>();
 
         var queue = new Queue<((int x, int y) cur, (int x, int y) prev, int level)>();
         queue.Enqueue((start, prevStart, level));

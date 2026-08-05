@@ -2,11 +2,9 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-internal class WireBulb : IOutputProcessor
+partial class Processor
 {
-    public static readonly WireBulb Instance = new();
-
-    public void Process(WiringGraph graph, Output output)
+    static void WireBulb(WiringGraph graph, Output output)
     {
         foreach (var op in output.Fanin.OfType<OutputPort>())
         {

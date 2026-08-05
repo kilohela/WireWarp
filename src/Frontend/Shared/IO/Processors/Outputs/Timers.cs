@@ -2,11 +2,9 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-internal class Timers : IOutputProcessor
+partial class Processor
 {
-    public static readonly Timers Instance = new();
-
-    public void Process(WiringGraph graph, Output output)
+    static void Timers(WiringGraph graph, Output output)
     {
         // Timer output cannot directly activate itself.
         foreach (var op in output.Fanin.OfType<OutputPort>())

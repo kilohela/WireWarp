@@ -3,11 +3,9 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-internal class Teleporter : IOutputProcessor
+partial class Processor
 {
-    public static readonly Teleporter Instance = new();
-
-    public void Process(WiringGraph graph, Output output)
+    static void Teleporter(WiringGraph graph, Output output)
     {
         foreach (var op in output.Fanin.OfType<OutputPort>().ToList())
         {
@@ -20,36 +18,36 @@ internal class Teleporter : IOutputProcessor
             else
                 graph.RemoveNode(op);
         }
-    }
 
-    private static (OutputPort? minPort, Output? source, Output? target) Analyze(
-        Wire wire, WiringGraph graph)
-    {
-        var visited = new Dictionary<((int, int), WireID), Wire>();
-        var found = new List<(Output output, OutputPort port, int level)>();
+        static (OutputPort? minPort, Output? source, Output? target) Analyze(
+            Wire wire, WiringGraph graph)
+        {
+            var visited = new Dictionary<((int, int), WireID), Wire>();
+            var found = new List<(Output output, OutputPort port, int level)>();
 
-        Conversion.TraceWires.TraceWire(
-            wire, 0, (wire.X, wire.Y), (wire.X, wire.Y),
-            graph, visited,
-            (w, pos, level) =>
-            {
-                if (!graph.OutputPos.TryGetValue(pos, out var foundOutput)) return;
-                if (foundOutput.Type != OutputID.Teleporter) return;
+            Conversion.TraceWires.TraceWire(
+                wire, 0, (wire.X, wire.Y), (wire.X, wire.Y),
+                graph, visited,
+                (w, pos, level) =>
+                {
+                    if (!graph.OutputPos.TryGetValue(pos, out var foundOutput)) return;
+                    if (foundOutput.Type != OutputID.Teleporter) return;
 
-                var foundPort = w.Fanout
-                    .OfType<OutputPort>()
-                    .FirstOrDefault(p => p.Fanout.Contains(foundOutput));
-                if (foundPort != null)
-                    found.Add((foundOutput, foundPort, level));
-            });
+                    var foundPort = w.Fanout
+                        .OfType<OutputPort>()
+                        .FirstOrDefault(p => p.Fanout.Contains(foundOutput));
+                    if (foundPort != null)
+                        found.Add((foundOutput, foundPort, level));
+                });
 
-        if (found.Count < 2) return (null, null, null);
+            if (found.Count < 2) return (null, null, null);
 
-        var min = found.MinBy(f => f.level);
-        var max = found.MaxBy(f => f.level);
+            var min = found.MinBy(f => f.level);
+            var max = found.MaxBy(f => f.level);
 
-        if (min.port == max.port) return (null, null, null);
+            if (min.port == max.port) return (null, null, null);
 
-        return (min.port, min.output, max.output);
+            return (min.port, min.output, max.output);
+        }
     }
 }
