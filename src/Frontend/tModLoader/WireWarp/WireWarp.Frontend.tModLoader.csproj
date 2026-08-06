@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\WireWarp.Shared.csproj" />
-    <ProjectReference Include="..\Shared\WireWarp.Frontend.Shared.csproj" />
+    <ProjectReference Include="..\..\Shared\WireWarp.Frontend.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

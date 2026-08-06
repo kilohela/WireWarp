@@ -4,6 +4,6 @@
     <RootNamespace>WireWarp.Backend.Shared</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\WireWarp.Shared.csproj" />
+
   </ItemGroup>
 </Project>

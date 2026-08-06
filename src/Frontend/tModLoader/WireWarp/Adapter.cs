@@ -11,9 +11,6 @@ internal sealed class Adapter : ITerraria
     public Tile Tile(int x, int y)
     {
         var real = Terraria.Main.tile[x, y];
-        if (real == null)
-            return default;
-
         return new Tile
         {
             type = real.TileType,
