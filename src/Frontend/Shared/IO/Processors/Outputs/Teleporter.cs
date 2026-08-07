@@ -11,18 +11,17 @@ partial class Processor
         {
             var wire = op.Fanin.OfType<Wire>().First();
 
-            if (graph.ExtraData.Teleporter.Keys.Any(k =>
-                    k.X == op.X && k.Y == op.Y &&
+            if (graph.WiringExtra.Teleporter.Keys.Any(k =>
+                    k.Source == op.Source &&
                     k.Fanin.OfType<Wire>().First() == wire))
                 goto remove;
 
             var wireMap = new Dictionary<((int, int), WireID), Wire>();
-            var found = Conversion.TraceWires.TraceWire(
-                wire, (op.X, op.Y), (op.X, op.Y), graph, wireMap);
+            var founds = Conversion.TraceWires.TraceWire(
+                wire, op.Source, op.Source, graph, wireMap);
 
-            var teleporters = found
-                .OfType<Output>()
-                .Where(o => o.Type == OutputID.Teleporter)
+            var teleporters = founds
+                .Where(f => f.component is Output o && o.Type == OutputID.Teleporter)
                 .ToList();
 
             if (teleporters.Count < 2) goto remove;
@@ -32,7 +31,7 @@ partial class Processor
 
             if (source == target) goto remove;
 
-            graph.ExtraData.Teleporter[op] = (source, target);
+            graph.WiringExtra.Teleporter[op] = (source.active, target.active);
             continue;
 
         remove:

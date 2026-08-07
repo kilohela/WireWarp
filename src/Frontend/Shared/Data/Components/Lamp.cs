@@ -7,8 +7,7 @@ public class Lamp : IConnectable
     public int Id { get; init; }
     
     public LampID Type { get; init; }
-    public int X { get; init; }
-    public int Y { get; init; }
+    public (int X, int Y) Origin { get; init; }
 
     public HashSet<IConnectable> Fanin { get; } = [];
     public HashSet<IConnectable> Fanout { get; } = [];

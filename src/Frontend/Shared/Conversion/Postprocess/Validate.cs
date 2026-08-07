@@ -108,12 +108,12 @@ internal static class Validate
 
     private static string At(IConnectable node) => node switch
     {
-        Input i => $"Input#{i.Id}@({i.X},{i.Y})",
-        InputPort ip => $"InputPort#{ip.Id}@({ip.X},{ip.Y})",
-        Output o => $"Output#{o.Id}@({o.X},{o.Y})",
-        OutputPort op => $"OutputPort#{op.Id}@({op.X},{op.Y})",
-        Lamp l => $"Lamp#{l.Id}@({l.X},{l.Y})",
-        Gate g => $"Gate#{g.Id}@({g.X},{g.Y})",
+        Input i => $"Input#{i.Id}@{i.Origin}",
+        InputPort ip => $"InputPort#{ip.Id}",
+        Output o => $"Output#{o.Id}@{o.Origin}",
+        OutputPort op => $"OutputPort#{op.Id} S={op.Source} D={op.Drain}",
+        Lamp l => $"Lamp#{l.Id}@{l.Origin}",
+        Gate g => $"Gate#{g.Id}@{g.Origin}",
         Wire w => $"Wire#{w.Id}",
         _ => $"#{node.Id}"
     };

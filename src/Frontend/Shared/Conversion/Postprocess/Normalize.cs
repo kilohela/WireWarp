@@ -15,7 +15,7 @@ internal static class Normalize
         foreach (var gate in graph.Gates.Where(g => g.Type == GateID.Fault))
         {
             var lamps = gate.Fanin.OfType<Lamp>()
-                .OrderByDescending(l => l.Y)
+                .OrderByDescending(l => l.Origin.Y)
                 .ToList();
 
             var faultLamp = lamps.FirstOrDefault(l => l.Type == LampID.Fault);
@@ -24,7 +24,7 @@ internal static class Normalize
             // Should be reported via diagnostics once error handling is implemented.
             if (faultLamp == null) continue;
 
-            foreach (var lamp in lamps.Where(l => l.Y < faultLamp.Y))
+            foreach (var lamp in lamps.Where(l => l.Origin.Y < faultLamp.Origin.Y))
             {
                 if (lamp.Type == LampID.Fault)
                     foreach (var wire in lamp.Fanin)

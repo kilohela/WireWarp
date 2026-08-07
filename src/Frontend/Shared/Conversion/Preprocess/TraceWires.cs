@@ -28,18 +28,23 @@ internal static class TraceWires
             if (wireByTile.ContainsKey((start, color))) continue;
 
             var wire = graph.AddWire(color);
-            var found = TraceWire(wire, start, start, graph, wireByTile);
-            ConnectComponents(wire, found, graph);
+            var founds = TraceWire(wire, start, start, graph, wireByTile);
+            ConnectComponents(wire, founds, graph);
         }
     }
 
     private static void ConnectComponents(
         Wire wire,
-        List<IConnectable> found,
+        List<((int x, int y) active, IConnectable component)> founds,
         WiringGraph graph)
     {
-        foreach (var component in found.Distinct())
+        var componentByTile = new Dictionary<IConnectable, (int x, int y)>();
+        foreach (var found in founds)
         {
+            var component = found.component;
+            if (componentByTile.ContainsKey(component)) continue;
+            else componentByTile[component] = found.active;
+
             switch (component)
             {
                 case Lamp lamp:
@@ -47,53 +52,52 @@ internal static class TraceWires
                     break;
 
                 case Gate gate:
-                    for (var y = gate.Y - 1; ; y--)
+                    WiringGraph.AddEdge(gate, wire);
+                    for (var y = gate.Origin.Y - 1; ; y--)
                     {
-                        if (graph.LampPos.TryGetValue((gate.X, y), out var gateLamp))
+                        if (graph.LampPos.TryGetValue((gate.Origin.X, y), out var gateLamp))
                             WiringGraph.AddEdge(gateLamp, gate);
                         else
                             break;
                     }
-                    WiringGraph.AddEdge(gate, wire);
                     break;
 
                 case Input input:
                     var ip = input.Fanout.OfType<InputPort>().FirstOrDefault() ?? 
-                        graph.AddInputPort(input.X, input.Y);
+                        graph.AddInputPort();
                     WiringGraph.AddEdge(input, ip);
                     WiringGraph.AddEdge(ip, wire);
                     break;
+            }
+        }
 
-                case Output output:
-                    foreach (var c in found)
-                    {
-                        switch (c)
-                        {
-                            case Gate g:
-                                var op1 = graph.AddOutputPort(g.X, g.Y);
-                                WiringGraph.AddEdge(wire, op1);
-                                WiringGraph.AddEdge(op1, output);
-                                break;
-                            case Input i:
-                                var op2 = graph.AddOutputPort(i.X, i.Y);
-                                WiringGraph.AddEdge(wire, op2);
-                                WiringGraph.AddEdge(op2, output);
-                                break;
-                        }
-                    }
+        foreach (var (output, drain) in componentByTile.Where(f => f.Key is Output))
+        foreach (var (component, source) in componentByTile)
+        {
+            switch (component)
+            {
+                case Gate:
+                    var op1 = graph.AddOutputPort(source, drain);
+                    WiringGraph.AddEdge(wire, op1);
+                    WiringGraph.AddEdge(op1, (Output)output);
+                    break;
+                case Input:
+                    var op2 = graph.AddOutputPort(source, drain);
+                    WiringGraph.AddEdge(wire, op2);
+                    WiringGraph.AddEdge(op2, (Output)output);
                     break;
             }
         }
     }
 
-    public static List<IConnectable> TraceWire(
+    public static List<((int x, int y) active, IConnectable component)> TraceWire(
         Wire wire,
         (int x, int y) start,
         (int x, int y) prevStart,
         WiringGraph graph,
         Dictionary<((int, int), WireID), Wire> wireByTile)
     {
-        var found = new List<IConnectable>();
+        var founds = new List<((int x, int y) active, IConnectable component)>();
 
         var queue = new Queue<((int x, int y) cur, (int x, int y) prev)>();
         queue.Enqueue((start, prevStart));
@@ -116,13 +120,13 @@ internal static class TraceWires
             wireByTile[(cur, wire.Type)] = wire;
 
             if (graph.LampPos.TryGetValue(cur, out var lamp))
-                found.Add(lamp);
+                founds.Add((cur, lamp));
             if (graph.GatePos.TryGetValue(cur, out var gate))
-                found.Add(gate);
+                founds.Add((cur, gate));
             if (graph.InputPos.TryGetValue(cur, out var input))
-                found.Add(input);
+                founds.Add((cur, input));
             if (graph.OutputPos.TryGetValue(cur, out var output))
-                found.Add(output);
+                founds.Add((cur, output));
 
             if (jb != JunctionBoxID.None)
             {
@@ -142,7 +146,7 @@ internal static class TraceWires
             }
         }
 
-        return found;
+        return founds;
     }
 
     private static (int x, int y) RouteJunction(

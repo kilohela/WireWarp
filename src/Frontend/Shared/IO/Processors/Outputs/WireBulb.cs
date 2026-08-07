@@ -9,7 +9,7 @@ partial class Processor
         foreach (var op in output.Fanin.OfType<OutputPort>())
         {
             var wire = op.Fanin.OfType<Wire>().First();
-            graph.ExtraData.WireBulb[op] = wire.Type;
+            graph.WiringExtra.WireBulb[op] = wire.Type;
         }
     }
 }

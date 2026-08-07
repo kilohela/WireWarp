@@ -10,16 +10,16 @@ public interface IConnectable
     HashSet<IConnectable> Fanout { get; }
 }
 
-public class ExtraData
+public class WiringExtra
 {
-    public Dictionary<OutputPort, (Output source, Output target)> Teleporter { get; } = [];
-    public Dictionary<OutputPort, (List<Output> inlets, List<Output> outlets)> Pumps { get; } = [];
+    public Dictionary<OutputPort, ((int x, int y) source, (int x, int y) target)> Teleporter { get; } = [];
+    public Dictionary<OutputPort, (List<(int x, int y)> inlets, List<(int x, int y)> outlets)> Pumps { get; } = [];
     public Dictionary<OutputPort, WireID> WireBulb { get; } = [];
 }
 
 public class WiringGraph
 {
-    public ExtraData ExtraData { get; } = new();
+    public WiringExtra WiringExtra { get; } = new();
 
     private readonly Dictionary<int, IConnectable> _components = [];
     private int _nextComponentId;
@@ -71,49 +71,49 @@ public class WiringGraph
         return node;
     }
 
-    internal Gate AddGate(GateID type, int x, int y)
+    internal Gate AddGate(GateID type, (int x, int y) orgin)
     {
-        var node = new Gate { Id = _nextComponentId++, Type = type, X = x, Y = y };
+        var node = new Gate { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
         _gates.Add(node);
         return node;
     }
 
-    internal Lamp AddLamp(LampID type, int x, int y)
+    internal Lamp AddLamp(LampID type, (int x, int y) orgin)
     {
-        var node = new Lamp { Id = _nextComponentId++, Type = type, X = x, Y = y };
+        var node = new Lamp { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
         _lamps.Add(node);
         return node;
     }
 
-    internal Input AddInput(InputID type, int x, int y)
+    internal Input AddInput(InputID type, (int x, int y) orgin)
     {
-        var node = new Input { Id = _nextComponentId++, Type = type, X = x, Y = y };
+        var node = new Input { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
         _inputs.Add(node);
         return node;
     }
 
-    internal InputPort AddInputPort(int x, int y)
+    internal InputPort AddInputPort()
     {
-        var node = new InputPort { Id = _nextComponentId++, X = x, Y = y };
+        var node = new InputPort { Id = _nextComponentId++ };
         _components[node.Id] = node;
         _inputPorts.Add(node);
         return node;
     }
 
-    internal Output AddOutput(OutputID type, int x, int y)
+    internal Output AddOutput(OutputID type, (int x, int y) orgin)
     {
-        var node = new Output { Id = _nextComponentId++, Type = type, X = x, Y = y };
+        var node = new Output { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
         _outputs.Add(node);
         return node;
     }
 
-    internal OutputPort AddOutputPort(int x, int y)
+    internal OutputPort AddOutputPort((int x, int y) source, (int x, int y)  drain)
     {
-        var node = new OutputPort { Id = _nextComponentId++, X = x, Y = y };
+        var node = new OutputPort { Id = _nextComponentId++, Source = source, Drain = drain };
         _components[node.Id] = node;
         _outputPorts.Add(node);
         return node;
@@ -124,12 +124,12 @@ public class WiringGraph
         IConnectable copy = node switch
         {
             Wire w => AddWire(w.Type),
-            Gate g => AddGate(g.Type, g.X, g.Y),
-            Lamp l => AddLamp(l.Type, l.X, l.Y),
-            Input i => AddInput(i.Type, i.X, i.Y),
-            Output o => AddOutput(o.Type, o.X, o.Y),
-            InputPort ip => AddInputPort(ip.X, ip.Y),
-            OutputPort op => AddOutputPort(op.X, op.Y),
+            Gate g => AddGate(g.Type, g.Origin),
+            Lamp l => AddLamp(l.Type, l.Origin),
+            Input i => AddInput(i.Type, i.Origin),
+            Output o => AddOutput(o.Type, o.Origin),
+            InputPort => AddInputPort(),
+            OutputPort op => AddOutputPort(op.Source, op.Drain),
             _ => node
         };
 

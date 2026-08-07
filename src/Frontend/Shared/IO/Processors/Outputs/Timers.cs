@@ -12,7 +12,7 @@ partial class Processor
         {
             if (wire.Fanin.OfType<InputPort>()
                 .Any(ip => ip.Fanin.OfType<Input>()
-                .Any(i => i.X == output.X && i.Y == output.Y)))
+                .Any(input => input.Origin == output.Origin)))
             {
                 WiringGraph.RemoveEdge(wire, op);
             }

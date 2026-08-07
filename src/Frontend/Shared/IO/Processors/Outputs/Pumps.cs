@@ -13,30 +13,35 @@ partial class Processor
         {
             var wire = op.Fanin.OfType<Wire>().First();
 
-            if (graph.ExtraData.Pumps.Keys.Any(k =>
-                    k.X == op.X && k.Y == op.Y &&
+            if (graph.WiringExtra.Pumps.Keys.Any(k =>
+                    k.Source == op.Source &&
                     k.Fanin.OfType<Wire>().First() == wire))
                 goto remove;
 
             var wireMap = new Dictionary<((int, int), WireID), Wire>();
-            var found = Conversion.TraceWires.TraceWire(
-                wire, (op.X, op.Y), (op.X, op.Y), graph, wireMap);
+            var founds = Conversion.TraceWires.TraceWire(
+                wire, op.Source, op.Source, graph, wireMap);
 
-            var inlets = new List<Output>();
-            var outlets = new List<Output>();
+            var inlets = new List<(int x, int y)>();
+            var outlets = new List<(int x, int y)>();
 
-            foreach (var pump in found.OfType<Output>().Where(o => o.Type == OutputID.Pumps))
+            var visited = new HashSet<Output>();
+            foreach (var (active, component) in founds.Where(f =>
+                f.component is Output { Type: OutputID.Pumps }))
             {
-                var tileType = Main.tile[pump.X, pump.Y].type;
-                if (tileType == TileID.InletPump && !inlets.Contains(pump))
-                    inlets.Add(pump);
-                else if (tileType == TileID.OutletPump && !outlets.Contains(pump))
-                    outlets.Add(pump);
+                var pump = (Output)component;
+                if (!visited.Add(pump)) continue;
+
+                var tileType = Main.tile[active.x, active.y].type;
+                if (tileType == TileID.InletPump)
+                    inlets.Add(active);
+                else if (tileType == TileID.OutletPump)
+                    outlets.Add(active);
             }
 
             if (inlets.Count == 0 || outlets.Count == 0) goto remove;
 
-            graph.ExtraData.Pumps[op] = (inlets, outlets);
+            graph.WiringExtra.Pumps[op] = (inlets, outlets);
             continue;
 
         remove:

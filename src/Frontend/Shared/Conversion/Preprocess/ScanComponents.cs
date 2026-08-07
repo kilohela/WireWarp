@@ -29,14 +29,14 @@ internal static class ScanComponents
                 var gateType = Detector.DetectGate(tile);
                 if (gateType != GateID.None)
                 {
-                    graph.GatePos[(x, y)] = graph.AddGate(gateType, x, y);
+                    graph.GatePos[(x, y)] = graph.AddGate(gateType, (x, y));
                     continue;
                 }
 
                 var lampType = Detector.DetectLamp(tile);
                 if (lampType != LampID.None)
                 {
-                    graph.LampPos[(x, y)] = graph.AddLamp(lampType, x, y);
+                    graph.LampPos[(x, y)] = graph.AddLamp(lampType, (x, y));
                     continue;
                 }
 
@@ -50,7 +50,7 @@ internal static class ScanComponents
 
                     var input = inRange && inputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : graph.AddInput(inputType, origin.x, origin.y);
+                        : graph.AddInput(inputType, origin);
 
                     if (inRange) inputByOrigin[key] = input;
                     graph.InputPos[(x, y)] = input;
@@ -66,7 +66,7 @@ internal static class ScanComponents
 
                     var output = inRange && outputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : graph.AddOutput(outputType, origin.x, origin.y);
+                        : graph.AddOutput(outputType, origin);
 
                     if (inRange) outputByOrigin[key] = output;
                     graph.OutputPos[(x, y)] = output;
