@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 public static class Converter
 {
-    public static WiringGraph Convert()
+    public static WiringGraph Execute()
     {
         var graph = new WiringGraph();
 

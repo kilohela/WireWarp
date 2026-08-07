@@ -23,7 +23,7 @@ internal static class ScanComponents
         {
             for (var y = 0; y < h; y++)
             {
-                var tile = Main.tile(x, y);
+                var tile = Main.tile[x, y];
                 if (!tile.HasTile) continue;
 
                 var gateType = Detector.DetectGate(tile);

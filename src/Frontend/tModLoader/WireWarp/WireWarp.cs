@@ -1,16 +1,21 @@
 using Terraria.ModLoader;
+using WireWarp.Frontend.Shared;
 using WireWarp.Frontend.Shared.Conversion;
 
 namespace WireWarp.Frontend.tModLoader;
 
-public sealed class WireWarp : Mod
+internal sealed class WireWarp : Mod
 {
+    public override void Load()
+    {
+        Access.Instance = new Accessor();
+    }
 }
 
 internal sealed class WireWarpSystem : ModSystem
 {
     public override void OnWorldLoad()
     {
-        Converter.Convert();
+        Converter.Execute();
     }
 }

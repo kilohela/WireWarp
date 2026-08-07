@@ -24,7 +24,7 @@ internal static class TraceWires
     {
         foreach (var color in new[] { WireID.Red, WireID.Blue, WireID.Green, WireID.Yellow })
         {
-            if (!Detector.HasWire(Main.tile(start.x, start.y), color)) continue;
+            if (!Detector.HasWire(Main.tile[start.x, start.y], color)) continue;
             if (wireByTile.ContainsKey((start, color))) continue;
 
             var wire = graph.AddWire(color);
@@ -106,7 +106,7 @@ internal static class TraceWires
                 cur.y < 0 || cur.y >= Main.maxTilesY)
                 continue;
 
-            var tile = Main.tile(cur.x, cur.y);
+            var tile = Main.tile[cur.x, cur.y];
             if (!Detector.HasWire(tile, wire.Type)) continue;
 
             var jb = Detector.DetectJunctionBox(tile);
@@ -131,7 +131,7 @@ internal static class TraceWires
             }
             else
             {
-                var prevJb = Detector.DetectJunctionBox(Main.tile(prev.x, prev.y)) != JunctionBoxID.None;
+                var prevJb = Detector.DetectJunctionBox(Main.tile[prev.x, prev.y]) != JunctionBoxID.None;
 
                 foreach (var (dx, dy) in new[] { (1, 0), (0, 1), (-1, 0), (0, -1) })
                 {

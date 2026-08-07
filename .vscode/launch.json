@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "tModLoader",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "dotnet",
+            "args": ["tModLoader.dll"],
+            "cwd": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\tModLoaderDev",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}

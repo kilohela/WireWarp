@@ -1,14 +1,14 @@
-using WireWarp.Frontend.Shared.Interfaces;
+using WireWarp.Frontend.Shared;
 using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.tModLoader;
 
-internal sealed class Adapter : ITerraria
+internal sealed class Accessor : Access
 {
-    public int MaxTilesX => Terraria.Main.maxTilesX;
-    public int MaxTilesY => Terraria.Main.maxTilesY;
+    public override int MaxTilesX => Terraria.Main.maxTilesX;
+    public override int MaxTilesY => Terraria.Main.maxTilesY;
 
-    public Tile Tile(int x, int y)
+    public override Tile Tile(int x, int y)
     {
         var real = Terraria.Main.tile[x, y];
         return new Tile

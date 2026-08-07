@@ -10,8 +10,12 @@ obj/
 # IDE
 .vs/
 .idea/
-.vscode/
 *.DotSettings.user
+
+# Debug
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # NuGet
 *.nupkg

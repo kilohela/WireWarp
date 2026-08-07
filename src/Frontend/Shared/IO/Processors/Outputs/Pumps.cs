@@ -27,7 +27,7 @@ partial class Processor
 
             foreach (var pump in found.OfType<Output>().Where(o => o.Type == OutputID.Pumps))
             {
-                var tileType = Main.tile(pump.X, pump.Y).type;
+                var tileType = Main.tile[pump.X, pump.Y].type;
                 if (tileType == TileID.InletPump && !inlets.Contains(pump))
                     inlets.Add(pump);
                 else if (tileType == TileID.OutletPump && !outlets.Contains(pump))

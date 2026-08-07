@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "args": ["build", "src/Frontend/tModLoader/WireWarp/WireWarp.Frontend.tModLoader.csproj"],
+            "type": "shell",
+            "group": "build",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

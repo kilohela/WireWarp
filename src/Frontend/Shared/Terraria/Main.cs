@@ -1,12 +1,14 @@
-using WireWarp.Frontend.Shared.Interfaces;
-
 namespace WireWarp.Frontend.Shared.Terraria;
 
 internal static class Main
 {
-    internal static ITerraria Terraria = null!;
-    internal static int maxTilesX;
-    internal static int maxTilesY;
+    internal static int maxTilesX => Access.Instance.MaxTilesX;
+    internal static int maxTilesY => Access.Instance.MaxTilesY;
 
-    internal static Tile tile(int x, int y) => Terraria.Tile(x, y);
+    internal static TileArray tile { get; } = new();
+}
+
+internal sealed class TileArray
+{
+    internal Tile this[int x, int y] => Access.Instance.Tile(x, y);
 }
