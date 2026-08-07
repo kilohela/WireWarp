@@ -41,7 +41,7 @@ internal static class ScanComponents
                 }
 
                 var inputType = Detector.DetectInput(tile);
-                if (inputType != InputID.None && Detector.HasWire(tile))
+                if (inputType != InputID.None)
                 {
                     var origin = Detector.GetInputOrigin(inputType, x, y, tile.frameX, tile.frameY);
                     var size = Detector.GetInputSize(inputType);
@@ -57,7 +57,7 @@ internal static class ScanComponents
                 }
 
                 var outputType = Detector.DetectOutput(tile);
-                if (outputType != OutputID.None && Detector.HasWire(tile))
+                if (outputType != OutputID.None)
                 {
                     var origin = Detector.GetOutputOrigin(outputType, x, y, tile.frameX, tile.frameY);
                     var size = Detector.GetOutputSize(outputType);
