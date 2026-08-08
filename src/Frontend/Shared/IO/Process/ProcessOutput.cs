@@ -4,14 +4,14 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-internal static partial class Processor
+internal static partial class ProcessOutput
 {
     private static readonly Action<WiringGraph, Output>?[] _processors =
         new Action<WiringGraph, Output>?[Enum.GetValues<OutputID>().Length];
 
-    static Processor()
+    static ProcessOutput()
     {
-        foreach (var method in typeof(Processor).GetMethods(
+        foreach (var method in typeof(ProcessOutput).GetMethods(
             BindingFlags.NonPublic | BindingFlags.Static))
         {
             if (Enum.TryParse<OutputID>(method.Name, out var id))

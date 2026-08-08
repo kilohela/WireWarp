@@ -3,7 +3,7 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-partial class Processor
+partial class ProcessOutput
 {
     private static void Teleporter(WiringGraph graph, Output output)
     {

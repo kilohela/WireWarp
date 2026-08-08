@@ -2,7 +2,7 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-partial class Processor
+partial class ProcessOutput
 {
     private static void WireBulb(WiringGraph graph, Output output)
     {

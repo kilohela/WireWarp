@@ -2,7 +2,7 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-partial class Processor
+partial class ProcessOutput
 {
     private static void Timers(WiringGraph graph, Output output)
     {

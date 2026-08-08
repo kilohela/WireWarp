@@ -22,12 +22,13 @@ public class IOExtra
 
 public class IOGraph
 {
+    public IOExtra IOExtra { get; init; }
+    
     private readonly Dictionary<(int X, int Y), (int PortId, InputID Type)> _inputs = [];
     private readonly Dictionary<int, (int X, int Y, OutputID Type)> _outputs = [];
 
     public IReadOnlyDictionary<(int X, int Y), (int PortId, InputID Type)> Inputs => _inputs;
     public IReadOnlyDictionary<int, (int X, int Y, OutputID Type)> Outputs => _outputs;
-    public IOExtra IOExtra { get; init; }
 
     public IOGraph(WiringGraph graph)
     {

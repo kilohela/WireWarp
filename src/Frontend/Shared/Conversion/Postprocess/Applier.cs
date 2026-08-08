@@ -6,6 +6,6 @@ internal static class Applier
 {
     public static void Execute(WiringGraph graph)
     {
-        IO.Processor.Execute(graph);
+        IO.ProcessOutput.Execute(graph);
     }
 }

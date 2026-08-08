@@ -5,7 +5,7 @@ using WireWarp.Frontend.Shared.Terraria.ID;
 
 namespace WireWarp.Frontend.Shared.IO;
 
-partial class Processor
+partial class ProcessOutput
 {
     private static void Pumps(WiringGraph graph, Output output)
     {
