@@ -17,9 +17,15 @@ public class WiringExtra
     public Dictionary<OutputPort, WireID> WireBulb { get; } = [];
 }
 
+public class WiringTemp
+{
+    public Dictionary<((int X, int Y) Pos, WireID Type), List<((int x, int y) active, IConnectable component)>> Traces { get; } = [];
+}
+
 public class WiringGraph
 {
     public WiringExtra WiringExtra { get; } = new();
+    public WiringTemp WiringTemp { get; } = new();
 
     private readonly Dictionary<int, IConnectable> _components = [];
     private int _nextComponentId;

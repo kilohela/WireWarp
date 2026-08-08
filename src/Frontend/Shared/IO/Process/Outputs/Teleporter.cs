@@ -15,9 +15,14 @@ partial class ProcessOutput
         {
             if (!seen.Add(sourcePos)) continue;
 
-            var wireMap = new Dictionary<((int, int), WireID), Wire>();
-            var founds = Conversion.TraceWires.TraceWire(
-                wire, sourcePos, sourcePos, graph, wireMap);
+            var key = (sourcePos, wire.Type);
+            if (!graph.WiringTemp.Traces.TryGetValue(key, out var founds))
+            {
+                var wireMap = new Dictionary<((int, int), WireID), Wire>();
+                founds = Conversion.TraceWires.TraceWire(
+                    wire, sourcePos, sourcePos, graph, wireMap);
+                graph.WiringTemp.Traces[key] = founds;
+            }
 
             var teleporters = founds
                 .Where(f => f.component is Output { Type: OutputID.Teleporter })
