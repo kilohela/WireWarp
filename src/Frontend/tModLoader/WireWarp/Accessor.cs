@@ -1,5 +1,7 @@
 using WireWarp.Frontend.Shared;
+using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Terraria;
+using WireWarp.Frontend.tModLoader.IO;
 
 namespace WireWarp.Frontend.tModLoader;
 
@@ -25,4 +27,12 @@ internal sealed class Accessor : Access
             YellowWire = real.YellowWire,
         };
     }
+
+    // Runtime
+
+    public override void ExecuteInput(InputID type, int i, int j, int portId)
+        => RuntimeInput.Execute(type, i, j, portId);
+
+    public override void ExecuteOutput(OutputID type, int i, int j, int portId)
+        => RuntimeOutput.Execute(type, i, j, portId);
 }
