@@ -38,28 +38,30 @@ internal static class TraceWires
         List<((int x, int y) active, IConnectable component)> founds,
         WiringGraph graph)
     {
-        var componentByTile = new Dictionary<IConnectable, (int x, int y)>();
-        foreach (var found in founds)
+        var visited = new HashSet<IConnectable>();
+        foreach (var (active, component) in founds)
         {
-            var component = found.component;
-            if (componentByTile.ContainsKey(component)) continue;
-            else componentByTile[component] = found.active;
+            if (!visited.Add(component)) continue;
 
             switch (component)
             {
                 case Lamp lamp:
                     WiringGraph.AddEdge(wire, lamp);
+                    wire.Drains.Add(active);
+                    break;
+
+                case Output output:
+                    var op = output.Fanin.OfType<OutputPort>().FirstOrDefault() ?? 
+                        graph.AddOutputPort();
+                    WiringGraph.AddEdge(wire, op);
+                    WiringGraph.AddEdge(op, output);
+                    wire.Drains.Add(active);
                     break;
 
                 case Gate gate:
                     WiringGraph.AddEdge(gate, wire);
-                    for (var y = gate.Origin.Y - 1; ; y--)
-                    {
-                        if (graph.LampPos.TryGetValue((gate.Origin.X, y), out var gateLamp))
-                            WiringGraph.AddEdge(gateLamp, gate);
-                        else
-                            break;
-                    }
+                    ConnectLamps(graph, gate);
+                    wire.Sources.Add(active);
                     break;
 
                 case Input input:
@@ -67,26 +69,20 @@ internal static class TraceWires
                         graph.AddInputPort();
                     WiringGraph.AddEdge(input, ip);
                     WiringGraph.AddEdge(ip, wire);
+                    wire.Sources.Add(active);
                     break;
             }
         }
+    }
 
-        foreach (var (output, drain) in componentByTile.Where(f => f.Key is Output))
-        foreach (var (component, source) in componentByTile)
+    private static void ConnectLamps(WiringGraph graph, Gate gate)
+    {
+        for (var y = gate.Origin.Y - 1; ; y--)
         {
-            switch (component)
-            {
-                case Gate:
-                    var op1 = graph.AddOutputPort(source, drain);
-                    WiringGraph.AddEdge(wire, op1);
-                    WiringGraph.AddEdge(op1, (Output)output);
-                    break;
-                case Input:
-                    var op2 = graph.AddOutputPort(source, drain);
-                    WiringGraph.AddEdge(wire, op2);
-                    WiringGraph.AddEdge(op2, (Output)output);
-                    break;
-            }
+            if (graph.LampPos.TryGetValue((gate.Origin.X, y), out var gateLamp))
+                WiringGraph.AddEdge(gateLamp, gate);
+            else
+                break;
         }
     }
 

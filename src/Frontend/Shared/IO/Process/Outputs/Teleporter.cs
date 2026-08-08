@@ -7,35 +7,44 @@ partial class ProcessOutput
 {
     private static void Teleporter(WiringGraph graph, Output output)
     {
-        foreach (var op in output.Fanin.OfType<OutputPort>().ToList())
-        {
-            var wire = op.Fanin.OfType<Wire>().First();
+        var op = output.Fanin.OfType<OutputPort>().First();
 
-            if (graph.WiringExtra.Teleporter.Keys.Any(k =>
-                    k.Source == op.Source &&
-                    k.Fanin.OfType<Wire>().First() == wire))
-                goto remove;
+        var seen = new HashSet<(int X, int Y)>();
+        foreach (var wire in op.Fanin.OfType<Wire>())
+        foreach (var sourcePos in wire.Sources)
+        {
+            if (!seen.Add(sourcePos)) continue;
 
             var wireMap = new Dictionary<((int, int), WireID), Wire>();
             var founds = Conversion.TraceWires.TraceWire(
-                wire, op.Source, op.Source, graph, wireMap);
+                wire, sourcePos, sourcePos, graph, wireMap);
 
             var teleporters = founds
-                .Where(f => f.component is Output o && o.Type == OutputID.Teleporter)
+                .Where(f => f.component is Output { Type: OutputID.Teleporter })
                 .ToList();
 
-            if (teleporters.Count < 2) goto remove;
-
-            var source = teleporters[0];
+            var origin = teleporters[0];
             var target = teleporters[^1];
 
-            if (source == target) goto remove;
+            if (origin == target || origin.component != output) continue;
 
-            graph.WiringExtra.Teleporter[op] = (source.active, target.active);
-            continue;
+            var source = graph.GatePos.TryGetValue(sourcePos, out Gate? gate)
+                ? (IConnectable)gate
+                : graph.InputPos[sourcePos].Fanout.OfType<InputPort>().First();
 
-        remove:
-            graph.RemoveNode(op);
+            var newWire = graph.AddWire(wire.Type);
+            var newOp = graph.AddOutputPort();
+
+            WiringGraph.AddEdge(source, newWire);
+            WiringGraph.AddEdge(newWire, newOp);
+            WiringGraph.AddEdge(newOp, output);
+
+            newWire.Sources.Add(sourcePos);
+            newWire.Drains.UnionWith([origin.active, target.active]);
+
+            graph.WiringExtra.Teleporter[newOp] = (origin.active, target.active);
         }
+
+        graph.RemoveNode(op);
     }
 }

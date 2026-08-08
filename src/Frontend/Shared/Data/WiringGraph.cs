@@ -111,9 +111,9 @@ public class WiringGraph
         return node;
     }
 
-    internal OutputPort AddOutputPort((int x, int y) source, (int x, int y)  drain)
+    internal OutputPort AddOutputPort()
     {
-        var node = new OutputPort { Id = _nextComponentId++, Source = source, Drain = drain };
+        var node = new OutputPort { Id = _nextComponentId++ };
         _components[node.Id] = node;
         _outputPorts.Add(node);
         return node;
@@ -129,7 +129,7 @@ public class WiringGraph
             Input i => AddInput(i.Type, i.Origin),
             Output o => AddOutput(o.Type, o.Origin),
             InputPort => AddInputPort(),
-            OutputPort op => AddOutputPort(op.Source, op.Drain),
+            OutputPort => AddOutputPort(),
             _ => node
         };
 
