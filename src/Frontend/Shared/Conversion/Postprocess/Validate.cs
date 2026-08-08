@@ -39,12 +39,12 @@ internal static class Validate
                     break;
 
                 case Output:
-                    Debug.Assert(node.Fanout.Count == 0,
-                        $"{At(node)} Fanout expect 0, got {node.Fanout.Count}");
                     Debug.Assert(node.Fanin.Count >= 1,
                         $"{At(node)} Fanin expect >= 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is OutputPort),
                         $"{At(node)} Fanin expect OutputPort");
+                    Debug.Assert(node.Fanout.Count == 0,
+                        $"{At(node)} Fanout expect 0, got {node.Fanout.Count}");
                     break;
 
                 case OutputPort:
@@ -111,7 +111,7 @@ internal static class Validate
         Input i => $"Input#{i.Id}@{i.Origin}",
         InputPort ip => $"InputPort#{ip.Id}",
         Output o => $"Output#{o.Id}@{o.Origin}",
-        OutputPort op => $"OutputPort#{op.Id} S={op.Source} D={op.Drain}",
+        OutputPort op => $"OutputPort#{op.Id}",
         Lamp l => $"Lamp#{l.Id}@{l.Origin}",
         Gate g => $"Gate#{g.Id}@{g.Origin}",
         Wire w => $"Wire#{w.Id}",

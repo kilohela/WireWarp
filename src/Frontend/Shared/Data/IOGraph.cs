@@ -24,11 +24,11 @@ public class IOGraph
 {
     public IOExtra IOExtra { get; init; }
     
-    private readonly Dictionary<(int X, int Y), (int PortId, InputID Type)> _inputs = [];
-    private readonly Dictionary<int, (int X, int Y, OutputID Type)> _outputs = [];
+    private readonly Dictionary<(int x, int y), (int portId, InputID type)> _inputs = [];
+    private readonly Dictionary<int, ((int x, int y), OutputID type)> _outputs = [];
 
-    public IReadOnlyDictionary<(int X, int Y), (int PortId, InputID Type)> Inputs => _inputs;
-    public IReadOnlyDictionary<int, (int X, int Y, OutputID Type)> Outputs => _outputs;
+    public IReadOnlyDictionary<(int x, int y), (int portId, InputID type)> Inputs => _inputs;
+    public IReadOnlyDictionary<int, ((int x, int y), OutputID type)> Outputs => _outputs;
 
     public IOGraph(WiringGraph graph)
     {
@@ -41,7 +41,9 @@ public class IOGraph
         foreach (var op in graph.OutputPorts)
         {
             var output = op.Fanout.OfType<Output>().First();
-            _outputs[op.PortId] = (op.Drain.X, op.Drain.Y, output.Type);
+            var wire = op.Fanin.OfType<Wire>().First();
+            var pos = wire.Drains.First(d => graph.OutputPos[d] == output);
+            _outputs[op.PortId] = (pos, output.Type);
         }
 
         IOExtra = new IOExtra(graph.WiringExtra);
