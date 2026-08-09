@@ -1,13 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void Timers(int i, int j, int portId)
+    private static void Timers(IOGraph iOGraph, int i, int j)
     {
         if (Main.tile[i, j].TileFrameY == 0)
         {

@@ -3,11 +3,13 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 
+using WireWarp.Frontend.Shared.Data;
+
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void DeadMansChest(int i, int j, int portId)
+    private static void DeadMansChest(IOGraph iOGraph, int i, int j)
     {
         if (Main.tile[i, j].TileFrameX / 36 == 4)
         {

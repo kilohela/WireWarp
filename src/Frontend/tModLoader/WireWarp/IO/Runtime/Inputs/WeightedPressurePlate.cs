@@ -1,7 +1,9 @@
+using WireWarp.Frontend.Shared.Data;
+
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void WeightedPressurePlate(int i, int j, int portId) =>
-        PressurePlates(i, j, portId);
+    private static void WeightedPressurePlate(IOGraph iOGraph, int i, int j) =>
+        PressurePlates(iOGraph, i, j);
 }

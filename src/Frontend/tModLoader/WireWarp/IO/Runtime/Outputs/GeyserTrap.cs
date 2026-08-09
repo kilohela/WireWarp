@@ -1,7 +1,11 @@
+using Terraria;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void GeyserTrap(int i, int j, int portId) { }
+    private static void GeyserTrap(IOGraph iOGraph, int i, int j)
+        => RuntimeInput.GeyserTrap(i, j);
 }

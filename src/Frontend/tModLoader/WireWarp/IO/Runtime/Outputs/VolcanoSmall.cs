@@ -1,7 +1,22 @@
+using Terraria;
+using Terraria.ID;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void VolcanoSmall(int i, int j, int portId) { }
+    private static void VolcanoSmall(IOGraph iOGraph, int i, int j)
+    {
+        // SkipWire(i, j);
+        short num93 = (short)((Main.tile[i, j].TileFrameX != 0) ? (-18) : 18);
+        Main.tile[i, j].TileFrameX += num93;
+        if (Main.netMode == NetmodeID.Server)
+            NetMessage.SendTileSquare(-1, i, j, 1, 1);
+
+        int num94 = ((num93 > 0) ? 4 : 3);
+        Animation.NewTemporaryAnimation(num94, TileID.VolcanoSmall, i, j);
+        NetMessage.SendTemporaryAnimation(-1, num94, TileID.VolcanoSmall, i, j);
+    }
 }

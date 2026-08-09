@@ -1,13 +1,18 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void GeyserTrap(int i, int j, int portId)
+    private static void GeyserTrap(IOGraph iOGraph, int i, int j)
+        => GeyserTrap(i, j);
+
+    internal static void GeyserTrap(int i, int j)
     {
         if (Main.netMode == NetmodeID.MultiplayerClient)
             return;

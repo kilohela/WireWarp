@@ -1,4 +1,5 @@
 using WireWarp.Frontend.Shared;
+using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Terraria;
 using WireWarp.Frontend.tModLoader.IO;
@@ -30,9 +31,9 @@ internal sealed class Accessor : Access
 
     // Runtime
 
-    public override void ExecuteInput(InputID type, int i, int j, int portId)
-        => RuntimeInput.Execute(type, i, j, portId);
+    public override void ExecuteInput(InputID type, IOGraph iOGraph, int i, int j)
+        => RuntimeInput.Execute(type, iOGraph, i, j);
 
-    public override void ExecuteOutput(OutputID type, int i, int j, int portId)
-        => RuntimeOutput.Execute(type, i, j, portId);
+    public override void ExecuteOutput(OutputID type, IOGraph iOGraph, int i, int j)
+        => RuntimeOutput.Execute(type, iOGraph, i, j);
 }

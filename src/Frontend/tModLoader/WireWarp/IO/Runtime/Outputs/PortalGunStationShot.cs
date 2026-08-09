@@ -1,7 +1,27 @@
+using Terraria;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void PortalGunStationShot(int i, int j, int portId) { }
+    private static void PortalGunStationShot(IOGraph iOGraph, int i, int j)
+    {
+        Tile tile = Main.tile[i, j];
+        int num31 = tile.TileFrameX % 72 / 18;
+        int num32 = tile.TileFrameY % 54 / 18;
+        int num33 = i - num31;
+        int num34 = j - num32;
+        int num35 = tile.TileFrameY / 54;
+        int num36 = tile.TileFrameX / 72;
+        int num37 = num32;
+        int damage = 0;
+        float knockBack = 0f;
+        int time = 30;
+        // if (CheckMech(num33, num34, time) && flag2)
+        {
+            WorldGen.ShootFromCannon(num33, num34, num35, num36 + 1, damage, knockBack, Main.myPlayer, fromWire: true);
+        }
+    }
 }

@@ -1,7 +1,9 @@
+using WireWarp.Frontend.Shared.Data;
+
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void GolfHole(int i, int j, int portId) =>
-        PressurePlates(i, j, portId);
+    private static void GolfHole(IOGraph iOGraph, int i, int j) =>
+        PressurePlates(iOGraph, i, j);
 }

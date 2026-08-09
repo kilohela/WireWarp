@@ -1,7 +1,17 @@
+using Terraria;
+using Terraria.ID;
+
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void TallGates(int i, int j, int portId) { }
+    private static void TallGates(IOGraph iOGraph, int i, int j)
+    {
+        Tile tile = Main.tile[i, j];
+        bool flag4 = tile.TileType == TileID.TallGateOpen;
+        WorldGen.ShiftTallGate(i, j, flag4);
+        NetMessage.SendData(19, -1, -1, null, 4 + flag4.ToInt(), i, j);
+    }
 }
