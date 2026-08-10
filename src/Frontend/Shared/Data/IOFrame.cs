@@ -6,8 +6,8 @@ public static class IOFrame
     private static readonly List<int>[] _outputBuffers = [[], []];
     private static long _tick;
 
-    public static void AddInput(int portId) => _inputBuffers[_tick & 1].Add(portId);
-    public static void AddOutput(int portId) => _outputBuffers[_tick & 1].Add(portId);
+    public static void WriteInput(int portId) => _inputBuffers[_tick & 1].Add(portId);
+    public static void WriteOutput(int portId) => _outputBuffers[_tick & 1].Add(portId);
     public static IReadOnlyList<int> ReadInputs() => _inputBuffers[(_tick + 1) & 1];
     public static IReadOnlyList<int> ReadOutputs() => _outputBuffers[(_tick + 1) & 1];
 

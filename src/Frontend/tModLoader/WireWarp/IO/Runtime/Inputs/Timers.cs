@@ -9,7 +9,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void Timers(IOGraph iOGraph, int i, int j)
+    internal static void Timers(IOGraph iOGraph, int i, int j)
     {
         if (Main.tile[i, j].TileFrameY == 0)
         {
