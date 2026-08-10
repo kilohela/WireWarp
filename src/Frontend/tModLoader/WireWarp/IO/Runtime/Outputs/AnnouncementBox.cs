@@ -16,13 +16,13 @@ partial class RuntimeOutput
         int num6 = tile.TileFrameY % 36 / 18;
         int num7 = i - num5;
         int num8 = j - num6;
-        for (int m = num7; m < num7 + 2; m++)
-        {
-            for (int n = num8; n < num8 + 2; n++)
-            {
-                // SkipWire(m, n);
-            }
-        }
+        // for (int m = num7; m < num7 + 2; m++)
+        // {
+        //     for (int n = num8; n < num8 + 2; n++)
+        //     {
+        //         SkipWire(m, n);
+        //     }
+        // }
 
         if (Main.AnnouncementBoxDisabled)
             return;

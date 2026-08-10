@@ -18,13 +18,13 @@ partial class RuntimeOutput
             int num2 = tile.TileFrameY % 54 / 18;
             int num3 = i - num;
             int num4 = j - num2;
-            for (int k = num3; k < num3 + 2; k++)
-            {
-                for (int l = num4; l < num4 + 3; l++)
-                {
-                    // SkipWire(k, l);
-                }
-            }
+            // for (int k = num3; k < num3 + 2; k++)
+            // {
+            //     for (int l = num4; l < num4 + 3; l++)
+            //     {
+            //         SkipWire(k, l);
+            //     }
+            // }
 
             if (!Main.fastForwardTimeToDawn && Main.sundialCooldown == 0)
                 Main.Sundialing();
@@ -37,13 +37,13 @@ partial class RuntimeOutput
             int num26 = tile.TileFrameY % 54 / 18;
             int num27 = i - num25;
             int num28 = j - num26;
-            for (int num29 = num27; num29 < num27 + 2; num29++)
-            {
-                for (int num30 = num28; num30 < num28 + 3; num30++)
-                {
-                    // SkipWire(num29, num30);
-                }
-            }
+            // for (int num29 = num27; num29 < num27 + 2; num29++)
+            // {
+            //     for (int num30 = num28; num30 < num28 + 3; num30++)
+            //     {
+            //         SkipWire(num29, num30);
+            //     }
+            // }
 
             if (!Main.fastForwardTimeToDusk && Main.moondialCooldown == 0)
                 Main.Moondialing();

@@ -8,7 +8,7 @@ partial class RuntimeOutput
 {
     private static void MinecartTrack(IOGraph iOGraph, int i, int j)
     {
-        // if (CheckMech(i, j, 5))
+        if (iOGraph.IOTemp.CheckMech(i, j, 5))
         {
             Minecart.FlipSwitchTrack(i, j);
         }

@@ -16,31 +16,43 @@ partial class RuntimeOutput
         int num35 = tile.TileFrameY / 54;
         int num36 = tile.TileFrameX / 72;
         int num37 = num32;
+        bool flag2 = true;
+        if ((num36 == 3 || num36 == 4) && num37 < 2)
+            flag2 = false;
+
         int damage = 0;
         float knockBack = 0f;
         int time = 30;
         switch (num36)
         {
             case 0:
-                // if (cannonCoolDown > 0)
-                //     return;
+                if (iOGraph.IOTemp.cannonCoolDown > 0)
+                    return;
                 damage = 300;
                 knockBack = 8f;
                 time = 480;
                 break;
             case 1:
-                // if (bunnyCannonCoolDown > 0)
-                //     return;
+                if (iOGraph.IOTemp.bunnyCannonCoolDown > 0)
+                    return;
                 damage = 350;
                 knockBack = 8f;
                 time = 3600;
                 break;
         }
 
-        // if (CheckMech(num33, num34, time) && flag2)
+        if (iOGraph.IOTemp.CheckMech(num33, num34, time) && flag2)
         {
-            // cannonCoolDown = 120;
-            // bunnyCannonCoolDown = 480;
+            switch (num36)
+            {
+                case 0:
+                    iOGraph.IOTemp.cannonCoolDown = 120;
+                    break;
+                case 1:
+                    iOGraph.IOTemp.bunnyCannonCoolDown = 480;
+                    break;
+            }
+
             WorldGen.ShootFromCannon(num33, num34, num35, num36 + 1, damage, knockBack, Main.myPlayer, fromWire: true);
         }
     }

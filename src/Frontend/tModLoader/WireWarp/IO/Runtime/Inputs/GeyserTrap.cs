@@ -9,10 +9,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void GeyserTrap(IOGraph iOGraph, int i, int j)
-        => GeyserTrap(i, j);
-
-    internal static void GeyserTrap(int i, int j)
+    internal static void GeyserTrap(IOGraph iOGraph, int i, int j)
     {
         if (Main.netMode == NetmodeID.MultiplayerClient)
             return;
@@ -23,7 +20,7 @@ partial class RuntimeInput
 
         int num = tile.TileFrameX / 36;
         int num2 = i - (tile.TileFrameX - num * 36) / 18;
-        // if (CheckMech(num2, j, 200))
+        if (iOGraph.IOTemp.CheckMech(num2, j, 200))
         {
             Vector2 zero = Vector2.Zero;
             Vector2 zero2 = Vector2.Zero;

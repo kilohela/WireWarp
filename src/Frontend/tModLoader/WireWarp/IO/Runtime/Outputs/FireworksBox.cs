@@ -15,7 +15,7 @@ partial class RuntimeOutput
         // SkipWire(num73, num72 + 1);
         // SkipWire(num73 + 1, num72);
         // SkipWire(num73 + 1, num72 + 1);
-        // if (CheckMech(num73, num72, 30))
+        if (iOGraph.IOTemp.CheckMech(num73, num72, 30))
         {
             WorldGen.LaunchRocketSmall(num73, num72, fromWiring: true);
         }

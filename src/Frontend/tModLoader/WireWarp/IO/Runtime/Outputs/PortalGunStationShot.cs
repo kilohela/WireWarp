@@ -16,12 +16,14 @@ partial class RuntimeOutput
         int num35 = tile.TileFrameY / 54;
         int num36 = tile.TileFrameX / 72;
         int num37 = num32;
+        bool flag2 = true;
+        if ((num36 == 3 || num36 == 4) && num37 < 2)
+            flag2 = false;
+
         int damage = 0;
         float knockBack = 0f;
         int time = 30;
-        // if (CheckMech(num33, num34, time) && flag2)
-        {
+        if (iOGraph.IOTemp.CheckMech(num33, num34, time) && flag2)
             WorldGen.ShootFromCannon(num33, num34, num35, num36 + 1, damage, knockBack, Main.myPlayer, fromWire: true);
-        }
     }
 }

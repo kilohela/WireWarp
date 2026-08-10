@@ -22,7 +22,7 @@ partial class RuntimeOutput
             case 1:
             case 2:
             case 5:
-                // if (CheckMech(i, j, 200))
+                if (iOGraph.IOTemp.CheckMech(i, j, 200))
                 {
                     int num104 = ((tile.TileFrameX == 0) ? (-1) : ((tile.TileFrameX == 18) ? 1 : 0));
                     int num105 = ((tile.TileFrameX >= 36) ? ((tile.TileFrameX >= 72) ? 1 : (-1)) : 0);
@@ -61,7 +61,7 @@ partial class RuntimeOutput
                 }
                 break;
             case 3:
-                // if (!CheckMech(i, j, 300))
+                if (!iOGraph.IOTemp.CheckMech(i, j, 300))
                 {
                     int num99 = 200;
                     for (int num100 = 0; num100 < 1000; num100++)
@@ -107,7 +107,7 @@ partial class RuntimeOutput
                 }
                 break;
             case 4:
-                // if (CheckMech(i, j, 90))
+                if (iOGraph.IOTemp.CheckMech(i, j, 90))
                 {
                     int num97 = 0;
                     int num98 = 0;
@@ -144,7 +144,7 @@ partial class RuntimeOutput
         switch (num95)
         {
             case -10:
-                // if (CheckMech(i, j, 200))
+                if (iOGraph.IOTemp.CheckMech(i, j, 200))
                 {
                     int num111 = -1;
                     if (tile.TileFrameX != 0)
@@ -159,7 +159,7 @@ partial class RuntimeOutput
                 }
                 break;
             case -9:
-                // if (CheckMech(i, j, 200))
+                if (iOGraph.IOTemp.CheckMech(i, j, 200))
                 {
                     int num107 = -1;
                     if (tile.TileFrameX != 0)
@@ -174,7 +174,7 @@ partial class RuntimeOutput
                 }
                 break;
             case -8:
-                // if (CheckMech(i, j, 200))
+                if (iOGraph.IOTemp.CheckMech(i, j, 200))
                 {
                     int num112 = -1;
                     if (tile.TileFrameX != 0)
@@ -189,7 +189,7 @@ partial class RuntimeOutput
                 }
                 break;
             case -7:
-                // if (!CheckMech(i, j, 300))
+                if (!iOGraph.IOTemp.CheckMech(i, j, 300))
                 {
                     num96 = 185;
                     int num108 = 200;
@@ -214,7 +214,7 @@ partial class RuntimeOutput
                 }
                 break;
             case -6:
-                // if (CheckMech(i, j, 90))
+                if (iOGraph.IOTemp.CheckMech(i, j, 90))
                 {
                     speedX = 0f;
                     speedY = 8f;
