@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Gemsparks(int i, int j)
+    private static void Gemsparks(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int type = tile.TileType;

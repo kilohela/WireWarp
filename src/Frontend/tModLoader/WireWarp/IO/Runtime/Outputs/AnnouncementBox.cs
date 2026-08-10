@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void AnnouncementBox(int i, int j)
+    private static void AnnouncementBox(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num5 = tile.TileFrameX % 36 / 18;

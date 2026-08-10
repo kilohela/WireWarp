@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Toilets(int i, int j)
+    private static void Toilets(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int type = tile.TileType;

@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void FogMachine(int i, int j)
+    private static void FogMachine(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num125;

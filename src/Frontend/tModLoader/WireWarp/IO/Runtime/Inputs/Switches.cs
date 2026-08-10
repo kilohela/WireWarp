@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void Switches(int i, int j)
+    private static void Switches(int portId, int i, int j)
     {
         if (Main.tile[i, j].TileFrameY == 0)
             Main.tile[i, j].TileFrameY = 18;

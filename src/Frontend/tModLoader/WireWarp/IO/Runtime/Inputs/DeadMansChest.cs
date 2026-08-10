@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void DeadMansChest(int i, int j)
+    private static void DeadMansChest(int portId, int i, int j)
     {
         if (Main.tile[i, j].TileFrameX / 36 == 4)
         {

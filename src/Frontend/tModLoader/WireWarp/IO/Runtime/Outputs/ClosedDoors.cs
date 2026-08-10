@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void ClosedDoors(int i, int j)
+    private static void ClosedDoors(int portId, int i, int j)
     {
         int num67 = 1;
         if (Main.rand.Next(2) == 0)

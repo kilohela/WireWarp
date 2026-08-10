@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    internal static void GeyserTrap(int i, int j)
+    internal static void GeyserTrap(int portId, int i, int j)
     {
         if (Main.netMode == NetmodeID.MultiplayerClient)
             return;

@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Grates(int i, int j)
+    private static void Grates(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         if (tile.TileType == TileID.Grate)

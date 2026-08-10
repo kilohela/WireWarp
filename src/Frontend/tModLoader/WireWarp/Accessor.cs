@@ -30,8 +30,8 @@ internal sealed class Accessor : Access
 
     // Runtime
 
-    public override void Execute(InputID type, int i, int j) => RuntimeInput.Execute(type, i, j);
-    public override void Execute(OutputID type, int i, int j) => RuntimeOutput.Execute(type, i, j);
+    public override void Execute(InputID type, int portId, int i, int j) => RuntimeInput.Execute(type, portId, i, j);
+    public override void Execute(OutputID type, int portId, int i, int j) => RuntimeOutput.Execute(type, portId, i, j);
 
     public override void Tick() => RuntimeGeneral.Tick();
     public override void Reset() => RuntimeGeneral.Reset();

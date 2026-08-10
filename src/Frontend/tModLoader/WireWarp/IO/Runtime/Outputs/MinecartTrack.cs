@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void MinecartTrack(int i, int j)
+    private static void MinecartTrack(int portId, int i, int j)
     {
         if (RuntimeGeneral.CheckMech(i, j, 5))
         {

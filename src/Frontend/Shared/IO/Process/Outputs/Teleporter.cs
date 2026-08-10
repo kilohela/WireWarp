@@ -45,7 +45,7 @@ partial class ProcessOutput
             WiringGraph.AddEdge(newOp, output);
 
             newWire.Sources.Add(sourcePos);
-            newWire.Drains.UnionWith([origin.active, target.active]);
+            newWire.Drains.Add(origin.active);
 
             WiringExtra.Teleporter[newOp] = (origin.active, target.active);
         }

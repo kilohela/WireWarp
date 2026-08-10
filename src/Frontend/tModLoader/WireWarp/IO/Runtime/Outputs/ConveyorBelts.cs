@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void ConveyorBelts(int i, int j)
+    private static void ConveyorBelts(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         if (!tile.HasActuator)

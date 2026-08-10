@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void FakeContainers(int i, int j)
+    private static void FakeContainers(int portId, int i, int j)
     {
         int num = Main.tile[i, j].TileFrameX / 18 * -1;
         int num2 = Main.tile[i, j].TileFrameY / 18 * -1;

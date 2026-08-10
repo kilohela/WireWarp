@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void TrapdoorOpen(int i, int j)
+    private static void TrapdoorOpen(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         bool value = tile.TileType == TileID.TrapdoorClosed;

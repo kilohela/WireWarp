@@ -15,8 +15,8 @@ public abstract class Access
 
     // Runtime
 
-    public abstract void Execute(InputID type, int i, int j);
-    public abstract void Execute(OutputID type, int i, int j);
+    public abstract void Execute(InputID type, int portId, int i, int j);
+    public abstract void Execute(OutputID type, int portId, int i, int j);
 
     public abstract void Tick();
     public abstract void Reset();

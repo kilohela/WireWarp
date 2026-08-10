@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Detonator(int i, int j)
+    private static void Detonator(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num43 = tile.TileFrameX % 36 / 18;

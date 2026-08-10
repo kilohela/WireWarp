@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    internal static void Timers(int i, int j)
+    internal static void Timers(int portId, int i, int j)
     {
         if (Main.tile[i, j].TileFrameY == 0)
         {

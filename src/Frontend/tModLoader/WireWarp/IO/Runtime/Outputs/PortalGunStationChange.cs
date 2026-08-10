@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void PortalGunStationChange(int i, int j)
+    private static void PortalGunStationChange(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num31 = tile.TileFrameX % 72 / 18;

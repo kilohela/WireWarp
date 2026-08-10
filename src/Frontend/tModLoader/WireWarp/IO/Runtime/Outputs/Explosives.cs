@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Explosives(int i, int j)
+    private static void Explosives(int portId, int i, int j)
     {
         WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
         NetMessage.SendTileSquare(-1, i, j);

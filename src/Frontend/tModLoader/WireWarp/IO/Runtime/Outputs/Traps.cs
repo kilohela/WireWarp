@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Traps(int i, int j)
+    private static void Traps(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num95 = tile.TileFrameY / 18;

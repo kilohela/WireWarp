@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void TallGates(int i, int j)
+    private static void TallGates(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
         bool flag4 = tile.TileType == TileID.TallGateOpen;

@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void VolcanoSmall(int i, int j)
+    private static void VolcanoSmall(int portId, int i, int j)
     {
         // SkipWire(i, j);
         short num93 = (short)((Main.tile[i, j].TileFrameX != 0) ? (-18) : 18);
