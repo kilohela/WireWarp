@@ -2,26 +2,6 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Data;
 
-public interface IConnectable
-{
-    int Id { get; }
-    
-    HashSet<IConnectable> Fanin { get; }
-    HashSet<IConnectable> Fanout { get; }
-}
-
-public class WiringExtra
-{
-    public Dictionary<OutputPort, ((int x, int y) source, (int x, int y) target)> Teleporter { get; } = [];
-    public Dictionary<OutputPort, (List<(int x, int y)> inlets, List<(int x, int y)> outlets)> Pumps { get; } = [];
-    public Dictionary<OutputPort, WireID> WireBulb { get; } = [];
-}
-
-public class WiringTemp
-{
-    public Dictionary<((int X, int Y) Pos, WireID Type), List<((int x, int y) active, IConnectable component)>> Traces { get; } = [];
-}
-
 public class WiringGraph
 {
     public WiringExtra WiringExtra { get; } = new();
