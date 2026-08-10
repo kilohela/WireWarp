@@ -19,11 +19,7 @@ internal static class Normalize
                 .ToList();
 
             var faultLamp = lamps.FirstOrDefault(l => l.Type == LampID.Fault);
-
-            // TODO: Fault gate without a fault lamp is an error in the world.
-            // Should be reported via diagnostics once error handling is implemented.
             if (faultLamp == null) continue;
-
             foreach (var lamp in lamps.Where(l => l.Origin.Y < faultLamp.Origin.Y))
             {
                 if (lamp.Type == LampID.Fault)

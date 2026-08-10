@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
+using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Conversion;
 
@@ -10,6 +11,7 @@ internal static class Validate
     {
         ValidateConstraints(graph);
         ValidateSymmetry(graph);
+        ValidateFaultGates(graph);
     }
 
     private static void ValidateConstraints(WiringGraph graph)
@@ -89,6 +91,19 @@ internal static class Validate
                         $"{At(node)} Fanout expect Lamp or OutputPort");
                     break;
             }
+        }
+    }
+
+    private static void ValidateFaultGates(WiringGraph graph)
+    {
+        foreach (var gate in graph.Gates.Where(g => g.Type == GateID.Fault))
+        {
+            var faultLamps = gate.Fanin.OfType<Lamp>()
+                .Where(l => l.Type == LampID.Fault)
+                .ToList();
+
+            Debug.Assert(faultLamps.Count == 1,
+                $"{At(gate)} expect exactly 1 fault lamp, got {faultLamps.Count}");
         }
     }
 
