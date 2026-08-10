@@ -2,36 +2,33 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Data;
 
-public class WiringGraph
+public static class WiringGraph
 {
-    public WiringExtra WiringExtra { get; } = new();
-    public WiringTemp WiringTemp { get; } = new();
+    private static readonly Dictionary<int, IConnectable> _components = [];
+    private static int _nextComponentId;
 
-    private readonly Dictionary<int, IConnectable> _components = [];
-    private int _nextComponentId;
+    private static readonly List<Wire> _wires = [];
+    private static readonly List<Gate> _gates = [];
+    private static readonly List<Lamp> _lamps = [];
+    private static readonly List<Input> _inputs = [];
+    private static readonly List<InputPort> _inputPorts = [];
+    private static readonly List<Output> _outputs = [];
+    private static readonly List<OutputPort> _outputPorts = [];
 
-    private readonly List<Wire> _wires = [];
-    private readonly List<Gate> _gates = [];
-    private readonly List<Lamp> _lamps = [];
-    private readonly List<Input> _inputs = [];
-    private readonly List<InputPort> _inputPorts = [];
-    private readonly List<Output> _outputs = [];
-    private readonly List<OutputPort> _outputPorts = [];
+    public static IReadOnlyDictionary<int, IConnectable> Components => _components;
 
-    public IReadOnlyDictionary<int, IConnectable> Components => _components;
+    public static IReadOnlyList<Wire> Wires => _wires;
+    public static IReadOnlyList<Gate> Gates => _gates;
+    public static IReadOnlyList<Lamp> Lamps => _lamps;
+    public static IReadOnlyList<Input> Inputs => _inputs;
+    public static IReadOnlyList<InputPort> InputPorts => _inputPorts;
+    public static IReadOnlyList<Output> Outputs => _outputs;
+    public static IReadOnlyList<OutputPort> OutputPorts => _outputPorts;
 
-    public IReadOnlyList<Wire> Wires => _wires;
-    public IReadOnlyList<Gate> Gates => _gates;
-    public IReadOnlyList<Lamp> Lamps => _lamps;
-    public IReadOnlyList<Input> Inputs => _inputs;
-    public IReadOnlyList<InputPort> InputPorts => _inputPorts;
-    public IReadOnlyList<Output> Outputs => _outputs;
-    public IReadOnlyList<OutputPort> OutputPorts => _outputPorts;
-    
-    internal Dictionary<(int x, int y), Gate> GatePos { get; } = [];
-    internal Dictionary<(int x, int y), Lamp> LampPos { get; } = [];
-    internal Dictionary<(int x, int y), Input> InputPos { get; } = [];
-    internal Dictionary<(int x, int y), Output> OutputPos { get; } = [];
+    internal static Dictionary<(int x, int y), Gate> GatePos { get; } = [];
+    internal static Dictionary<(int x, int y), Lamp> LampPos { get; } = [];
+    internal static Dictionary<(int x, int y), Input> InputPos { get; } = [];
+    internal static Dictionary<(int x, int y), Output> OutputPos { get; } = [];
 
     // edge
 
@@ -49,7 +46,7 @@ public class WiringGraph
 
     // node
 
-    internal Wire AddWire(WireID type)
+    internal static Wire AddWire(WireID type)
     {
         var node = new Wire { Id = _nextComponentId++, Type = type };
         _components[node.Id] = node;
@@ -57,7 +54,7 @@ public class WiringGraph
         return node;
     }
 
-    internal Gate AddGate(GateID type, (int x, int y) orgin)
+    internal static Gate AddGate(GateID type, (int x, int y) orgin)
     {
         var node = new Gate { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
@@ -65,7 +62,7 @@ public class WiringGraph
         return node;
     }
 
-    internal Lamp AddLamp(LampID type, (int x, int y) orgin)
+    internal static Lamp AddLamp(LampID type, (int x, int y) orgin)
     {
         var node = new Lamp { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
@@ -73,7 +70,7 @@ public class WiringGraph
         return node;
     }
 
-    internal Input AddInput(InputID type, (int x, int y) orgin)
+    internal static Input AddInput(InputID type, (int x, int y) orgin)
     {
         var node = new Input { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
@@ -81,7 +78,7 @@ public class WiringGraph
         return node;
     }
 
-    internal InputPort AddInputPort()
+    internal static InputPort AddInputPort()
     {
         var node = new InputPort { Id = _nextComponentId++ };
         _components[node.Id] = node;
@@ -89,7 +86,7 @@ public class WiringGraph
         return node;
     }
 
-    internal Output AddOutput(OutputID type, (int x, int y) orgin)
+    internal static Output AddOutput(OutputID type, (int x, int y) orgin)
     {
         var node = new Output { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
@@ -97,7 +94,7 @@ public class WiringGraph
         return node;
     }
 
-    internal OutputPort AddOutputPort()
+    internal static OutputPort AddOutputPort()
     {
         var node = new OutputPort { Id = _nextComponentId++ };
         _components[node.Id] = node;
@@ -105,7 +102,7 @@ public class WiringGraph
         return node;
     }
 
-    internal IConnectable CopyNode(IConnectable node)
+    internal static IConnectable CopyNode(IConnectable node)
     {
         IConnectable copy = node switch
         {
@@ -128,7 +125,7 @@ public class WiringGraph
         return copy;
     }
 
-    internal void RemoveNode(IConnectable node)
+    internal static void RemoveNode(IConnectable node)
     {
         foreach (var source in node.Fanin)
             source.Fanout.Remove(node);
@@ -151,5 +148,27 @@ public class WiringGraph
             case InputPort ip: _inputPorts.Remove(ip); break;
             case OutputPort op: _outputPorts.Remove(op); break;
         }
+    }
+
+    public static void Clean()
+    {
+        _wires.Clear();
+        _gates.Clear();
+        _lamps.Clear();
+        _inputs.Clear();
+        _inputPorts.Clear();
+        _outputs.Clear();
+        _outputPorts.Clear();
+
+        GatePos.Clear();
+        LampPos.Clear();
+        InputPos.Clear();
+        OutputPos.Clear();
+
+        _components.Clear();
+        _nextComponentId = 0;
+
+        WiringExtra.Clean();
+        WiringTemp.Clean();
     }
 }

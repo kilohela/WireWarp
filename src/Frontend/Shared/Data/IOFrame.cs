@@ -18,7 +18,7 @@ public static class IOFrame
         _outputBuffers[_tick & 1].Clear();
     }
 
-    public static void Reset()
+    public static void Clean()
     {
         _tick = 0;
         _inputBuffers[0].Clear();

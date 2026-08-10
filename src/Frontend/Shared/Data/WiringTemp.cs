@@ -2,7 +2,12 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Data;
 
-public class WiringTemp
+public static class WiringTemp
 {
-    public Dictionary<((int X, int Y) Pos, WireID Type), List<((int x, int y) active, IConnectable component)>> Traces { get; } = [];
+    public static Dictionary<((int X, int Y) Pos, WireID Type), List<((int x, int y) active, IConnectable component)>> Traces { get; } = [];
+
+    public static void Clean()
+    {
+        Traces.Clear();
+    }
 }
