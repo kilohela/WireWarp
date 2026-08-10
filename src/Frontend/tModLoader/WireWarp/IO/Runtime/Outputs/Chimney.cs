@@ -7,23 +7,23 @@ partial class RuntimeOutput
     private static void Chimney(int portId, int i, int j)
     {
         Tile tile = Main.tile[i, j];
-        int num11 = tile.TileFrameX % 54 / 18;
-        int num12 = tile.TileFrameY % 54 / 18;
-        int num13 = i - num11;
-        int num14 = j - num12;
-        int num15 = 54;
-        if (Main.tile[num13, num14].TileFrameX >= 54)
-            num15 = -54;
+        int num18 = tile.TileFrameX % 54 / 18;
+        int num19 = tile.TileFrameY % 54 / 18;
+        int num20 = i - num18;
+        int num21 = j - num19;
+        int num22 = 54;
+        if (Main.tile[num20, num21].TileFrameY >= 108)
+            num22 = -108;
 
-        for (int num16 = num13; num16 < num13 + 3; num16++)
+        for (int num23 = num20; num23 < num20 + 3; num23++)
         {
-            for (int num17 = num14; num17 < num14 + 3; num17++)
+            for (int num24 = num21; num24 < num21 + 3; num24++)
             {
-                // SkipWire(num16, num17);
-                Main.tile[num16, num17].TileFrameX = (short)(Main.tile[num16, num17].TileFrameX + num15);
+                // SkipWire(num23, num24);
+                Main.tile[num23, num24].TileFrameY = (short)(Main.tile[num23, num24].TileFrameY + num22);
             }
         }
 
-        NetMessage.SendTileSquare(-1, num13 + 1, num14 + 1, 3);
+        NetMessage.SendTileSquare(-1, num20 + 1, num21 + 1, 3);
     }
 }

@@ -12,6 +12,7 @@ internal static class Validate
         ValidateConstraints();
         ValidateSymmetry();
         ValidateFaultGates();
+        ValidateSkipWire();
     }
 
     private static void ValidateConstraints()
@@ -104,6 +105,30 @@ internal static class Validate
 
             Debug.Assert(faultLamps.Count == 1,
                 $"{At(gate)} expect exactly 1 fault lamp, got {faultLamps.Count}");
+        }
+    }
+
+    private static void ValidateSkipWire()
+    {
+        foreach (var wire in WiringGraph.Wires)
+        {
+            var inputs = new HashSet<Input>();
+            foreach (var pos in wire.Sources)
+            {
+                Debug.Assert(WiringGraph.InputPos.TryGetValue(pos, out var input),
+                    $"{At(wire)} source point ({pos.X},{pos.Y}) not found in InputPos");
+                Debug.Assert(inputs.Add(input),
+                    $"{At(wire)} input {At(input)} connected by multiple source points");
+            }
+
+            var outputs = new HashSet<Output>();
+            foreach (var pos in wire.Drains)
+            {
+                Debug.Assert(WiringGraph.OutputPos.TryGetValue(pos, out var output),
+                    $"{At(wire)} drain point ({pos.X},{pos.Y}) not found in OutputPos");
+                Debug.Assert(outputs.Add(output),
+                    $"{At(wire)} output {At(output)} connected by multiple drain points");
+            }
         }
     }
 

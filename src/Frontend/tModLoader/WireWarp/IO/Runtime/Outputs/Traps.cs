@@ -60,48 +60,48 @@ partial class RuntimeOutput
                 break;
             case 3:
                 if (!RuntimeGeneral.CheckMech(i, j, 300))
+                    break;
+
+                int num99 = 200;
+                for (int num100 = 0; num100 < 1000; num100++)
                 {
-                    int num99 = 200;
-                    for (int num100 = 0; num100 < 1000; num100++)
+                    if (Main.projectile[num100].active && Main.projectile[num100].type == num96)
                     {
-                        if (Main.projectile[num100].active && Main.projectile[num100].type == num96)
-                        {
-                            float num101 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num100].Center).Length();
-                            num99 = ((!(num101 < 50f)) ? ((!(num101 < 100f)) ? ((!(num101 < 200f)) ? ((!(num101 < 300f)) ? ((!(num101 < 400f)) ? ((!(num101 < 500f)) ? ((!(num101 < 700f)) ? ((!(num101 < 900f)) ? ((!(num101 < 1200f)) ? (num99 - 1) : (num99 - 2)) : (num99 - 3)) : (num99 - 4)) : (num99 - 5)) : (num99 - 6)) : (num99 - 8)) : (num99 - 10)) : (num99 - 15)) : (num99 - 50));
-                        }
+                        float num101 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num100].Center).Length();
+                        num99 = ((!(num101 < 50f)) ? ((!(num101 < 100f)) ? ((!(num101 < 200f)) ? ((!(num101 < 300f)) ? ((!(num101 < 400f)) ? ((!(num101 < 500f)) ? ((!(num101 < 700f)) ? ((!(num101 < 900f)) ? ((!(num101 < 1200f)) ? (num99 - 1) : (num99 - 2)) : (num99 - 3)) : (num99 - 4)) : (num99 - 5)) : (num99 - 6)) : (num99 - 8)) : (num99 - 10)) : (num99 - 15)) : (num99 - 50));
+                    }
+                }
+
+                if (num99 > 0)
+                {
+                    num96 = 185;
+                    damage4 = 40;
+                    int num102 = 0;
+                    int num103 = 0;
+                    switch (tile.TileFrameX / 18)
+                    {
+                        case 0:
+                        case 1:
+                            num102 = 0;
+                            num103 = 1;
+                            break;
+                        case 2:
+                            num102 = 0;
+                            num103 = -1;
+                            break;
+                        case 3:
+                            num102 = -1;
+                            num103 = 0;
+                            break;
+                        case 4:
+                            num102 = 1;
+                            num103 = 0;
+                            break;
                     }
 
-                    if (num99 > 0)
-                    {
-                        num96 = 185;
-                        damage4 = 40;
-                        int num102 = 0;
-                        int num103 = 0;
-                        switch (tile.TileFrameX / 18)
-                        {
-                            case 0:
-                            case 1:
-                                num102 = 0;
-                                num103 = 1;
-                                break;
-                            case 2:
-                                num102 = 0;
-                                num103 = -1;
-                                break;
-                            case 3:
-                                num102 = -1;
-                                num103 = 0;
-                                break;
-                            case 4:
-                                num102 = 1;
-                                num103 = 0;
-                                break;
-                        }
-
-                        speedX = (float)(4 * num102) + (float)Main.rand.Next(-20 + ((num102 == 1) ? 20 : 0), 21 - ((num102 == -1) ? 20 : 0)) * 0.05f;
-                        speedY = (float)(4 * num103) + (float)Main.rand.Next(-20 + ((num103 == 1) ? 20 : 0), 21 - ((num103 == -1) ? 20 : 0)) * 0.05f;
-                        vector3 = new Vector2(i * 16 + 8 + 14 * num102, j * 16 + 8 + 14 * num103);
-                    }
+                    speedX = (float)(4 * num102) + (float)Main.rand.Next(-20 + ((num102 == 1) ? 20 : 0), 21 - ((num102 == -1) ? 20 : 0)) * 0.05f;
+                    speedY = (float)(4 * num103) + (float)Main.rand.Next(-20 + ((num103 == 1) ? 20 : 0), 21 - ((num103 == -1) ? 20 : 0)) * 0.05f;
+                    vector3 = new Vector2(i * 16 + 8 + 14 * num102, j * 16 + 8 + 14 * num103);
                 }
                 break;
             case 4:
@@ -188,27 +188,27 @@ partial class RuntimeOutput
                 break;
             case -7:
                 if (!RuntimeGeneral.CheckMech(i, j, 300))
-                {
-                    num96 = 185;
-                    int num108 = 200;
-                    for (int num109 = 0; num109 < 1000; num109++)
-                    {
-                        if (Main.projectile[num109].active && Main.projectile[num109].type == num96)
-                        {
-                            float num110 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num109].Center).Length();
-                            num108 = ((!(num110 < 50f)) ? ((!(num110 < 100f)) ? ((!(num110 < 200f)) ? ((!(num110 < 300f)) ? ((!(num110 < 400f)) ? ((!(num110 < 500f)) ? ((!(num110 < 700f)) ? ((!(num110 < 900f)) ? ((!(num110 < 1200f)) ? (num108 - 1) : (num108 - 2)) : (num108 - 3)) : (num108 - 4)) : (num108 - 5)) : (num108 - 6)) : (num108 - 8)) : (num108 - 10)) : (num108 - 15)) : (num108 - 50));
-                        }
-                    }
+                    break;
 
-                    if (num108 > 0)
+                num96 = 185;
+                int num108 = 200;
+                for (int num109 = 0; num109 < 1000; num109++)
+                {
+                    if (Main.projectile[num109].active && Main.projectile[num109].type == num96)
                     {
-                        speedX = (float)Main.rand.Next(-20, 21) * 0.05f;
-                        speedY = 4f + (float)Main.rand.Next(0, 21) * 0.05f;
-                        damage4 = 40;
-                        vector3 = new Vector2(i * 16 + 8, j * 16 + 16);
-                        vector3.Y += 6f;
-                        Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)vector3.X, (int)vector3.Y, speedX, speedY, num96, damage4, 2f, Main.myPlayer);
+                        float num110 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num109].Center).Length();
+                        num108 = ((!(num110 < 50f)) ? ((!(num110 < 100f)) ? ((!(num110 < 200f)) ? ((!(num110 < 300f)) ? ((!(num110 < 400f)) ? ((!(num110 < 500f)) ? ((!(num110 < 700f)) ? ((!(num110 < 900f)) ? ((!(num110 < 1200f)) ? (num108 - 1) : (num108 - 2)) : (num108 - 3)) : (num108 - 4)) : (num108 - 5)) : (num108 - 6)) : (num108 - 8)) : (num108 - 10)) : (num108 - 15)) : (num108 - 50));
                     }
+                }
+
+                if (num108 > 0)
+                {
+                    speedX = (float)Main.rand.Next(-20, 21) * 0.05f;
+                    speedY = 4f + (float)Main.rand.Next(0, 21) * 0.05f;
+                    damage4 = 40;
+                    vector3 = new Vector2(i * 16 + 8, j * 16 + 16);
+                    vector3.Y += 6f;
+                    Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)vector3.X, (int)vector3.Y, speedX, speedY, num96, damage4, 2f, Main.myPlayer);
                 }
                 break;
             case -6:
