@@ -4,31 +4,31 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Prune
 {
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
         bool changed;
         do
         {
             changed = false;
-            changed |= PruneWhere(graph, graph.Wires);
-            changed |= PruneWhere(graph, graph.Gates);
-            changed |= PruneWhere(graph, graph.Lamps);
-            changed |= PruneWhere(graph, graph.Inputs);
-            changed |= PruneWhere(graph, graph.Outputs);
-            changed |= PruneWhere(graph, graph.InputPorts);
-            changed |= PruneWhere(graph, graph.OutputPorts);
+            changed |= PruneWhere(WiringGraph.Wires);
+            changed |= PruneWhere(WiringGraph.Gates);
+            changed |= PruneWhere(WiringGraph.Lamps);
+            changed |= PruneWhere(WiringGraph.Inputs);
+            changed |= PruneWhere(WiringGraph.Outputs);
+            changed |= PruneWhere(WiringGraph.InputPorts);
+            changed |= PruneWhere(WiringGraph.OutputPorts);
         }
         while (changed);
     }
 
-    private static bool PruneWhere<T>(WiringGraph graph, IReadOnlyList<T> nodes) where T : IConnectable
+    private static bool PruneWhere<T>(IReadOnlyList<T> nodes) where T : IConnectable
     {
         var removed = false;
         for (var i = nodes.Count - 1; i >= 0; i--)
         {
             if (IsDead(nodes[i]))
             {
-                graph.RemoveNode(nodes[i]);
+                WiringGraph.RemoveNode(nodes[i]);
                 removed = true;
             }
         }

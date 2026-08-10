@@ -6,8 +6,8 @@ namespace WireWarp.Frontend.Shared.IO;
 
 internal static partial class ProcessOutput
 {
-    private static readonly Action<WiringGraph, Output>?[] _processors =
-        new Action<WiringGraph, Output>?[Enum.GetValues<OutputID>().Length];
+    private static readonly Action<Output>?[] _processors =
+        new Action<Output>?[Enum.GetValues<OutputID>().Length];
 
     static ProcessOutput()
     {
@@ -15,13 +15,13 @@ internal static partial class ProcessOutput
             BindingFlags.NonPublic | BindingFlags.Static))
         {
             if (Enum.TryParse<OutputID>(method.Name, out var id))
-                _processors[(int)id] = method.CreateDelegate<Action<WiringGraph, Output>>();
+                _processors[(int)id] = method.CreateDelegate<Action<Output>>();
         }
     }
 
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
-        foreach (var output in graph.Outputs)
-            _processors[(int)output.Type]?.Invoke(graph, output);
+        foreach (var output in WiringGraph.Outputs)
+            _processors[(int)output.Type]?.Invoke(output);
     }
 }

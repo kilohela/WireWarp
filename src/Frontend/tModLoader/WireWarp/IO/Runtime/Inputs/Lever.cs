@@ -3,13 +3,11 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    private static void Lever(IOGraph iOGraph, int i, int j)
+    private static void Lever(int i, int j)
     {
         short num5 = 36;
         int num6 = Main.tile[i, j].TileFrameX / 18 * -1;

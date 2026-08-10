@@ -4,23 +4,23 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class ProcessOutput
 {
-    private static void WireBulb(WiringGraph graph, Output output)
+    private static void WireBulb(Output output)
     {
         var oldOp = output.Fanin.OfType<OutputPort>().First();
         
         foreach (var wire in oldOp.Fanin.OfType<Wire>().ToList())
         {
-            var newOp = graph.AddOutputPort();
+            var newOp = WiringGraph.AddOutputPort();
             WiringGraph.AddEdge(wire, newOp);
             WiringGraph.AddEdge(newOp, output);
         }
 
-        graph.RemoveNode(oldOp);
+        WiringGraph.RemoveNode(oldOp);
 
         foreach (var op in output.Fanin.OfType<OutputPort>())
         {
             var wire = op.Fanin.OfType<Wire>().First();
-            graph.WiringExtra.WireBulb[op] = wire.Type;
+            WiringExtra.WireBulb[op] = wire.Type;
         }
     }
 }

@@ -3,13 +3,11 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeInput
 {
-    internal static void Timers(IOGraph iOGraph, int i, int j)
+    internal static void Timers(int i, int j)
     {
         if (Main.tile[i, j].TileFrameY == 0)
         {

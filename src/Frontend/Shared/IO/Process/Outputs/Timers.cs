@@ -5,7 +5,7 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class ProcessOutput
 {
-    private static void Timers(WiringGraph graph, Output output)
+    private static void Timers(Output output)
     {
         // Timer output cannot directly activate itself.
         var op = output.Fanin.OfType<OutputPort>().First();

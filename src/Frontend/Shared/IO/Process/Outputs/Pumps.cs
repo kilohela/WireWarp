@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class ProcessOutput
 {
-    private static void Pumps(WiringGraph graph, Output output)
+    private static void Pumps(Output output)
     {
         var op = output.Fanin.OfType<OutputPort>().First();
 
@@ -18,12 +18,12 @@ partial class ProcessOutput
             if (!seen.Add(sourcePos)) continue;
 
             var key = (sourcePos, wire.Type);
-            if (!graph.WiringTemp.Traces.TryGetValue(key, out var founds))
+            if (!WiringTemp.Traces.TryGetValue(key, out var founds))
             {
                 var wireMap = new Dictionary<((int, int), WireID), Wire>();
                 founds = Conversion.TraceWires.TraceWire(
-                    wire, sourcePos, sourcePos, graph, wireMap);
-                graph.WiringTemp.Traces[key] = founds;
+                    wire, sourcePos, sourcePos, wireMap);
+                WiringTemp.Traces[key] = founds;
             }
 
             var pumps = founds
@@ -47,14 +47,14 @@ partial class ProcessOutput
             }
 
             if (inlets.Count == 0 || outlets.Count == 0 || 
-                graph.OutputPos[inlets[0]] != output) continue;
+                WiringGraph.OutputPos[inlets[0]] != output) continue;
 
-            var source = graph.GatePos.TryGetValue(sourcePos, out Gate? gate)
+            var source = WiringGraph.GatePos.TryGetValue(sourcePos, out Gate? gate)
                 ? (IConnectable)gate
-                : graph.InputPos[sourcePos].Fanout.OfType<InputPort>().First();
+                : WiringGraph.InputPos[sourcePos].Fanout.OfType<InputPort>().First();
 
-            var newWire = graph.AddWire(wire.Type);
-            var newOp = graph.AddOutputPort();
+            var newWire = WiringGraph.AddWire(wire.Type);
+            var newOp = WiringGraph.AddOutputPort();
 
             WiringGraph.AddEdge(source, newWire);
             WiringGraph.AddEdge(newWire, newOp);
@@ -63,9 +63,9 @@ partial class ProcessOutput
             newWire.Sources.Add(sourcePos);
             newWire.Drains.UnionWith(pumps.Select(p => p.active));
 
-            graph.WiringExtra.Pumps[newOp] = (inlets, outlets);
+            WiringExtra.Pumps[newOp] = (inlets, outlets);
         }
 
-        graph.RemoveNode(op);
+        WiringGraph.RemoveNode(op);
     }
 }

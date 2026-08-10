@@ -1,12 +1,10 @@
 using Terraria;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void CannonsLeft(IOGraph iOGraph, int i, int j)
+    private static void CannonsLeft(int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num31 = tile.TileFrameX % 72 / 18;

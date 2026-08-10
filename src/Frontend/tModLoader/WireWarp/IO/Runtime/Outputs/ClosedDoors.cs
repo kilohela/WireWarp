@@ -1,12 +1,10 @@
 using Terraria;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void ClosedDoors(IOGraph iOGraph, int i, int j)
+    private static void ClosedDoors(int i, int j)
     {
         int num67 = 1;
         if (Main.rand.Next(2) == 0)

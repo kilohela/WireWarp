@@ -1,12 +1,10 @@
 using Terraria;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void FireworksBox(IOGraph iOGraph, int i, int j)
+    private static void FireworksBox(int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num72 = j - tile.TileFrameY / 18;

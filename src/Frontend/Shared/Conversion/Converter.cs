@@ -4,23 +4,25 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 public static class Converter
 {
-    public static WiringGraph Execute()
+    public static void Execute()
     {
-        var graph = new WiringGraph();
+        WiringGraph.Clean();
 
         // preprocess
-        ScanComponents.Execute(graph);
-        TraceWires.Execute(graph);
+        ScanComponents.Execute();
+        TraceWires.Execute();
 
         // postprocess
-        Prune.Execute(graph);
-        Normalize.Execute(graph);
-        Prune.Execute(graph);
-        Applier.Execute(graph);
-        Prune.Execute(graph);
-        Assign.Execute(graph);
-        Validate.Execute(graph);
+        Prune.Execute();
+        Normalize.Execute();
+        Prune.Execute();
+        Applier.Execute();
+        Prune.Execute();
+        Assign.Execute();
+        Validate.Execute();
 
-        return graph;
+        // io graph
+        IOGraph.Build();
+        WiringGraph.Clean();
     }
 }

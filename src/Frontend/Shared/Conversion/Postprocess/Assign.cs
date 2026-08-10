@@ -4,17 +4,17 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Assign
 {
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
-        AssignPortIds(graph);
+        AssignPortIds();
     }
 
-    private static void AssignPortIds(WiringGraph graph)
+    private static void AssignPortIds()
     {
-        for (var i = 0; i < graph.InputPorts.Count; i++)
-            graph.InputPorts[i].PortId = i;
+        for (var i = 0; i < WiringGraph.InputPorts.Count; i++)
+            WiringGraph.InputPorts[i].PortId = i;
 
-        for (var i = 0; i < graph.OutputPorts.Count; i++)
-            graph.OutputPorts[i].PortId = i;
+        for (var i = 0; i < WiringGraph.OutputPorts.Count; i++)
+            WiringGraph.OutputPorts[i].PortId = i;
     }
 }

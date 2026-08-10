@@ -6,7 +6,7 @@ namespace WireWarp.Frontend.Shared.IO;
 
 partial class ProcessOutput
 {
-    private static void PixelBox(WiringGraph graph, Output output)
+    private static void PixelBox(Output output)
     {
         var op = output.Fanin.OfType<OutputPort>().First();
         var o = output.Origin;
@@ -18,10 +18,10 @@ partial class ProcessOutput
         {
             if (!Conversion.Detector.HasWire(Main.tile[o.X, o.Y], color)) continue;
 
-            TraceDir((o.X - 1, o.Y), o, horizontal, color, graph);
-            TraceDir((o.X + 1, o.Y), o, horizontal, color, graph);
-            TraceDir((o.X, o.Y - 1), o, vertical, color, graph);
-            TraceDir((o.X, o.Y + 1), o, vertical, color, graph);
+            TraceDir((o.X - 1, o.Y), o, horizontal, color);
+            TraceDir((o.X + 1, o.Y), o, horizontal, color);
+            TraceDir((o.X, o.Y - 1), o, vertical, color);
+            TraceDir((o.X, o.Y + 1), o, vertical, color);
         }
 
         var seen = new HashSet<(int X, int Y)>();
@@ -30,14 +30,14 @@ partial class ProcessOutput
         {
             if (!seen.Add(sourcePos)) continue;
 
-            var source = graph.GatePos.TryGetValue(sourcePos, out Gate? gate)
+            var source = WiringGraph.GatePos.TryGetValue(sourcePos, out Gate? gate)
                 ? (IConnectable)gate
-                : graph.InputPos[sourcePos];
+                : WiringGraph.InputPos[sourcePos];
 
             if (!horizontal.Contains(source) || !vertical.Contains(source)) continue;
 
-            var newWire = graph.AddWire(wire.Type);
-            var newOp = graph.AddOutputPort();
+            var newWire = WiringGraph.AddWire(wire.Type);
+            var newOp = WiringGraph.AddOutputPort();
             var newSource = source is Input input
                 ? input.Fanout.OfType<InputPort>().First()
                 : source;
@@ -50,20 +50,19 @@ partial class ProcessOutput
             newWire.Drains.Add(o);
         }
 
-        graph.RemoveNode(op);
+        WiringGraph.RemoveNode(op);
     }
 
     private static void TraceDir(
         (int x, int y) start, (int x, int y) prev,
         HashSet<IConnectable> result,
-        WireID color,
-        WiringGraph graph)
+        WireID color)
     {
         var wire = new Wire { Type = color };
         var visited = new Dictionary<((int, int), WireID), Wire>();
 
         var founds = Conversion.TraceWires.TraceWire(
-            wire, start, prev, graph, visited);
+            wire, start, prev, visited);
 
         result.UnionWith(founds.Select(f => f.component));
     }

@@ -7,16 +7,16 @@ namespace WireWarp.Frontend.Shared.Conversion;
 internal static class Validate
 {
     [Conditional("DEBUG")]
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
-        ValidateConstraints(graph);
-        ValidateSymmetry(graph);
-        ValidateFaultGates(graph);
+        ValidateConstraints();
+        ValidateSymmetry();
+        ValidateFaultGates();
     }
 
-    private static void ValidateConstraints(WiringGraph graph)
+    private static void ValidateConstraints()
     {
-        foreach (var node in graph.Components.Values)
+        foreach (var node in WiringGraph.Components.Values)
         {
             switch (node)
             {
@@ -94,9 +94,9 @@ internal static class Validate
         }
     }
 
-    private static void ValidateFaultGates(WiringGraph graph)
+    private static void ValidateFaultGates()
     {
-        foreach (var gate in graph.Gates.Where(g => g.Type == GateID.Fault))
+        foreach (var gate in WiringGraph.Gates.Where(g => g.Type == GateID.Fault))
         {
             var faultLamps = gate.Fanin.OfType<Lamp>()
                 .Where(l => l.Type == LampID.Fault)
@@ -107,9 +107,9 @@ internal static class Validate
         }
     }
 
-    private static void ValidateSymmetry(WiringGraph graph)
+    private static void ValidateSymmetry()
     {
-        foreach (var node in graph.Components.Values)
+        foreach (var node in WiringGraph.Components.Values)
         {
             foreach (var target in node.Fanout)
                 Debug.Assert(target.Fanin.Contains(node),

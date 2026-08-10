@@ -1,4 +1,3 @@
-using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Terraria;
 
@@ -16,8 +15,8 @@ public abstract class Access
 
     // Runtime
 
-    public abstract void Execute(InputID type, IOGraph iOGraph, int i, int j);
-    public abstract void Execute(OutputID type, IOGraph iOGraph, int i, int j);
+    public abstract void Execute(InputID type, int i, int j);
+    public abstract void Execute(OutputID type, int i, int j);
 
     public abstract void Tick();
     public abstract void Reset();

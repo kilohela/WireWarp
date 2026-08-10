@@ -1,13 +1,11 @@
 using Terraria;
 using Terraria.ID;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void VolcanoSmall(IOGraph iOGraph, int i, int j)
+    private static void VolcanoSmall(int i, int j)
     {
         // SkipWire(i, j);
         short num93 = (short)((Main.tile[i, j].TileFrameX != 0) ? (-18) : 18);

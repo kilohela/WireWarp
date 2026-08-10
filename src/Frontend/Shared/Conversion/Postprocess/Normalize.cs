@@ -5,14 +5,14 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Normalize
 {
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
-        NormalizeFaultGates(graph);
+        NormalizeFaultGates();
     }
 
-    private static void NormalizeFaultGates(WiringGraph graph)
+    private static void NormalizeFaultGates()
     {
-        foreach (var gate in graph.Gates.Where(g => g.Type == GateID.Fault))
+        foreach (var gate in WiringGraph.Gates.Where(g => g.Type == GateID.Fault))
         {
             var lamps = gate.Fanin.OfType<Lamp>()
                 .OrderByDescending(l => l.Origin.Y)
@@ -26,7 +26,7 @@ internal static class Normalize
                     foreach (var wire in lamp.Fanin)
                         WiringGraph.AddEdge(wire, faultLamp);
 
-                graph.RemoveNode(lamp);
+                WiringGraph.RemoveNode(lamp);
             }
         }
     }

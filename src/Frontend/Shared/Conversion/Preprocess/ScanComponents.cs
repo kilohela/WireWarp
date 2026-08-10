@@ -6,12 +6,12 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class ScanComponents
 {
-    public static void Execute(WiringGraph graph)
+    public static void Execute()
     {
-        Scan(graph);
+        Scan();
     }
 
-    private static void Scan(WiringGraph graph)
+    private static void Scan()
     {
         var inputByOrigin = new Dictionary<(int x, int y, InputID type), Input>();
         var outputByOrigin = new Dictionary<(int x, int y, OutputID type), Output>();
@@ -29,14 +29,14 @@ internal static class ScanComponents
                 var gateType = Detector.DetectGate(tile);
                 if (gateType != GateID.None)
                 {
-                    graph.GatePos[(x, y)] = graph.AddGate(gateType, (x, y));
+                    WiringGraph.GatePos[(x, y)] = WiringGraph.AddGate(gateType, (x, y));
                     continue;
                 }
 
                 var lampType = Detector.DetectLamp(tile);
                 if (lampType != LampID.None)
                 {
-                    graph.LampPos[(x, y)] = graph.AddLamp(lampType, (x, y));
+                    WiringGraph.LampPos[(x, y)] = WiringGraph.AddLamp(lampType, (x, y));
                     continue;
                 }
 
@@ -50,10 +50,10 @@ internal static class ScanComponents
 
                     var input = inRange && inputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : graph.AddInput(inputType, origin);
+                        : WiringGraph.AddInput(inputType, origin);
 
                     if (inRange) inputByOrigin[key] = input;
-                    graph.InputPos[(x, y)] = input;
+                    WiringGraph.InputPos[(x, y)] = input;
                 }
 
                 var outputType = Detector.DetectOutput(tile);
@@ -66,10 +66,10 @@ internal static class ScanComponents
 
                     var output = inRange && outputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : graph.AddOutput(outputType, origin);
+                        : WiringGraph.AddOutput(outputType, origin);
 
                     if (inRange) outputByOrigin[key] = output;
-                    graph.OutputPos[(x, y)] = output;
+                    WiringGraph.OutputPos[(x, y)] = output;
                 }
             }
         }

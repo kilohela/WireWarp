@@ -1,13 +1,11 @@
 using Terraria;
 using Terraria.ID;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void ConveyorBelts(IOGraph iOGraph, int i, int j)
+    private static void ConveyorBelts(int i, int j)
     {
         Tile tile = Main.tile[i, j];
         if (!tile.HasActuator)

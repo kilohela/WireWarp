@@ -1,13 +1,11 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 
-using WireWarp.Frontend.Shared.Data;
-
 namespace WireWarp.Frontend.tModLoader.IO;
 
 partial class RuntimeOutput
 {
-    private static void Traps(IOGraph iOGraph, int i, int j)
+    private static void Traps(int i, int j)
     {
         Tile tile = Main.tile[i, j];
         int num95 = tile.TileFrameY / 18;

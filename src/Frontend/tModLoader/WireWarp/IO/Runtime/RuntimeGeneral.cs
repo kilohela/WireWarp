@@ -1,4 +1,5 @@
 using Terraria;
+using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
@@ -111,7 +112,8 @@ internal static class RuntimeGeneral
                             if (Math.IEEERemainder(_mechTime[num], num4) == 0.0)
                             {
                                 _mechTime[num] = 18000;
-                                // TODO: Wiring.TripWire(_mechX[num], _mechY[num], 1, 1);
+                                if (IOGraph.Inputs.TryGetValue((_mechX[num], _mechY[num]), out var input))
+                                    IOFrame.WriteInput(input.portId);
                             }
                         }
                     }

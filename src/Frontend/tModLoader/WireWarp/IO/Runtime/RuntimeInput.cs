@@ -1,13 +1,12 @@
 using System.Reflection;
-using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
 internal static partial class RuntimeInput
 {
-    private static readonly Action<IOGraph, int, int>?[] _inputs =
-        new Action<IOGraph, int, int>?[Enum.GetValues<InputID>().Length];
+    private static readonly Action<int, int>?[] _inputs =
+        new Action<int, int>?[Enum.GetValues<InputID>().Length];
 
     static RuntimeInput()
     {
@@ -15,10 +14,10 @@ internal static partial class RuntimeInput
             BindingFlags.NonPublic | BindingFlags.Static))
         {
             if (Enum.TryParse<InputID>(method.Name, out var id))
-                _inputs[(int)id] = method.CreateDelegate<Action<IOGraph, int, int>>();
+                _inputs[(int)id] = method.CreateDelegate<Action<int, int>>();
         }
     }
 
-    public static void Execute(InputID type, IOGraph iOGraph, int i, int j)
-        => _inputs[(int)type]?.Invoke(iOGraph, i, j);
+    public static void Execute(InputID type, int i, int j)
+        => _inputs[(int)type]?.Invoke(i, j);
 }
