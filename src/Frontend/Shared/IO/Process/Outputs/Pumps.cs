@@ -61,7 +61,7 @@ partial class ProcessOutput
             WiringGraph.AddEdge(newOp, output);
 
             newWire.Sources.Add(sourcePos);
-            newWire.Drains.UnionWith(pumps.Select(p => p.active));
+            newWire.Drains.Add(inlets[0]);
 
             WiringExtra.Pumps[newOp] = (inlets, outlets);
         }
