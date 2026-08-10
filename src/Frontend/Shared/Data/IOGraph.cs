@@ -22,7 +22,8 @@ public class IOExtra
 
 public class IOTemp
 {
-    private readonly Dictionary<(int x, int y), int> _mechTime = [];
+    private readonly Dictionary<(int x, int y), long> _mechTime = [];
+    private long _mechTick;
 
     public int cannonCoolDown = 0;
     public int bunnyCannonCoolDown = 0;
@@ -33,15 +34,17 @@ public class IOTemp
         if (time <= 0)
             return true;
 
-        if (_mechTime.TryGetValue((i, j), out var remaining) && remaining > 0)
+        if (_mechTime.TryGetValue((i, j), out var expire) && expire > _mechTick)
             return false;
 
-        _mechTime[(i, j)] = time;
+        _mechTime[(i, j)] = _mechTick + time;
         return true;
     }
 
     public void UpdateMech()
     {
+        _mechTick++;
+
         if (cannonCoolDown > 0)
             cannonCoolDown--;
 
@@ -54,20 +57,15 @@ public class IOTemp
         if (_mechTime.Count == 0) return;
 
         var expired = new List<(int x, int y)>();
-        foreach (var (key, value) in _mechTime)
-        {
-            var remaining = value - 1;
-            if (remaining <= 0)
+        foreach (var (key, expire) in _mechTime)
+            if (expire <= _mechTick)
                 expired.Add(key);
-            else
-                _mechTime[key] = remaining;
-        }
-
         expired.ForEach(e => _mechTime.Remove(e));
     }
 
     public void Reset()
     {
+        _mechTick = 0;
         cannonCoolDown = 0;
         bunnyCannonCoolDown = 0;
         snowballCannonCoolDown = 0;
