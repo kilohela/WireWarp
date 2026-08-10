@@ -16,9 +16,9 @@ partial class RuntimeOutput
         int num53 = i - num51;
         int num54 = j - num52;
         int num56 = num52;
-        if (num56 != -1 && iOGraph.IOTemp.snowballCannonCoolDown == 0 && iOGraph.IOTemp.CheckMech(num53, num54, 60))
+        if (num56 != -1 && RuntimeGeneral.snowballCannonCoolDown == 0 && RuntimeGeneral.CheckMech(num53, num54, 60))
         {
-            iOGraph.IOTemp.snowballCannonCoolDown = 15;
+            RuntimeGeneral.snowballCannonCoolDown = 15;
             float num60 = 12f + (float)Main.rand.Next(450) * 0.01f;
             float num61 = Main.rand.Next(85, 105);
             float num62 = Main.rand.Next(-35, 11);

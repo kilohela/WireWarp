@@ -13,7 +13,7 @@ partial class RuntimeOutput
         int num70 = i - tile.TileFrameX / 18;
         // SkipWire(num70, num69);
         // SkipWire(num70, num69 + 1);
-        if (iOGraph.IOTemp.CheckMech(num70, num69, 30))
+        if (RuntimeGeneral.CheckMech(num70, num69, 30))
         {
             bool flag5 = false;
             for (int num71 = 0; num71 < 1000; num71++)

@@ -16,7 +16,7 @@ partial class RuntimeOutput
             int num68 = j - tile.TileFrameY % 40 / 18;
             // SkipWire(i, num68);
             // SkipWire(i, num68 + 1);
-            if (iOGraph.IOTemp.CheckMech(i, num68, 60))
+            if (RuntimeGeneral.CheckMech(i, num68, 60))
             {
                 Projectile.NewProjectile(Wiring.GetProjectileSource(i, num68), i * 16 + 8, num68 * 16 + 12, 0f, 0f, 733, 0, 0f, Main.myPlayer);
             }

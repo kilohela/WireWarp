@@ -26,14 +26,14 @@ partial class RuntimeOutput
         switch (num36)
         {
             case 0:
-                if (iOGraph.IOTemp.cannonCoolDown > 0)
+                if (RuntimeGeneral.cannonCoolDown > 0)
                     return;
                 damage = 300;
                 knockBack = 8f;
                 time = 480;
                 break;
             case 1:
-                if (iOGraph.IOTemp.bunnyCannonCoolDown > 0)
+                if (RuntimeGeneral.bunnyCannonCoolDown > 0)
                     return;
                 damage = 350;
                 knockBack = 8f;
@@ -41,15 +41,15 @@ partial class RuntimeOutput
                 break;
         }
 
-        if (iOGraph.IOTemp.CheckMech(num33, num34, time) && flag2)
+        if (RuntimeGeneral.CheckMech(num33, num34, time) && flag2)
         {
             switch (num36)
             {
                 case 0:
-                    iOGraph.IOTemp.cannonCoolDown = 120;
+                    RuntimeGeneral.cannonCoolDown = 120;
                     break;
                 case 1:
-                    iOGraph.IOTemp.bunnyCannonCoolDown = 480;
+                    RuntimeGeneral.bunnyCannonCoolDown = 480;
                     break;
             }
 

@@ -20,7 +20,7 @@ partial class RuntimeInput
 
         int num = tile.TileFrameX / 36;
         int num2 = i - (tile.TileFrameX - num * 36) / 18;
-        if (iOGraph.IOTemp.CheckMech(num2, j, 200))
+        if (RuntimeGeneral.CheckMech(num2, j, 200))
         {
             Vector2 zero = Vector2.Zero;
             Vector2 zero2 = Vector2.Zero;

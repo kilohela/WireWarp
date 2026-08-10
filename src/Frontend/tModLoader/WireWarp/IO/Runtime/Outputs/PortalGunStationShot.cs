@@ -23,7 +23,7 @@ partial class RuntimeOutput
         int damage = 0;
         float knockBack = 0f;
         int time = 30;
-        if (iOGraph.IOTemp.CheckMech(num33, num34, time) && flag2)
+        if (RuntimeGeneral.CheckMech(num33, num34, time) && flag2)
             WorldGen.ShootFromCannon(num33, num34, num35, num36 + 1, damage, knockBack, Main.myPlayer, fromWire: true);
     }
 }

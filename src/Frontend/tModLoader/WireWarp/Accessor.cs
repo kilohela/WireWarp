@@ -31,9 +31,13 @@ internal sealed class Accessor : Access
 
     // Runtime
 
-    public override void ExecuteInput(InputID type, IOGraph iOGraph, int i, int j)
+    public override void Execute(InputID type, IOGraph iOGraph, int i, int j)
         => RuntimeInput.Execute(type, iOGraph, i, j);
 
-    public override void ExecuteOutput(OutputID type, IOGraph iOGraph, int i, int j)
+    public override void Execute(OutputID type, IOGraph iOGraph, int i, int j)
         => RuntimeOutput.Execute(type, iOGraph, i, j);
+
+    public override void Tick() => RuntimeGeneral.Tick();
+
+    public override void Reset() => RuntimeGeneral.Reset();
 }

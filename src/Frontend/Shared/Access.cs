@@ -16,6 +16,9 @@ public abstract class Access
 
     // Runtime
 
-    public abstract void ExecuteInput(InputID type, IOGraph iOGraph, int i, int j);
-    public abstract void ExecuteOutput(OutputID type, IOGraph iOGraph, int i, int j);
+    public abstract void Execute(InputID type, IOGraph iOGraph, int i, int j);
+    public abstract void Execute(OutputID type, IOGraph iOGraph, int i, int j);
+
+    public abstract void Tick();
+    public abstract void Reset();
 }

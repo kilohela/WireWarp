@@ -25,7 +25,7 @@ partial class RuntimeInput
         num7 += j;
         if (Main.netMode != NetmodeID.MultiplayerClient && Main.tile[num6, num7].TileType == TileID.Detonator)
         {
-            iOGraph.IOTemp.CheckMech(num6, num7, 60);
+            RuntimeGeneral.CheckMech(num6, num7, 60);
         }
 
         for (int k = num6; k < num6 + 2; k++)

@@ -16,7 +16,7 @@ partial class RuntimeInput
             Main.tile[i, j].TileFrameY = 18;
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                iOGraph.IOTemp.CheckMech(i, j, 18000);
+                RuntimeGeneral.CheckMech(i, j, 18000);
             }
         }
         else

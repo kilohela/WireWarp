@@ -20,63 +20,9 @@ public class IOExtra
     }
 }
 
-public class IOTemp
-{
-    private readonly Dictionary<(int x, int y), long> _mechTime = [];
-    private long _mechTick;
-
-    public int cannonCoolDown = 0;
-    public int bunnyCannonCoolDown = 0;
-    public int snowballCannonCoolDown = 0;
-
-    public bool CheckMech(int i, int j, int time)
-    {
-        if (time <= 0)
-            return true;
-
-        if (_mechTime.TryGetValue((i, j), out var expire) && expire > _mechTick)
-            return false;
-
-        _mechTime[(i, j)] = _mechTick + time;
-        return true;
-    }
-
-    public void UpdateMech()
-    {
-        _mechTick++;
-
-        if (cannonCoolDown > 0)
-            cannonCoolDown--;
-
-        if (bunnyCannonCoolDown > 0)
-            bunnyCannonCoolDown--;
-
-        if (snowballCannonCoolDown > 0)
-            snowballCannonCoolDown--;
-
-        if (_mechTime.Count == 0) return;
-
-        var expired = new List<(int x, int y)>();
-        foreach (var (key, expire) in _mechTime)
-            if (expire <= _mechTick)
-                expired.Add(key);
-        expired.ForEach(e => _mechTime.Remove(e));
-    }
-
-    public void Reset()
-    {
-        _mechTick = 0;
-        cannonCoolDown = 0;
-        bunnyCannonCoolDown = 0;
-        snowballCannonCoolDown = 0;
-        _mechTime.Clear();
-    }
-}
-
 public class IOGraph
 {
     public IOExtra IOExtra { get; init; }
-    public IOTemp IOTemp { get; } = new();
 
     private readonly Dictionary<(int x, int y), (int portId, InputID type)> _inputs = [];
     private readonly Dictionary<int, ((int x, int y), OutputID type)> _outputs = [];

@@ -21,7 +21,7 @@ partial class RuntimeOutput
                     int num89 = tile.TileFrameY / 54;
                     int num90 = i - (tile.TileFrameX - num88 * 36) / 18;
                     int num91 = j - (tile.TileFrameY - num89 * 54) / 18;
-                    if (iOGraph.IOTemp.CheckMech(num90, num91, 900))
+                    if (RuntimeGeneral.CheckMech(num90, num91, 900))
                     {
                         Vector2 vector2 = new Vector2(num90 + 1, num91) * 16f;
                         vector2.Y += 28f;
@@ -219,7 +219,7 @@ partial class RuntimeOutput
                             break;
                     }
 
-                    if (num145 != -1 && iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, num145) && flag6)
+                    if (num145 != -1 && RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, num145) && flag6)
                     if (num145 != -1 && NPC.MechSpawn(num142, num143, num145) && flag6)
                     {
                         if (!flag7 || !Collision.SolidTiles(num139 - 2, num139 + 3, num138, num138 + 2))
@@ -239,17 +239,17 @@ partial class RuntimeOutput
                         switch (num140)
                         {
                             case 4:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 1))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 1))
                                 if (NPC.MechSpawn(num142, num143, 1))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, 1);
                                 break;
                             case 7:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 49))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 49))
                                 if (NPC.MechSpawn(num142, num143, 49))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142 - 4, num143 - 6, 49);
                                 break;
                             case 8:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 55))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 55))
                                 if (NPC.MechSpawn(num142, num143, 55))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, 55);
                                 break;
@@ -259,18 +259,18 @@ partial class RuntimeOutput
                                     if (BirthdayParty.PartyIsUp)
                                         type4 = 540;
 
-                                    if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, type4))
+                                    if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, type4))
                                     if (NPC.MechSpawn(num142, num143, type4))
                                         num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, type4);
                                 }
                                 break;
                             case 10:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 21))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 21))
                                 if (NPC.MechSpawn(num142, num143, 21))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143, 21);
                                 break;
                             case 16:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 42))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 42))
                                 if (NPC.MechSpawn(num142, num143, 42))
                                 {
                                     if (!Collision.SolidTiles(num139 - 1, num139 + 1, num138, num138 + 1))
@@ -285,22 +285,22 @@ partial class RuntimeOutput
                                 }
                                 break;
                             case 18:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 67))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 67))
                                 if (NPC.MechSpawn(num142, num143, 67))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, 67);
                                 break;
                             case 23:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 63))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 63))
                                 if (NPC.MechSpawn(num142, num143, 63))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, 63);
                                 break;
                             case 27:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 85))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 85))
                                 if (NPC.MechSpawn(num142, num143, 85))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142 - 9, num143, 85);
                                 break;
                             case 28:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 74))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 74))
                                 if (NPC.MechSpawn(num142, num143, 74))
                                 {
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, Utils.SelectRandom(Main.rand, new short[3] {
@@ -329,17 +329,17 @@ partial class RuntimeOutput
                                 }
                                 break;
                             case 42:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 58))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 58))
                                 if (NPC.MechSpawn(num142, num143, 58))
                                     num144 = NPC.NewNPC(Wiring.GetNPCSource(num139, num138), num142, num143 - 12, 58);
                                 break;
                             case 37:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 58) && Item.MechSpawn(num142, num143, 1734) && Item.MechSpawn(num142, num143, 1867))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 58) && Item.MechSpawn(num142, num143, 1734) && Item.MechSpawn(num142, num143, 1867))
                                 if (Item.MechSpawn(num142, num143, 58) && Item.MechSpawn(num142, num143, 1734) && Item.MechSpawn(num142, num143, 1867))
                                     Item.NewItem(Wiring.GetItemSource(num142, num143), num142, num143 - 16, 0, 0, 58);
                                 break;
                             case 50:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 65))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 30) && NPC.MechSpawn(num142, num143, 65))
                                 if (NPC.MechSpawn(num142, num143, 65))
                                 {
                                     if (!Collision.SolidTiles(num139 - 2, num139 + 3, num138, num138 + 2))
@@ -354,18 +354,18 @@ partial class RuntimeOutput
                                 }
                                 break;
                             case 2:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 184) && Item.MechSpawn(num142, num143, 1735) && Item.MechSpawn(num142, num143, 1868))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 184) && Item.MechSpawn(num142, num143, 1735) && Item.MechSpawn(num142, num143, 1868))
                                 if (Item.MechSpawn(num142, num143, 184) && Item.MechSpawn(num142, num143, 1735) && Item.MechSpawn(num142, num143, 1868))
                                     Item.NewItem(Wiring.GetItemSource(num142, num143), num142, num143 - 16, 0, 0, 184);
                                 break;
                             case 17:
-                                if (iOGraph.IOTemp.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 166))
+                                if (RuntimeGeneral.CheckMech(num139, num138, 600) && Item.MechSpawn(num142, num143, 166))
                                 if (Item.MechSpawn(num142, num143, 166))
                                     Item.NewItem(Wiring.GetItemSource(num142, num143), num142, num143 - 20, 0, 0, 166);
                                 break;
                             case 40:
                                 {
-                                    if (!iOGraph.IOTemp.CheckMech(num139, num138, 300))
+                                    if (!RuntimeGeneral.CheckMech(num139, num138, 300))
                                     {
                                         int num150 = 50;
                                         int[] array2 = new int[num150];
@@ -391,7 +391,7 @@ partial class RuntimeOutput
                                 break;
                             case 41:
                                 {
-                                    if (!iOGraph.IOTemp.CheckMech(num139, num138, 300))
+                                    if (!RuntimeGeneral.CheckMech(num139, num138, 300))
                                     {
                                         int num146 = 50;
                                         int[] array = new int[num146];
