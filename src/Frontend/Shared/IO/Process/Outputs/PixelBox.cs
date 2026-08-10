@@ -16,7 +16,7 @@ partial class ProcessOutput
 
         foreach (var color in new[] { WireID.Red, WireID.Blue, WireID.Green, WireID.Yellow })
         {
-            if (!Conversion.Detector.HasWire(Main.tile[o.X, o.Y], color)) continue;
+            if (!Detector.HasWire(Main.tile[o.X, o.Y], color)) continue;
 
             TraceDir((o.X - 1, o.Y), o, horizontal, color);
             TraceDir((o.X + 1, o.Y), o, horizontal, color);

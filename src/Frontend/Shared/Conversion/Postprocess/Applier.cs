@@ -1,4 +1,3 @@
-
 namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Applier

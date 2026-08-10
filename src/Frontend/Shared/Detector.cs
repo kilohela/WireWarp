@@ -2,10 +2,88 @@ using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Terraria;
 using WireWarp.Frontend.Shared.Terraria.ID;
 
-namespace WireWarp.Frontend.Shared.Conversion;
+namespace WireWarp.Frontend.Shared;
 
 internal static class Detector
 {
+    private static readonly bool[] GateTable;
+    private static readonly bool[] LampTable;
+    private static readonly bool[] InputTable;
+    private static readonly bool[] OutputTable;
+    private static readonly bool[] JunctionBoxTable;
+
+    static Detector()
+    {
+        GateTable = new bool[TileID.Count];
+        LampTable = new bool[TileID.Count];
+        InputTable = new bool[TileID.Count];
+        OutputTable = new bool[TileID.Count];
+        JunctionBoxTable = new bool[TileID.Count];
+
+        GateTable[TileID.LogicGate] = true;
+        LampTable[TileID.LogicGateLamp] = true;
+        JunctionBoxTable[TileID.WirePipe] = true;
+        JunctionBoxTable[TileID.PixelBox] = true;
+
+        foreach (var id in new ushort[]
+        {
+            TileID.PressurePlates, TileID.MinecartTrack, TileID.LogicSensor,
+            TileID.WeightedPressurePlate, TileID.ProjectilePressurePad, TileID.GolfHole,
+            TileID.GemLocks, TileID.Switches, TileID.GeyserTrap, TileID.Timers,
+            TileID.FakeContainers, TileID.FakeContainers2, TileID.Containers2,
+            TileID.Lever, TileID.Detonator,
+        }) InputTable[id] = true;
+
+        foreach (var id in new ushort[]
+        {
+            TileID.ConveyorBeltLeft, TileID.ConveyorBeltRight,
+            TileID.Chimney, TileID.SillyBalloonMachine, TileID.Sundial, TileID.Moondial,
+            TileID.AnnouncementBox, TileID.Fireplace, TileID.Cannon, TileID.SnowballLauncher,
+            TileID.Campfire, TileID.ActiveStoneBlock, TileID.InactiveStoneBlock,
+            TileID.TrapdoorOpen, TileID.TrapdoorClosed, TileID.TallGateOpen, TileID.TallGateClosed,
+            TileID.OpenDoor, TileID.ClosedDoor, TileID.Firework, TileID.Toilets, TileID.Chairs,
+            TileID.FireworksBox, TileID.FireworkFountain, TileID.Teleporter, TileID.Torches,
+            TileID.WireBulb, TileID.HolidayLights, TileID.BubbleMachine, TileID.FogMachine,
+            TileID.HangingLanterns, TileID.Lamps, TileID.DiscoBall, TileID.ChineseLanterns,
+            TileID.Candelabras, TileID.PlatinumCandelabra, TileID.PlasmaLamp,
+            TileID.VolcanoSmall, TileID.VolcanoLarge, TileID.Chandeliers,
+            TileID.Candles, TileID.PlatinumCandle, TileID.WaterCandle, TileID.PeaceCandle,
+            TileID.ShadowCandle, TileID.Lampposts, TileID.Traps, TileID.MusicBoxes,
+            TileID.Jackolanterns, TileID.WaterFountain,
+            TileID.LunarMonolith, TileID.BloodMoonMonolith, TileID.VoidMonolith,
+            TileID.EchoMonolith, TileID.ShimmerMonolith, TileID.CRTMonolith,
+            TileID.RetroMonolith, TileID.NoirMonolith, TileID.RadioThingMonolith,
+            TileID.PartyMonolith, TileID.Explosives, TileID.LandMine,
+            TileID.InletPump, TileID.OutletPump, TileID.BoulderStatue, TileID.MushroomStatue,
+            TileID.CatBast, TileID.Statues, TileID.Grate, TileID.GrateClosed, TileID.PixelBox,
+        }) OutputTable[id] = true;
+
+        for (var i = TileID.AmethystGemsparkOff; i <= TileID.AmberGemspark; i++)
+            OutputTable[i] = true;
+    }
+
+    public static bool HasTile(Tile tile) =>
+        tile.HasTile && tile.type < TileID.Count;
+
+    public static bool HasGate(Tile tile) =>
+        HasTile(tile) && GateTable[tile.type];
+
+    public static bool HasLamp(Tile tile) =>
+        HasTile(tile) && !tile.HasActuator && LampTable[tile.type];
+
+    public static bool HasInput(Tile tile) =>
+        HasTile(tile) && InputTable[tile.type];
+
+    public static bool HasOutput(Tile tile) =>
+        HasTile(tile) && (tile.HasActuator || OutputTable[tile.type]);
+
+    public static bool HasJunctionBox(Tile tile) =>
+        HasTile(tile) && JunctionBoxTable[tile.type];
+
+    public static bool HasWiring(Tile tile) =>
+        HasWire(tile) || HasGate(tile) || HasLamp(tile) || 
+        HasInput(tile) || HasOutput(tile) || HasJunctionBox(tile);
+
     public static bool HasWire(Tile tile) =>
         tile.RedWire || tile.BlueWire || tile.GreenWire || tile.YellowWire;
 
@@ -20,7 +98,7 @@ internal static class Detector
 
     public static GateID DetectGate(Tile tile)
     {
-        if (!tile.HasTile || tile.type != TileID.LogicGate)
+        if (!HasGate(tile))
             return GateID.None;
 
         return tile.frameX switch
@@ -42,7 +120,7 @@ internal static class Detector
 
     public static LampID DetectLamp(Tile tile)
     {
-        if (!tile.HasTile || tile.HasActuator || tile.type != TileID.LogicGateLamp)
+        if (!HasLamp(tile))
             return LampID.None;
 
         return tile.frameX switch
@@ -56,7 +134,7 @@ internal static class Detector
 
     public static JunctionBoxID DetectJunctionBox(Tile tile)
     {
-        if (!tile.HasTile)
+        if (!HasJunctionBox(tile))
             return JunctionBoxID.None;
 
         return tile.type switch
@@ -75,7 +153,7 @@ internal static class Detector
 
     public static InputID DetectInput(Tile tile)
     {
-        if (!tile.HasTile)
+        if (!HasInput(tile))
             return InputID.None;
 
         return tile.type switch
@@ -100,7 +178,7 @@ internal static class Detector
 
     public static OutputID DetectOutput(Tile tile)
     {
-        if (!tile.HasTile)
+        if (!HasOutput(tile))
             return OutputID.None;
 
         return tile.type switch
