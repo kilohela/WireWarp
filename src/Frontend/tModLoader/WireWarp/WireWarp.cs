@@ -1,6 +1,5 @@
 using Terraria.ModLoader;
 using WireWarp.Frontend.Shared;
-using WireWarp.Frontend.Shared.Conversion;
 
 namespace WireWarp.Frontend.tModLoader;
 

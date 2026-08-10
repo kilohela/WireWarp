@@ -1,4 +1,5 @@
 using WireWarp.Frontend.Shared.ID;
+using WireWarp.Frontend.Shared.Conversion;
 
 namespace WireWarp.Frontend.Shared.Data;
 
@@ -148,6 +149,24 @@ public static class WiringGraph
             case InputPort ip: _inputPorts.Remove(ip); break;
             case OutputPort op: _outputPorts.Remove(op); break;
         }
+    }
+
+    public static void Build()
+    {
+        Clean();
+
+        // preprocess
+        ScanComponents.Execute();
+        TraceWires.Execute();
+
+        // wiring postprocess
+        Prune.Execute();
+        Normalize.Execute();
+        Prune.Execute();
+        Applier.Execute();
+        Prune.Execute();
+        Assign.Execute();
+        Validate.Execute();
     }
 
     public static void Clean()
