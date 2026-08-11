@@ -30,4 +30,19 @@ public static class WiringFile
             return false;
         }
     }
+
+    public static byte[]? LoadHeader()
+    {
+        try
+        {
+            using var fs = new FileStream(PathName, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            return HeaderFile.Read(r);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"WiringFile.LoadHeader failed: {e}");
+            return null;
+        }
+    }
 }

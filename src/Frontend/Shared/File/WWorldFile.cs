@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.Terraria;
-using WireWarp.Frontend.Shared.Terraria.IO;
 
 namespace WireWarp.Frontend.Shared.File;
 
@@ -46,7 +45,7 @@ public static class WWorldFile
             using (var r = new BinaryReader(src))
             {
                 var hash = HeaderFile.Read(r);
-                if (!IOGraph.Hash.Span.SequenceEqual(hash)) throw new InvalidDataException("Header hash mismatch");
+                // if (!IOGraph.Hash.Span.SequenceEqual(hash)) throw new InvalidDataException("Header hash mismatch");
 
                 src.CopyTo(dst);
             }
@@ -60,6 +59,21 @@ public static class WWorldFile
         {
             Debug.WriteLine($"WorldFile.Load failed: {e}");
             return false;
+        }
+    }
+
+    public static byte[]? LoadHeader()
+    {
+        try
+        {
+            using var fs = new FileStream(PathName, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            return HeaderFile.Read(r);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"WorldFile.LoadHeader failed: {e}");
+            return null;
         }
     }
 }

@@ -36,7 +36,7 @@ public static class IOFile
         try
         {
             IOGraph.Clean();
-            
+
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
             {
@@ -50,6 +50,21 @@ public static class IOFile
             Debug.WriteLine($"IOFile.Load failed: {e}");
             IOGraph.Clean();
             return false;
+        }
+    }
+
+    public static byte[]? LoadHeader()
+    {
+        try
+        {
+            using var fs = new FileStream(PathName, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            return HeaderFile.Read(r);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"IOFile.LoadHeader failed: {e}");
+            return null;
         }
     }
 }
