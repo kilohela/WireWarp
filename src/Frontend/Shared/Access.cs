@@ -12,6 +12,7 @@ public abstract class Access
     public abstract int MaxTilesX { get; }
     public abstract int MaxTilesY { get; }
     public abstract Tile Tile(int x, int y);
+    public abstract string WorldPathName { get; }
 
     // Runtime
 

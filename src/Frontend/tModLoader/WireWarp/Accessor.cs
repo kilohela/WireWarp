@@ -9,6 +9,7 @@ internal sealed class Accessor : Access
 {
     public override int MaxTilesX => Terraria.Main.maxTilesX;
     public override int MaxTilesY => Terraria.Main.maxTilesY;
+    public override string WorldPathName => Terraria.Main.worldPathName;
 
     public override Tile Tile(int x, int y)
     {

@@ -4,6 +4,7 @@ internal static class Main
 {
     internal static int maxTilesX => Access.Instance.MaxTilesX;
     internal static int maxTilesY => Access.Instance.MaxTilesY;
+    internal static string worldPathName => Access.Instance.WorldPathName;
 
     internal static TileArray tile { get; } = new();
 }
