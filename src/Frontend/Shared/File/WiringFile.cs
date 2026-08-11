@@ -1,0 +1,29 @@
+using System.Diagnostics;
+using WireWarp.Frontend.Shared.Terraria;
+
+namespace WireWarp.Frontend.Shared.File;
+
+public static class WiringFile
+{
+    private static string PathName =>
+        Path.ChangeExtension(Main.worldPathName, ".wwir");
+
+    private static string TempPathName => PathName + ".tmp";
+
+    public static bool Save()
+    {
+        try
+        {
+            using (var fs = new FileStream(TempPathName, FileMode.Create))
+            using (var w = new BinaryWriter(fs))
+            WiringSerializer.Serialize(w);
+            System.IO.File.Move(TempPathName, PathName, overwrite: true);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"WiringFile.Save failed: {e}");
+            return false;
+        }
+    }
+}
