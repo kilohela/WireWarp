@@ -6,7 +6,7 @@ namespace WireWarp.Frontend.Shared.File;
 
 public static class WiringHash
 {
-    public static byte[] GetWiringHash()
+    public static byte[] GetHash()
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> cell = stackalloc byte[15];

@@ -4,14 +4,14 @@ using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.Conversion;
 
-internal static class ScanComponents
+internal static class Scan
 {
     public static void Execute()
     {
-        Scan();
+        ScanComponents();
     }
 
-    private static void Scan()
+    private static void ScanComponents()
     {
         var inputByOrigin = new Dictionary<(int x, int y, InputID type), Input>();
         var outputByOrigin = new Dictionary<(int x, int y, OutputID type), Output>();

@@ -7,6 +7,7 @@ public class Wire : IConnectable
     public int Id { get; init; }
     
     public WireID Type { get; init; }
+    byte IConnectable.Type => (byte)Type;
 
     public HashSet<IConnectable> Fanin { get; } = [];
     public HashSet<IConnectable> Fanout { get; } = [];

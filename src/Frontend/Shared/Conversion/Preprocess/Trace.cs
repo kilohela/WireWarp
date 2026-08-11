@@ -4,7 +4,7 @@ using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.Conversion;
 
-internal static class TraceWires
+internal static class Trace
 {
     public static void Execute()
     {

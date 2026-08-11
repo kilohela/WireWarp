@@ -5,6 +5,8 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public static class WiringGraph
 {
+    private static byte[]? _hash;
+
     private static readonly Dictionary<int, IConnectable> _components = [];
     private static int _nextComponentId;
 
@@ -15,6 +17,8 @@ public static class WiringGraph
     private static readonly List<InputPort> _inputPorts = [];
     private static readonly List<Output> _outputs = [];
     private static readonly List<OutputPort> _outputPorts = [];
+
+    public static ReadOnlyMemory<byte>? Hash => _hash;
 
     public static IReadOnlyDictionary<int, IConnectable> Components => _components;
 
@@ -30,6 +34,8 @@ public static class WiringGraph
     internal static Dictionary<(int x, int y), Lamp> LampPos { get; } = [];
     internal static Dictionary<(int x, int y), Input> InputPos { get; } = [];
     internal static Dictionary<(int x, int y), Output> OutputPos { get; } = [];
+
+    internal static void SetHash(byte[] hash) => _hash = (byte[])hash.Clone();
 
     // edge
 
@@ -156,8 +162,8 @@ public static class WiringGraph
         Clean();
 
         // preprocess
-        ScanComponents.Execute();
-        TraceWires.Execute();
+        Scan.Execute();
+        Trace.Execute();
 
         // wiring postprocess
         Prune.Execute();

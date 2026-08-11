@@ -7,6 +7,8 @@ public class Lamp : IConnectable
     public int Id { get; init; }
     
     public LampID Type { get; init; }
+    byte IConnectable.Type => (byte)Type;
+    
     public (int X, int Y) Origin { get; init; }
 
     public HashSet<IConnectable> Fanin { get; } = [];

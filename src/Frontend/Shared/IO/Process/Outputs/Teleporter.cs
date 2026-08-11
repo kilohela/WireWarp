@@ -19,7 +19,7 @@ partial class ProcessOutput
             if (!WiringTemp.Traces.TryGetValue(key, out var founds))
             {
                 var wireMap = new Dictionary<((int, int), WireID), Wire>();
-                founds = Conversion.TraceWires.TraceWire(
+                founds = Conversion.Trace.TraceWire(
                     wire, sourcePos, sourcePos, wireMap);
                 WiringTemp.Traces[key] = founds;
             }

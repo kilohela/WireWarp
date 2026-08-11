@@ -22,6 +22,8 @@ internal static class Validate
             switch (node)
             {
                 case Input:
+                    Debug.Assert((InputID)node.Type != InputID.None,
+                        $"{At(node)} Type expect input");
                     Debug.Assert(node.Fanin.Count == 0,
                         $"{At(node)} Fanin expect 0, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanout.Count == 1,
@@ -31,6 +33,8 @@ internal static class Validate
                     break;
 
                 case InputPort:
+                    Debug.Assert((InputID)node.Type != InputID.None,
+                        $"{At(node)} Type expect input port");
                     Debug.Assert(node.Fanin.Count == 1,
                         $"{At(node)} Fanin expect 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is Input),
@@ -42,6 +46,8 @@ internal static class Validate
                     break;
 
                 case Output:
+                    Debug.Assert((OutputID)node.Type != OutputID.None,
+                        $"{At(node)} Type expect output");
                     Debug.Assert(node.Fanin.Count >= 1,
                         $"{At(node)} Fanin expect >= 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is OutputPort),
@@ -51,6 +57,8 @@ internal static class Validate
                     break;
 
                 case OutputPort:
+                    Debug.Assert((OutputID)node.Type != OutputID.None,
+                        $"{At(node)} Type expect output port");
                     Debug.Assert(node.Fanin.Count >= 1,
                         $"{At(node)} Fanin expect >= 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is Wire),
@@ -62,6 +70,8 @@ internal static class Validate
                     break;
 
                 case Lamp:
+                    Debug.Assert((LampID)node.Type != LampID.None,
+                        $"{At(node)} Type expect lamp");
                     Debug.Assert(node.Fanin.All(x => x is Wire),
                         $"{At(node)} Fanin expect Wire");
                     Debug.Assert(node.Fanout.Count == 1,
@@ -71,6 +81,8 @@ internal static class Validate
                     break;
 
                 case Gate:
+                    Debug.Assert((GateID)node.Type != GateID.None,
+                        $"{At(node)} Type expect gate");
                     Debug.Assert(node.Fanin.Count >= 1,
                         $"{At(node)} Fanin expect >= 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is Lamp),
@@ -82,6 +94,8 @@ internal static class Validate
                     break;
 
                 case Wire:
+                    Debug.Assert((WireID)node.Type != WireID.None,
+                        $"{At(node)} Type expect wire");
                     Debug.Assert(node.Fanin.Count >= 1,
                         $"{At(node)} Fanin expect >= 1, got {node.Fanin.Count}");
                     Debug.Assert(node.Fanin.All(x => x is Gate || x is InputPort),
@@ -148,13 +162,13 @@ internal static class Validate
 
     private static string At(IConnectable node) => node switch
     {
-        Input i => $"Input#{i.Id}@{i.Origin}",
-        InputPort ip => $"InputPort#{ip.Id}",
-        Output o => $"Output#{o.Id}@{o.Origin}",
-        OutputPort op => $"OutputPort#{op.Id}",
-        Lamp l => $"Lamp#{l.Id}@{l.Origin}",
-        Gate g => $"Gate#{g.Id}@{g.Origin}",
-        Wire w => $"Wire#{w.Id}",
+        Input i => $"Input:{(InputID)node.Type}#{i.Id}@{i.Origin}",
+        InputPort ip => $"InputPort:{(InputID)node.Type}#{ip.Id}",
+        Output o => $"Output:{(OutputID)node.Type}#{o.Id}@{o.Origin}",
+        OutputPort op => $"OutputPort:{(OutputID)node.Type}#{op.Id}",
+        Lamp l => $"Lamp:{(LampID)node.Type}#{l.Id}@{l.Origin}",
+        Gate g => $"Gate:{(GateID)node.Type}#{g.Id}@{g.Origin}",
+        Wire w => $"Wire:{(WireID)node.Type}#{w.Id}",
         _ => $"#{node.Id}"
     };
 }

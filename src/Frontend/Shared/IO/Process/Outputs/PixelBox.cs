@@ -61,7 +61,7 @@ partial class ProcessOutput
         var wire = new Wire { Type = color };
         var visited = new Dictionary<((int, int), WireID), Wire>();
 
-        var founds = Conversion.TraceWires.TraceWire(
+        var founds = Conversion.Trace.TraceWire(
             wire, start, prev, visited);
 
         result.UnionWith(founds.Select(f => f.component));
