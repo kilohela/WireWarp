@@ -20,6 +20,16 @@ public static class IOSerializer
         WriteGroups(w);
     }
 
+    public static byte[] ReadHeader(BinaryReader r)
+    {
+        r.BaseStream.Position = 0;
+
+        if (r.ReadUInt32() != Magic) throw new InvalidDataException("IO serializer magic mismatch");
+        if (r.ReadUInt32() != Version) throw new InvalidDataException("IO serializer version mismatch");
+
+        return r.ReadBytes(32);
+    }
+
     public static void Deserialize(BinaryReader r)
     {
         IOGraph.Clean();
