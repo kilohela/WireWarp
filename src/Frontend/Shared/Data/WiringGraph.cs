@@ -173,9 +173,6 @@ public static class WiringGraph
         Applier.Execute();
         Prune.Execute();
         Assign.Execute();
-
-        // validate
-        Hashcode.Execute();
         Validate.Execute();
     }
 

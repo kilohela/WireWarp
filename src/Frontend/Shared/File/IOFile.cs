@@ -53,6 +53,9 @@ public static class IOFile
         }
     }
 
+    public static bool MatchHash(byte[] hash) => 
+        LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
+
     public static byte[]? LoadHeader()
     {
         try
@@ -61,10 +64,6 @@ public static class IOFile
             using var r = new BinaryReader(fs);
             return HeaderFile.Read(r);
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"IOFile.LoadHeader failed: {e}");
-            return null;
-        }
+        catch { return null; }
     }
 }

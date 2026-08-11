@@ -31,6 +31,9 @@ public static class WiringFile
         }
     }
 
+    public static bool MatchHash(byte[] hash) => 
+        LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
+
     public static byte[]? LoadHeader()
     {
         try
@@ -39,10 +42,6 @@ public static class WiringFile
             using var r = new BinaryReader(fs);
             return HeaderFile.Read(r);
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"WiringFile.LoadHeader failed: {e}");
-            return null;
-        }
+        catch { return null; }
     }
 }

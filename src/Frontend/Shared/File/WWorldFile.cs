@@ -62,6 +62,9 @@ public static class WWorldFile
         }
     }
 
+    public static bool MatchHash(byte[] hash) => 
+        LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
+
     public static byte[]? LoadHeader()
     {
         try
@@ -70,10 +73,6 @@ public static class WWorldFile
             using var r = new BinaryReader(fs);
             return HeaderFile.Read(r);
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"WorldFile.LoadHeader failed: {e}");
-            return null;
-        }
+        catch { return null; }
     }
 }
