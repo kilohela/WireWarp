@@ -1,11 +1,12 @@
 using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Conversion;
+using WireWarp.Frontend.Shared.File;
 
 namespace WireWarp.Frontend.Shared.Data;
 
 public static class WiringGraph
 {
-    private static byte[]? _hash;
+    private static readonly byte[] _hash = new byte[32];
 
     private static readonly Dictionary<int, IConnectable> _components = [];
     private static int _nextComponentId;
@@ -18,7 +19,7 @@ public static class WiringGraph
     private static readonly List<Output> _outputs = [];
     private static readonly List<OutputPort> _outputPorts = [];
 
-    public static ReadOnlyMemory<byte>? Hash => _hash;
+    public static ReadOnlyMemory<byte> Hash => _hash;
 
     public static IReadOnlyDictionary<int, IConnectable> Components => _components;
 
@@ -35,7 +36,7 @@ public static class WiringGraph
     internal static Dictionary<(int x, int y), Input> InputPos { get; } = [];
     internal static Dictionary<(int x, int y), Output> OutputPos { get; } = [];
 
-    internal static void SetHash(byte[] hash) => _hash = (byte[])hash.Clone();
+    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
 
     // edge
 
@@ -165,13 +166,16 @@ public static class WiringGraph
         Scan.Execute();
         Trace.Execute();
 
-        // wiring postprocess
+        // postprocess
         Prune.Execute();
         Normalize.Execute();
         Prune.Execute();
         Applier.Execute();
         Prune.Execute();
         Assign.Execute();
+
+        // validate
+        Hashcode.Execute();
         Validate.Execute();
     }
 
@@ -192,6 +196,8 @@ public static class WiringGraph
 
         _components.Clear();
         _nextComponentId = 0;
+
+        Array.Clear(_hash);
 
         WiringExtra.Clean();
         WiringTemp.Clean();
