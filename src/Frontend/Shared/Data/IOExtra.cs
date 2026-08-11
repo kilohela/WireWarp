@@ -12,6 +12,15 @@ public static class IOExtra
     public static IReadOnlyDictionary<int, (List<(int x, int y)> inlets, List<(int x, int y)> outlets)> Pumps => _pumps;
     public static IReadOnlyDictionary<int, WireID> WireBulb => _wireBulb;
 
+    internal static void SetTeleporter(int portId, ((int x, int y) source, (int x, int y) target) v) =>
+        _teleporter[portId] = v;
+
+    internal static void SetPump(int portId, List<(int x, int y)> inlets, List<(int x, int y)> outlets) =>
+        _pumps[portId] = (inlets, outlets);
+
+    internal static void SetWireBulb(int portId, WireID type) =>
+        _wireBulb[portId] = type;
+
     public static void Build()
     {
         Clean();

@@ -4,11 +4,23 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public static class IOGraph
 {
+    private static readonly byte[] _hash = new byte[32];
+
     private static readonly Dictionary<(int x, int y), (int portId, InputID type)> _inputs = [];
     private static readonly Dictionary<int, ((int x, int y), OutputID type)> _outputs = [];
 
+    public static ReadOnlyMemory<byte> Hash => _hash;
+
     public static IReadOnlyDictionary<(int x, int y), (int portId, InputID type)> Inputs => _inputs;
     public static IReadOnlyDictionary<int, ((int x, int y), OutputID type)> Outputs => _outputs;
+
+    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
+
+    internal static void SetInput((int x, int y) pos, int portId, InputID type) =>
+        _inputs[pos] = (portId, type);
+
+    internal static void SetOutput(int portId, (int x, int y) pos, OutputID type) =>
+        _outputs[portId] = (pos, type);
 
     public static void Build()
     {
@@ -27,6 +39,8 @@ public static class IOGraph
             var pos = wire.Drains.First(d => WiringGraph.OutputPos[d] == output);
             _outputs[op.PortId] = (pos, output.Type);
         }
+
+        SetHash(WiringGraph.Hash.Span.ToArray());
 
         IOExtra.Build();
     }

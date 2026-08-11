@@ -6,9 +6,12 @@ public static class WiringSerializer
 {
     private const uint Magic = 0xABADBEEF;
     private const uint Version = 1;
+    const int GroupCount = 6;
 
     public static void Serialize(BinaryWriter w)
     {
+        w.BaseStream.Position = 0;
+
         w.Write(Magic);
         w.Write(Version);
         w.Write(WiringGraph.Hash.Span);
@@ -18,8 +21,6 @@ public static class WiringSerializer
 
     private static void WriteGroups(BinaryWriter w)
     {
-        const int GroupCount = 5;
-
         w.Write(GroupCount);
         var groupStartPos = w.BaseStream.Position;
         for (var i = 0; i < GroupCount; i++)
@@ -32,6 +33,7 @@ public static class WiringSerializer
         starts[2] = WriteNodes(w, WiringGraph.Lamps);
         starts[3] = WriteNodes(w, WiringGraph.Gates);
         starts[4] = WriteNodes(w, WiringGraph.Wires);
+        starts[5] = w.BaseStream.Position;
 
         w.BaseStream.Position = groupStartPos;
         for (var i = 0; i < GroupCount; i++)
