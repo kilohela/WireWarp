@@ -7,9 +7,19 @@ namespace WireWarp.Frontend.tModLoader;
 
 internal sealed class Accessor : Access
 {
+    // File
+
+    public override string WorldPathName => Terraria.Main.worldPathName;
+
+    public override void SaveWorld(bool resetTime = false, bool useTemps = false, bool canBeSkipped = false) => 
+        Terraria.IO.WorldFile.SaveWorld(resetTime, useTemps, canBeSkipped);
+    public override void LoadWorld() => 
+        Terraria.IO.WorldFile.LoadWorld();
+
+    // Preprocess
+
     public override int MaxTilesX => Terraria.Main.maxTilesX;
     public override int MaxTilesY => Terraria.Main.maxTilesY;
-    public override string WorldPathName => Terraria.Main.worldPathName;
 
     public override Tile Tile(int x, int y)
     {
@@ -31,8 +41,10 @@ internal sealed class Accessor : Access
 
     // Runtime
 
-    public override void Execute(InputID type, int portId, int i, int j) => RuntimeInput.Execute(type, portId, i, j);
-    public override void Execute(OutputID type, int portId, int i, int j) => RuntimeOutput.Execute(type, portId, i, j);
+    public override void Execute(InputID type, int portId, int i, int j) => 
+        RuntimeInput.Execute(type, portId, i, j);
+    public override void Execute(OutputID type, int portId, int i, int j) => 
+        RuntimeOutput.Execute(type, portId, i, j);
 
     public override void Tick() => RuntimeGeneral.Tick();
     public override void Reset() => RuntimeGeneral.Reset();

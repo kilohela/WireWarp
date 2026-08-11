@@ -17,7 +17,10 @@ public static class IOFile
         {
             using (var fs = new FileStream(TempPathName, FileMode.Create))
             using (var w = new BinaryWriter(fs))
-            IOSerializer.Serialize(w);
+            {
+                HeaderFile.Write(w, IOGraph.Hash.Span);
+                IOSerializer.Serialize(w);
+            }
             System.IO.File.Move(TempPathName, PathName, overwrite: true);
             return true;
         }
@@ -32,9 +35,14 @@ public static class IOFile
     {
         try
         {
+            IOGraph.Clean();
+            
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
-            IOSerializer.Deserialize(r);
+            {
+                IOGraph.SetHash(HeaderFile.Read(r));
+                IOSerializer.Deserialize(r);
+            }
             return true;
         }
         catch (Exception e)

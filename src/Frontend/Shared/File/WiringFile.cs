@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.File;
@@ -16,7 +17,10 @@ public static class WiringFile
         {
             using (var fs = new FileStream(TempPathName, FileMode.Create))
             using (var w = new BinaryWriter(fs))
-            WiringSerializer.Serialize(w);
+            {
+                HeaderFile.Write(w, WiringGraph.Hash.Span);
+                WiringSerializer.Serialize(w);
+            }
             System.IO.File.Move(TempPathName, PathName, overwrite: true);
             return true;
         }

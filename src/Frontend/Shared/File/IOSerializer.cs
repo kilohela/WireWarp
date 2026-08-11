@@ -5,42 +5,15 @@ namespace WireWarp.Frontend.Shared.File;
 
 public static class IOSerializer
 {
-    private const uint Magic = 0x4F495757;
-    private const uint Version = 1;
     private const int GroupCount = 6;
 
     public static void Serialize(BinaryWriter w)
     {
-        w.BaseStream.Position = 0;
-
-        w.Write(Magic);
-        w.Write(Version);
-        w.Write(IOGraph.Hash.Span);
-
         WriteGroups(w);
-    }
-
-    public static byte[] ReadHeader(BinaryReader r)
-    {
-        r.BaseStream.Position = 0;
-
-        if (r.ReadUInt32() != Magic) throw new InvalidDataException("IO serializer magic mismatch");
-        if (r.ReadUInt32() != Version) throw new InvalidDataException("IO serializer version mismatch");
-
-        return r.ReadBytes(32);
     }
 
     public static void Deserialize(BinaryReader r)
     {
-        IOGraph.Clean();
-
-        r.BaseStream.Position = 0;
-
-        if (r.ReadUInt32() != Magic) throw new InvalidDataException("IO serializer magic mismatch");
-        if (r.ReadUInt32() != Version) throw new InvalidDataException($"IO serializer version mismatch");
-
-        IOGraph.SetHash(r.ReadBytes(32));
-
         ReadGroups(r);
     }
 

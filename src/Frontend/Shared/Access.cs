@@ -7,12 +7,17 @@ public abstract class Access
 {
     public static Access Instance { get; set; } = null!;
 
+    // File
+
+    public abstract string WorldPathName { get; }
+    public abstract void SaveWorld(bool resetTime = false, bool useTemps = false, bool canBeSkipped = false);
+    public abstract void LoadWorld();
+
     // Preprocess
 
     public abstract int MaxTilesX { get; }
     public abstract int MaxTilesY { get; }
     public abstract Tile Tile(int x, int y);
-    public abstract string WorldPathName { get; }
 
     // Runtime
 

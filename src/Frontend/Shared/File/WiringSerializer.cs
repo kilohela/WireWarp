@@ -4,18 +4,10 @@ namespace WireWarp.Frontend.Shared.File;
 
 public static class WiringSerializer
 {
-    private const uint Magic = 0xABADBEEF;
-    private const uint Version = 1;
     const int GroupCount = 6;
 
     public static void Serialize(BinaryWriter w)
     {
-        w.BaseStream.Position = 0;
-
-        w.Write(Magic);
-        w.Write(Version);
-        w.Write(WiringGraph.Hash.Span);
-
         WriteGroups(w);
     }
 
