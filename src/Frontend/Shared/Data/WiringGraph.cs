@@ -226,8 +226,9 @@ public static class WiringGraph
         Validate.Execute();
     }
 
-    public static void Apply()
+    public static void Resolve()
     {
+        Apply.Execute();
     }
 
     public static void Clean()

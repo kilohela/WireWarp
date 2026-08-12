@@ -160,7 +160,7 @@ internal static class Validate
         }
     }
 
-    private static string At(IConnectable node) => node switch
+    internal static string At(IConnectable node) => node switch
     {
         Input i => $"Input:{(InputID)node.Type}#{i.Id}@{i.Origin}",
         InputPort ip => $"InputPort:{(InputID)node.Type}#{ip.Id}",

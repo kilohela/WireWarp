@@ -71,14 +71,20 @@ public static class IOGraph
         foreach (var (id, pos) in _lampPos)
         {
             if (components.TryGetValue(id, out var node) && node is Lamp lamp)
+            {
                 lamp.Origin = pos;
+                WiringGraph.LampPos[pos] = lamp;
+            }
             else Debug.WriteLine($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
         }
 
         foreach (var (id, pos) in _gatePos)
         {
             if (components.TryGetValue(id, out var node) && node is Gate gate)
+            {
                 gate.Origin = pos;
+                WiringGraph.GatePos[pos] = gate;
+            }
             else Debug.WriteLine($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
         }
 
