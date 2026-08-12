@@ -84,6 +84,18 @@ public static class Runtime
     public static void SyncFrom()
     {
         // TODO: IPC sync tile state from backend
+
+        if (WiringFile.MatchHash(IOGraph.Hash.Span.ToArray()))
+        {
+            WiringFile.Load();
+        
+            IOGraph.Resolve();
+            WiringGraph.Resolve();
+        }
+        else
+            Debug.WriteLine($"Hash not match, sync failed");
+
+        WiringGraph.Clean();
     }
 
     public static void Reset()
