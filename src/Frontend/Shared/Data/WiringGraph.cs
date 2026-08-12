@@ -226,7 +226,7 @@ public static class WiringGraph
         Validate.Execute();
     }
 
-    public static void ReBuild()
+    public static void Apply()
     {
     }
 

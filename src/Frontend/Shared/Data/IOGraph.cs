@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Data;
@@ -7,7 +8,7 @@ public static class IOGraph
     private static readonly byte[] _hash = new byte[32];
 
     private static readonly Dictionary<(int x, int y), (int portId, InputID type)> _inputs = [];
-    private static readonly Dictionary<int, ((int x, int y), OutputID type)> _outputs = [];
+    private static readonly Dictionary<int, ((int x, int y) pos, OutputID type)> _outputs = [];
 
     private static readonly Dictionary<int, (int x, int y)> _gatePos = [];
     private static readonly Dictionary<int, (int x, int y)> _lampPos = [];
@@ -61,6 +62,29 @@ public static class IOGraph
         SetHash(WiringGraph.Hash.Span.ToArray());
 
         IOExtra.Build();
+    }
+
+    public static void Resolve()
+    {
+        var components = WiringGraph.Components;
+
+        foreach (var (id, pos) in _lampPos)
+        {
+            if (components.TryGetValue(id, out var node) && node is Lamp lamp)
+                lamp.Origin = pos;
+            else Debug.WriteLine($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
+        }
+
+        foreach (var (id, pos) in _gatePos)
+        {
+            if (components.TryGetValue(id, out var node) && node is Gate gate)
+                gate.Origin = pos;
+            else Debug.WriteLine($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
+        }
+
+        // Inputs and outputs are resolved by world load, not reconstructed here.
+
+        IOExtra.Resolve();
     }
 
     public static void Clean()
