@@ -84,7 +84,6 @@ public static class Runtime
 
     public static void SyncFrom()
     {
-        Reset();
         // TODO: IPC sync tile state from backend
     }
 
