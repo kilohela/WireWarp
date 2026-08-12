@@ -1,4 +1,5 @@
 using WireWarp.Frontend.Shared.Data;
+using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.File;
 
@@ -55,5 +56,67 @@ public static class WiringSerializer
         w.Write(fanoutIds.Count);
         foreach (var id in fanoutIds)
             w.Write(id);
+    }
+
+    private enum Group { InputPorts, OutputPorts, Lamps, Gates, Wires }
+
+    public static void Deserialize(BinaryReader r)
+    {
+        ReadGroups(r);
+    }
+
+    private static void ReadGroups(BinaryReader r)
+    {
+        if (r.ReadInt32() != GroupCount) throw new InvalidDataException("Wiring group count mismatch");
+
+        var starts = new int[GroupCount];
+        for (var i = 0; i < GroupCount; i++)
+            starts[i] = r.ReadInt32();
+
+        var edges = new List<(int fromId, int toId)>();
+
+        if (ReadNodes(r, edges, Group.InputPorts) != starts[1]) throw new InvalidDataException("Wiring group 0 length mismatch");
+        if (ReadNodes(r, edges, Group.OutputPorts) != starts[2]) throw new InvalidDataException("Wiring group 1 length mismatch");
+        if (ReadNodes(r, edges, Group.Lamps) != starts[3]) throw new InvalidDataException("Wiring group 2 length mismatch");
+        if (ReadNodes(r, edges, Group.Gates) != starts[4]) throw new InvalidDataException("Wiring group 3 length mismatch");
+        if (ReadNodes(r, edges, Group.Wires) != starts[5]) throw new InvalidDataException("Wiring group 4 length mismatch");
+
+        foreach (var (fromId, toId) in edges)
+            WiringGraph.AddEdge(WiringGraph.Components[fromId], WiringGraph.Components[toId]);
+    }
+
+    private static long ReadNodes(BinaryReader r, List<(int fromId, int toId)> edges, Group group)
+    {
+        var count = r.ReadInt32();
+        for (var i = 0; i < count; i++)
+            ReadNode(r, edges, group);
+        return r.BaseStream.Position;
+    }
+
+    private static void ReadNode(BinaryReader r, List<(int fromId, int toId)> edges, Group group)
+    {
+        var type = r.ReadByte();
+        var id = r.ReadInt32();
+
+        var portId = group is Group.InputPorts or Group.OutputPorts
+            ? r.ReadInt32() : 0;
+
+        var fanoutCount = r.ReadInt32();
+        for (var j = 0; j < fanoutCount; j++)
+            edges.Add((id, r.ReadInt32()));
+
+        switch (group)
+        {
+            case Group.InputPorts:
+                WiringGraph.AddInputPort(id, portId); break;
+            case Group.OutputPorts:
+                WiringGraph.AddOutputPort(id, portId); break;
+            case Group.Lamps:
+                WiringGraph.AddLamp((LampID)type, id); break;
+            case Group.Gates:
+                WiringGraph.AddGate((GateID)type, id); break;
+            case Group.Wires:
+                WiringGraph.AddWire((WireID)type, id); break;
+        }
     }
 }

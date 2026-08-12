@@ -9,7 +9,7 @@ public class Gate : IConnectable
     public GateID Type { get; init; }
     byte IConnectable.Type => (byte)Type;
 
-    public (int X, int Y) Origin { get; init; }
+    public (int X, int Y) Origin { get; set; }
 
     public HashSet<IConnectable> Fanin { get; } = [];
     public HashSet<IConnectable> Fanout { get; } = [];

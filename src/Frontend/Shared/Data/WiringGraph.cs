@@ -62,6 +62,15 @@ public static class WiringGraph
         return node;
     }
 
+    internal static Wire AddWire(WireID type, int id)
+    {
+        var node = new Wire { Id = id, Type = type };
+        _components[id] = node;
+        _wires.Add(node);
+        UpdateMaxId(id);
+        return node;
+    }
+
     internal static Gate AddGate(GateID type, (int x, int y) orgin)
     {
         var node = new Gate { Id = _nextComponentId++, Type = type, Origin = orgin };
@@ -70,11 +79,29 @@ public static class WiringGraph
         return node;
     }
 
+    internal static Gate AddGate(GateID type, int id)
+    {
+        var node = new Gate { Id = id, Type = type };
+        _components[id] = node;
+        _gates.Add(node);
+        UpdateMaxId(id);
+        return node;
+    }
+
     internal static Lamp AddLamp(LampID type, (int x, int y) orgin)
     {
         var node = new Lamp { Id = _nextComponentId++, Type = type, Origin = orgin };
         _components[node.Id] = node;
         _lamps.Add(node);
+        return node;
+    }
+
+    internal static Lamp AddLamp(LampID type, int id)
+    {
+        var node = new Lamp { Id = id, Type = type };
+        _components[id] = node;
+        _lamps.Add(node);
+        UpdateMaxId(id);
         return node;
     }
 
@@ -94,6 +121,15 @@ public static class WiringGraph
         return node;
     }
 
+    internal static InputPort AddInputPort(int id, int portId)
+    {
+        var node = new InputPort { Id = id, PortId = portId };
+        _components[id] = node;
+        _inputPorts.Add(node);
+        UpdateMaxId(id);
+        return node;
+    }
+
     internal static Output AddOutput(OutputID type, (int x, int y) orgin)
     {
         var node = new Output { Id = _nextComponentId++, Type = type, Origin = orgin };
@@ -108,6 +144,20 @@ public static class WiringGraph
         _components[node.Id] = node;
         _outputPorts.Add(node);
         return node;
+    }
+
+    internal static OutputPort AddOutputPort(int id, int portId)
+    {
+        var node = new OutputPort { Id = id, PortId = portId };
+        _components[id] = node;
+        _outputPorts.Add(node);
+        UpdateMaxId(id);
+        return node;
+    }
+
+    private static void UpdateMaxId(int id)
+    {
+        if (id >= _nextComponentId) _nextComponentId = id + 1;
     }
 
     internal static IConnectable CopyNode(IConnectable node)
@@ -174,6 +224,10 @@ public static class WiringGraph
         Prune.Execute();
         Assign.Execute();
         Validate.Execute();
+    }
+
+    public static void ReBuild()
+    {
     }
 
     public static void Clean()

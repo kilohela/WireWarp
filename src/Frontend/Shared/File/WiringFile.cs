@@ -31,6 +31,28 @@ public static class WiringFile
         }
     }
 
+    public static bool Load()
+    {
+        try
+        {
+            WiringGraph.Clean();
+
+            using var fs = new FileStream(PathName, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            {
+                WiringGraph.SetHash(HeaderFile.Read(r));
+                WiringSerializer.Deserialize(r);
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"WiringFile.Load failed: {e}");
+            WiringGraph.Clean();
+            return false;
+        }
+    }
+
     public static bool MatchHash(byte[] hash) => 
         LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
 
