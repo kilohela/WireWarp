@@ -30,7 +30,7 @@ internal static class Apply
             _ => 0,
         };
 
-        SetTile(lamp.Origin.X, lamp.Origin.Y, TileID.LogicGateLamp, frameX, 0);
+        ApplyTile(lamp.Origin.X, lamp.Origin.Y, TileID.LogicGateLamp, frameX, 0);
     }
 
     private static void ApplyLogicGate(Gate gate)
@@ -40,7 +40,7 @@ internal static class Apply
         
         if (gate.Type == GateID.Fault)
         {
-            SetTile(gate.Origin.X, gate.Origin.Y, TileID.LogicGate, 2 * 18, 0);
+            ApplyTile(gate.Origin.X, gate.Origin.Y, TileID.LogicGate, 2 * 18, 0);
             return;
         }
 
@@ -69,16 +69,16 @@ internal static class Apply
             _ => 0
         };
 
-        SetTile(gate.Origin.X, gate.Origin.Y, TileID.LogicGate, frameX, frameY);
+        ApplyTile(gate.Origin.X, gate.Origin.Y, TileID.LogicGate, frameX, frameY);
     }
 
-    private static void SetTile(int x, int y, ushort type, short frameX, short frameY)
+    private static void ApplyTile(int x, int y, ushort type, short frameX, short frameY)
     {
-        // TODO: Add a new sync tile interface
-        var tile = Main.tile[x, y];
+        var tile = Access.Instance.GetTile(x, y);
         tile.HasTile = true;
         tile.type = type;
         tile.frameX = frameX;
         tile.frameY = frameY;
+        Access.Instance.SetTile(x, y, tile);
     }
 }

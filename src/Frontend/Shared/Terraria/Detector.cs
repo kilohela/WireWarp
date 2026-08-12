@@ -1,8 +1,7 @@
 using WireWarp.Frontend.Shared.ID;
-using WireWarp.Frontend.Shared.Terraria;
 using WireWarp.Frontend.Shared.Terraria.ID;
 
-namespace WireWarp.Frontend.Shared;
+namespace WireWarp.Frontend.Shared.Terraria;
 
 internal static class Detector
 {

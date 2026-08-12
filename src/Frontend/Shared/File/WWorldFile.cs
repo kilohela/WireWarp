@@ -7,10 +7,10 @@ namespace WireWarp.Frontend.Shared.File;
 public static class WWorldFile
 {
     private static string PathName =>
-        Path.ChangeExtension(Main.worldPathName, ".wwld");
+        Path.ChangeExtension(Access.Instance.WorldPathName, ".wwld");
 
     private static string WWLDTempPathName => PathName + ".tmp";
-    private static string WLDTempPathName => Main.worldPathName + ".tmp";
+    private static string WLDTempPathName => Access.Instance.WorldPathName + ".tmp";
 
     public static bool Save()
     {
@@ -18,7 +18,7 @@ public static class WWorldFile
         {
             // WorldFile.SaveWorld();
 
-            using (var src = new FileStream(Main.worldPathName, FileMode.Open))
+            using (var src = new FileStream(Access.Instance.WorldPathName, FileMode.Open))
             using (var dst = new FileStream(WWLDTempPathName, FileMode.Create))
             using (var w = new BinaryWriter(dst))
             {
@@ -50,7 +50,7 @@ public static class WWorldFile
                 src.CopyTo(dst);
             }
 
-            System.IO.File.Move(WLDTempPathName, Main.worldPathName, overwrite: true);
+            System.IO.File.Move(WLDTempPathName, Access.Instance.WorldPathName, overwrite: true);
 
             // WorldFile.LoadWorld();
             return true;

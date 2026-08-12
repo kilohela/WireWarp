@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.File;
-using WireWarp.Frontend.Shared.Terraria.IO;
 
 namespace WireWarp.Frontend.Shared;
 
@@ -78,7 +77,7 @@ public static class Runtime
 
     public static void SyncTo()
     {
-        WorldFile.SaveWorld();
+        Access.Instance.SaveWorld();
         Start();
     }
 
@@ -97,7 +96,7 @@ public static class Runtime
         if (WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
         {
             WWorldFile.Load();
-            WorldFile.LoadWorld();
+            Access.Instance.LoadWorld();
         }
         else
             Debug.WriteLine($"Hash not match, reset failed");

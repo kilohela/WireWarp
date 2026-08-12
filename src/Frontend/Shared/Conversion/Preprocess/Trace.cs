@@ -23,7 +23,7 @@ internal static class Trace
     {
         foreach (var color in new[] { WireID.Red, WireID.Blue, WireID.Green, WireID.Yellow })
         {
-            if (!Detector.HasWire(Main.tile[start.x, start.y], color)) continue;
+            if (!Detector.HasWire(Access.Instance.GetTile(start.x, start.y), color)) continue;
             if (wireByTile.ContainsKey((start, color))) continue;
 
             var wire = WiringGraph.AddWire(color);
@@ -99,11 +99,11 @@ internal static class Trace
         {
             var (cur, prev) = queue.Dequeue();
 
-            if (cur.x < 0 || cur.x >= Main.maxTilesX ||
-                cur.y < 0 || cur.y >= Main.maxTilesY)
+            if (cur.x < 0 || cur.x >= Access.Instance.MaxTilesX ||
+                cur.y < 0 || cur.y >= Access.Instance.MaxTilesY)
                 continue;
 
-            var tile = Main.tile[cur.x, cur.y];
+            var tile = Access.Instance.GetTile(cur.x, cur.y);
             if (!Detector.HasWire(tile, wire.Type)) continue;
 
             var jb = Detector.DetectJunctionBox(tile);
@@ -128,7 +128,8 @@ internal static class Trace
             }
             else
             {
-                var prevJb = Detector.DetectJunctionBox(Main.tile[prev.x, prev.y]) != JunctionBoxID.None;
+                var prevTile = Access.Instance.GetTile(prev.x, prev.y);
+                var prevJb = Detector.DetectJunctionBox(prevTile) != JunctionBoxID.None;
 
                 foreach (var (dx, dy) in new[] { (1, 0), (0, 1), (-1, 0), (0, -1) })
                 {

@@ -39,7 +39,7 @@ partial class ProcessOutput
                 var pump = (Output)component;
                 if (!visited.Add(pump)) continue;
 
-                var tileType = Main.tile[active.x, active.y].type;
+                var tileType = Access.Instance.GetTile(active.x, active.y).type;
                 if (tileType == TileID.InletPump)
                     inlets.Add(active);
                 else if (tileType == TileID.OutletPump)

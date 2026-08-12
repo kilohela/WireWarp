@@ -11,11 +11,11 @@ public static class WiringHash
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> cell = stackalloc byte[15];
 
-        for (var y = 0; y < Main.maxTilesY; y++)
+        for (var y = 0; y < Access.Instance.MaxTilesY; y++)
         {
-            for (var x = 0; x < Main.maxTilesX; x++)
+            for (var x = 0; x < Access.Instance.MaxTilesX; x++)
             {
-                var tile = Main.tile[x, y];
+                var tile = Access.Instance.GetTile(x, y);
                 if (!Detector.HasWiring(tile)) continue;
 
                 byte flags = 0;

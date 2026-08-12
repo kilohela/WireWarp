@@ -17,7 +17,8 @@ public abstract class Access
 
     public abstract int MaxTilesX { get; }
     public abstract int MaxTilesY { get; }
-    public abstract Tile Tile(int x, int y);
+    public abstract Tile GetTile(int x, int y);
+    public abstract void SetTile(int x, int y, Tile tile);
 
     // Runtime
 

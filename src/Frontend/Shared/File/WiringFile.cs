@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.Shared.File;
 public static class WiringFile
 {
     private static string PathName =>
-        Path.ChangeExtension(Main.worldPathName, ".wwir");
+        Path.ChangeExtension(Access.Instance.WorldPathName, ".wwir");
 
     private static string TempPathName => PathName + ".tmp";
 

@@ -21,7 +21,7 @@ internal sealed class Accessor : Access
     public override int MaxTilesX => Terraria.Main.maxTilesX;
     public override int MaxTilesY => Terraria.Main.maxTilesY;
 
-    public override Tile Tile(int x, int y)
+    public override Tile GetTile(int x, int y)
     {
         var real = Terraria.Main.tile[x, y];
         return new Tile
@@ -37,6 +37,21 @@ internal sealed class Accessor : Access
             GreenWire = real.GreenWire,
             YellowWire = real.YellowWire,
         };
+    }
+
+    public override void SetTile(int x, int y, Tile tile)
+    {
+        var real = Terraria.Main.tile[x, y];
+        real.TileType = tile.type;
+        real.TileFrameX = tile.frameX;
+        real.TileFrameY = tile.frameY;
+        real.HasTile = tile.HasTile;
+        real.HasActuator = tile.HasActuator;
+        real.IsActuated = tile.IsActuated;
+        real.RedWire = tile.RedWire;
+        real.BlueWire = tile.BlueWire;
+        real.GreenWire = tile.GreenWire;
+        real.YellowWire = tile.YellowWire;
     }
 
     // Runtime

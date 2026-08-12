@@ -16,14 +16,14 @@ internal static class Scan
         var inputByOrigin = new Dictionary<(int x, int y, InputID type), Input>();
         var outputByOrigin = new Dictionary<(int x, int y, OutputID type), Output>();
 
-        var w = Main.maxTilesX;
-        var h = Main.maxTilesY;
+        var w = Access.Instance.MaxTilesX;
+        var h = Access.Instance.MaxTilesY;
 
         for (var x = 0; x < w; x++)
         {
             for (var y = 0; y < h; y++)
             {
-                var tile = Main.tile[x, y];
+                var tile = Access.Instance.GetTile(x, y);
                 if (!tile.HasTile) continue;
 
                 var gateType = Detector.DetectGate(tile);

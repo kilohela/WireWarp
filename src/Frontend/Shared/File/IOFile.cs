@@ -7,7 +7,7 @@ namespace WireWarp.Frontend.Shared.File;
 public static class IOFile
 {
     private static string PathName =>
-        Path.ChangeExtension(Main.worldPathName, ".wwio");
+        Path.ChangeExtension(Access.Instance.WorldPathName, ".wwio");
 
     private static string TempPathName => PathName + ".tmp";
 
