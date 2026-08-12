@@ -12,7 +12,7 @@ public static class IOGraph
     public static ReadOnlyMemory<byte> Hash => _hash;
 
     public static IReadOnlyDictionary<(int x, int y), (int portId, InputID type)> Inputs => _inputs;
-    public static IReadOnlyDictionary<int, ((int x, int y), OutputID type)> Outputs => _outputs;
+    public static IReadOnlyDictionary<int, ((int x, int y) pos, OutputID type)> Outputs => _outputs;
 
     internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
 
