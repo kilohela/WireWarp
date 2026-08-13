@@ -1,12 +1,11 @@
 using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
-using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.File;
 
 public static class IOFile
 {
-    private static string PathName =>
+    public static string PathName =>
         Path.ChangeExtension(Access.Instance.WorldPathName, ".wwio");
 
     private static string TempPathName => PathName + ".tmp";

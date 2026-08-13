@@ -1,12 +1,11 @@
 using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
-using WireWarp.Frontend.Shared.Terraria;
 
 namespace WireWarp.Frontend.Shared.File;
 
 public static class WWorldFile
 {
-    private static string PathName =>
+    public static string PathName =>
         Path.ChangeExtension(Access.Instance.WorldPathName, ".wwld");
 
     private static string WWLDTempPathName => PathName + ".tmp";

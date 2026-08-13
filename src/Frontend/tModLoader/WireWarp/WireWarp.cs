@@ -15,6 +15,6 @@ internal sealed class WireWarpSystem : ModSystem
 {
     public override void OnWorldLoad()
     {
-        Runtime.Start();
+        Runtime.Startup();
     }
 }

@@ -90,6 +90,8 @@ public static class Transport
 
     private static byte[] Request(Tag tag, byte[] body)
     {
+        if (!IsOpen) throw new InvalidOperationException("Transport not open");
+
         WriteMessage(tag, body);
         var (respTag, id, respBody) = ReadMessage();
 

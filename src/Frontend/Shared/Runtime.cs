@@ -6,54 +6,78 @@ namespace WireWarp.Frontend.Shared;
 
 public static class Runtime
 {
-    private static bool _run;
+    private static bool _isRun;
     private static long _time;
 
-    public static bool Run => _run;
+    public static bool IsRun => _isRun;
     public static long Time => _time;
 
-    public static void Play() => _run = true;
-    public static void Stop() => _run = false;
+    public static void Run() => _isRun = true;
+    public static void Stop() => _isRun = false;
 
-    public static void Start()
+    public static void Startup()
     {
-        SyncFile();
+        UpdateFile();
+
+        if (!Transport.IsOpen)
+        {
+            Transport.Open();
+            CheckAck("Backend startup failed", Transport.SendStartup());
+        }
+
+        _isRun = true;
+        _time = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
-
-        _run = true;
-        _time = 0;
     }
 
-    public static void End()
+    public static void Shutdown()
     {
-        _run = false;
+        if (Transport.IsOpen)
+        {
+            CheckAck("Backend shutdown failed", Transport.SendShutdown(), false);
+            Transport.Close();
+        }
+
+        _isRun = false;
+        _time = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
+
         IOGraph.Clean();
         WiringGraph.Clean();
     }
 
     public static void Tick()
     {
-        if (!_run) return;
+        if (!_isRun)
+            CheckAck("Backend frame failed", 
+                Transport.SendFrame(false, _time, []).ack);
+        else
+        {
+            foreach (var output in IOFrame.ReadOutputs())
+                HitOutput(output);
 
-        foreach (var output in IOFrame.ReadOutputs())
-            HitOutput(output);
+            var inputs = PackRLE(IOFrame.ReadInputs());
+            
+            var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
+            CheckAck("Backend frame failed", ack);
 
-        // TODO: IPC sync wirte outputs and read inputs
+            foreach (var output in UnPackRLE(outputs))
+                IOFrame.WriteOutput(output);
 
-        Access.Instance.Tick();
-        IOFrame.Tick();
+            Access.Instance.Tick();
+            IOFrame.Tick();
 
-        _time++;
+            _time++;
+        }
     }
 
     public static void HitInput(int x, int y, bool hitPoint = true)
     {
-        if (!_run) return;
+        if (!_isRun) return;
 
         if (IOGraph.Inputs.TryGetValue((x, y), out var input))
         {
@@ -67,7 +91,7 @@ public static class Runtime
 
     private static void HitOutput(int portId)
     {
-        if (!_run) return;
+        if (!_isRun) return;
 
         if (IOGraph.Outputs.TryGetValue(portId, out var output))
             Access.Instance.Execute(output.type, portId, output.pos.x, output.pos.y);
@@ -78,43 +102,48 @@ public static class Runtime
     public static void SyncTo()
     {
         Access.Instance.SaveWorld();
-        Start();
+        UpdateFile();
+        CheckAck("Backend sync to failed", 
+            Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
     }
 
     public static void SyncFrom()
     {
-        // TODO: IPC sync tile state from backend
+        var (ack, payload) = Transport.SendSyncFrom();
+        CheckAck("Backend sync from failed", ack);
 
-        if (WiringFile.MatchHash(IOGraph.Hash.Span.ToArray()))
+        if (!payload.hash.SequenceEqual(IOGraph.Hash.Span))
+            Debug.WriteLine("Hash not match, sync failed");
+        else
         {
             WiringFile.Load();
-        
+
             IOGraph.Resolve();
             WiringGraph.Resolve();
-        }
-        else
-            Debug.WriteLine($"Hash not match, sync failed");
 
-        WiringGraph.Clean();
+            WiringGraph.Clean(); 
+        }
     }
 
     public static void Reset()
     {
+        CheckAck("Backend reset failed", Transport.SendReset());
+
         _time = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
 
-        if (WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
+        if (!WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
+            Debug.WriteLine($"Hash not match, reset failed");
+        else
         {
             WWorldFile.Load();
             Access.Instance.LoadWorld();
         }
-        else
-            Debug.WriteLine($"Hash not match, reset failed");
     }
 
-    private static void SyncFile()
+    private static void UpdateFile()
     {
         var hash = WiringHash.GetHash();
 
@@ -135,7 +164,32 @@ public static class Runtime
         }
 
         WWorldFile.Save();
+    }
 
-        // TODO: IPC sync file to backend
+    private static List<(int portId, int count)> PackRLE(IReadOnlyList<int> ids)
+    {
+        var result = new List<(int portId, int count)>();
+        foreach (var id in ids)
+        {
+            if (result.Count > 0 && result[^1].portId == id)
+                result[^1] = (id, result[^1].count + 1);
+            else
+                result.Add((id, 1));
+        }
+        return result;
+    }
+
+    private static IEnumerable<int> UnPackRLE(IReadOnlyList<(int portId, int count)> ids)
+    {
+        foreach (var (portId, count) in ids)
+            for (var k = 0; k < count; k++)
+                yield return portId;
+    }
+
+    public static void CheckAck(string prefix, (int status, string message) ack, bool @throw = true)
+    {
+        if (ack.status == 0) return;
+        if (@throw) throw new Exception($"{prefix}: {ack.status} {ack.message}");
+        Debug.WriteLine($"{prefix}: {ack.status} {ack.message}");
     }
 }
