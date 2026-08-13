@@ -15,12 +15,10 @@ public static class WiringFile
     {
         try
         {
-            using (var fs = new FileStream(TempPathName, FileMode.Create))
-            using (var w = new BinaryWriter(fs))
-            {
-                HeaderFile.Write(w, WiringGraph.Hash.Span);
-                WiringSerializer.Serialize(w);
-            }
+            using var fs = new FileStream(TempPathName, FileMode.Create);
+            using var w = new BinaryWriter(fs);
+            HeaderFile.Write(w, WiringGraph.Hash.Span);
+            WiringSerializer.Serialize(w);
             System.IO.File.Move(TempPathName, PathName, overwrite: true);
             return true;
         }
@@ -39,10 +37,8 @@ public static class WiringFile
 
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
-            {
-                WiringGraph.SetHash(HeaderFile.Read(r));
-                WiringSerializer.Deserialize(r);
-            }
+            WiringGraph.SetHash(HeaderFile.Read(r));
+            WiringSerializer.Deserialize(r);
             return true;
         }
         catch (Exception e)
