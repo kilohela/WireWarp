@@ -95,13 +95,11 @@ public static class Transport
         WriteMessage(tag, body);
         var (respTag, id, respBody) = ReadMessage();
 
-        if (_lastId != 0 && id != _lastId + 1)
-            throw new InvalidDataException($"Message gap detected: expected {_lastId + 1}, got {id}");
+        if (_lastId != 0 && id != _lastId + 1) throw new InvalidDataException($"Message gap detected: expected {_lastId + 1}, got {id}");
         _lastId = id;
 
         var expected = (Tag)((ushort)tag + 1);
-        if (respTag != expected)
-            throw new InvalidDataException($"Unexpected tag {(ushort)respTag}, expected {(ushort)expected}");
+        if (respTag != expected) throw new InvalidDataException($"Unexpected tag {(ushort)respTag}, expected {(ushort)expected}");
 
         return respBody;
     }

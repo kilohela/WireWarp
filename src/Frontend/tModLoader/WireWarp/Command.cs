@@ -1,3 +1,4 @@
+using System;
 using Terraria.ModLoader;
 using WireWarp.Frontend.Shared;
 
@@ -18,46 +19,54 @@ internal sealed class WireWarpCommand : ModCommand
             return;
         }
 
-        switch (args[0])
+        try
         {
-            case "startup":
-                Runtime.Startup();
-                caller.Reply("WireWarp started");
-                break;
+            switch (args[0])
+            {
+                case "startup":
+                    Runtime.Startup();
+                    caller.Reply("WireWarp started");
+                    break;
 
-            case "shutdown":
-                Runtime.Shutdown();
-                caller.Reply("WireWarp shutdown");
-                break;
+                case "shutdown":
+                    Runtime.Shutdown();
+                    caller.Reply("WireWarp shutdown");
+                    break;
 
-            case "run":
-                Runtime.Run();
-                caller.Reply("WireWarp running");
-                break;
+                case "run":
+                    Runtime.Run();
+                    caller.Reply("WireWarp running");
+                    break;
 
-            case "stop":
-                Runtime.Stop();
-                caller.Reply("WireWarp stopped");
-                break;
+                case "stop":
+                    Runtime.Stop();
+                    caller.Reply("WireWarp stopped");
+                    break;
 
-            case "syncto":
-                Runtime.SyncTo();
-                caller.Reply("WireWarp synced to backend");
-                break;
+                case "syncto":
+                    Runtime.SyncTo();
+                    caller.Reply("WireWarp synced to backend");
+                    break;
 
-            case "syncfrom":
-                Runtime.SyncFrom();
-                caller.Reply("WireWarp synced from backend");
-                break;
+                case "syncfrom":
+                    Runtime.SyncFrom();
+                    caller.Reply("WireWarp synced from backend");
+                    break;
 
-            case "reset":
-                Runtime.Reset();
-                caller.Reply("WireWarp reset");
-                break;
+                case "reset":
+                    Runtime.Reset();
+                    caller.Reply("WireWarp reset");
+                    break;
 
-            default:
-                caller.Reply(Usage);
-                break;
+                default:
+                    caller.Reply(Usage);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            caller.Reply($"WireWarp command failed: {e.Message}");
+            ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp command failed: {e}");
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.File;
 
@@ -6,55 +5,81 @@ namespace WireWarp.Frontend.Shared;
 
 public static class Runtime
 {
+    private const int TimeoutWindow = 600;
+
+    private static bool _isOpen;
     private static bool _isRun;
     private static long _time;
 
+    public static bool IsOpen => _isOpen;
     public static bool IsRun => _isRun;
     public static long Time => _time;
 
-    public static void Run() => _isRun = true;
-    public static void Stop() => _isRun = false;
+    public static void Run() { if (_isOpen) _isRun = true; }
+    public static void Stop() { if (_isOpen) _isRun = false; }
 
     public static void Startup()
     {
-        UpdateFile();
+        if (_isOpen) return;
 
         if (!Transport.IsOpen)
         {
+            Access.Instance.Status("Waiting for backend...");
             Transport.Open();
-            CheckAck("Backend startup failed", Transport.SendStartup());
         }
 
+        UpdateFile();
+        Access.Instance.Status("Waiting for backend...");
+        CheckAck("Backend sync to failed", 
+            Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
+
+        Access.Instance.Status("Backend initializing...");
+        CheckAck("Backend startup failed", Transport.SendStartup());
+
+        _isOpen = true;
         _isRun = true;
         _time = 0;
 
+        Transport.FrameTimeoutCount = 0;
+
         Access.Instance.Reset();
         IOFrame.Clean();
+
+        Access.Instance.Notify("Frontend started");
     }
 
     public static void Shutdown()
     {
-        if (Transport.IsOpen)
-        {
-            CheckAck("Backend shutdown failed", Transport.SendShutdown(), false);
-            Transport.Close();
-        }
-
+        _isOpen = false;
         _isRun = false;
         _time = 0;
+
+        Transport.FrameTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
 
         IOGraph.Clean();
         WiringGraph.Clean();
+
+        if (Transport.IsOpen)
+        {
+            try { CheckAck("Backend shutdown failed", Transport.SendShutdown()); }
+            finally { Transport.Close(); }
+        }
+
+        Access.Instance.Notify("Frontend shutdown");
     }
 
     public static void Tick()
     {
+        if (!_isOpen) return;
+
         if (!_isRun)
+        {
             CheckAck("Backend frame failed", 
                 Transport.SendFrame(false, _time, []).ack);
+        }
         else
         {
             foreach (var output in IOFrame.ReadOutputs())
@@ -72,12 +97,18 @@ public static class Runtime
             IOFrame.Tick();
 
             _time++;
+
+            if (_time % TimeoutWindow == 0 && Transport.FrameTimeoutCount > 0)
+            {
+                Access.Instance.Notify($"Backend slow: {Transport.FrameTimeoutCount} frames timed out in last {TimeoutWindow} ticks");
+                Transport.FrameTimeoutCount = 0;
+            }
         }
     }
 
     public static void HitInput(int x, int y, bool hitPoint = true)
     {
-        if (!_isRun) return;
+        if (!_isRun) { Access.Instance.Notify("Frontend not running"); return; }
 
         if (IOGraph.Inputs.TryGetValue((x, y), out var input))
         {
@@ -101,58 +132,87 @@ public static class Runtime
 
     public static void SyncTo()
     {
+        if (!_isRun) return;
+
+        Access.Instance.Notify("Saving world...");
         Access.Instance.SaveWorld();
+        
+        Access.Instance.Notify("Updating wiring files...");
         UpdateFile();
+
+        Access.Instance.Notify("Waiting for backend...");
         CheckAck("Backend sync to failed", 
             Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
+        
+        Access.Instance.Status("Backend initializing...");
+        CheckAck("Backend startup failed", Transport.SendStartup());
+
+        Access.Instance.Notify("Wiring synced to backend");
     }
 
     public static void SyncFrom()
     {
+        if (!_isRun) return;
+
+        Access.Instance.Notify("Waiting for backend...");
         var (ack, payload) = Transport.SendSyncFrom();
         CheckAck("Backend sync from failed", ack);
 
         if (!payload.hash.SequenceEqual(IOGraph.Hash.Span))
-            Access.Instance.Notify("Hash not match, sync failed");
+            Access.Instance.Notify("Wiring hash mismatch, sync failed");
         else
         {
+            Access.Instance.Notify("Applying wiring state to world...");
             WiringFile.Load();
 
             IOGraph.Resolve();
             WiringGraph.Resolve();
 
-            WiringGraph.Clean(); 
+            WiringGraph.Clean();
+
+            Access.Instance.Notify("Wiring state applied to world");
         }
     }
 
     public static void Reset()
     {
+        if (!_isRun) return;
+
         CheckAck("Backend reset failed", Transport.SendReset());
 
         _time = 0;
+        Transport.FrameTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
 
         if (!WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
-            Access.Instance.Notify($"Hash not match, reset failed");
+            Access.Instance.Notify("World hash mismatch, reset failed");
         else
         {
+            Access.Instance.Notify("Loading world snapshot...");
             WWorldFile.Load();
+
+            Access.Instance.Notify("Reloading world...");
             Access.Instance.LoadWorld();
+            
+            Access.Instance.Notify("Reset complete");
         }
     }
 
     private static void UpdateFile()
     {
+        Access.Instance.Status("Hashing wiring...");
         var hash = WiringHash.GetHash();
 
         if (!WiringFile.MatchHash(hash) || !IOFile.MatchHash(hash))
         {
+            Access.Instance.Status("Building wiring graph...");
             WiringGraph.SetHash(hash);
             WiringGraph.Build();
             IOGraph.Build();
 
+            Access.Instance.Status("Saving wiring graph...");
             WiringFile.Save();
             IOFile.Save();
 
@@ -160,9 +220,11 @@ public static class Runtime
         }
         else
         {
+            Access.Instance.Status("Loading io graph...");
             IOFile.Load();
         }
 
+        Access.Instance.Status("Saving world snapshot...");
         WWorldFile.Save();
     }
 
@@ -186,10 +248,9 @@ public static class Runtime
                 yield return portId;
     }
 
-    public static void CheckAck(string prefix, (int status, string message) ack, bool @throw = true)
+    public static void CheckAck(string prefix, (int status, string message) ack)
     {
         if (ack.status == 0) return;
-        if (@throw) throw new Exception($"{prefix}: {ack.status} {ack.message}");
-        Access.Instance.Notify($"{prefix}: {ack.status} {ack.message}");
+        throw new Exception($"{prefix}: {ack.status} {ack.message}");
     }
 }
