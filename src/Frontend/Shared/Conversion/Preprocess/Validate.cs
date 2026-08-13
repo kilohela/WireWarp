@@ -6,7 +6,6 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Validate
 {
-    [Conditional("DEBUG")]
     public static void Execute()
     {
         ValidateConstraints();
