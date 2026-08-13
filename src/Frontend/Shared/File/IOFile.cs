@@ -23,7 +23,7 @@ public static class IOFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"IOFile.Save failed: {e}");
+            Access.Instance.Notify($"IOFile.Save failed: {e}");
             return false;
         }
     }
@@ -42,7 +42,7 @@ public static class IOFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"IOFile.Load failed: {e}");
+            Access.Instance.Notify($"IOFile.Load failed: {e}");
             IOGraph.Clean();
             return false;
         }

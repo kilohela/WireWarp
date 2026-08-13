@@ -18,17 +18,26 @@ internal sealed class WireWarp : Mod
     }
 
     private static void OnHitSwitch(On_Wiring.orig_HitSwitch orig, int i, int j)
-        => Runtime.HitInput(i, j);
+    {
+        Runtime.HitInput(i, j);
+    }
 }
 
 internal sealed class WireWarpSystem : ModSystem
 {
     public override void OnWorldLoad()
-        => Runtime.Startup();
+    {
+        Runtime.Startup();
+        Runtime.SyncTo();
+    }
 
     public override void PostUpdateWorld()
-        => Runtime.Tick();
+    {
+        Runtime.Tick();
+    }
 
     public override void OnWorldUnload()
-        => Runtime.Shutdown();
+    {
+        Runtime.Shutdown();
+    }
 }

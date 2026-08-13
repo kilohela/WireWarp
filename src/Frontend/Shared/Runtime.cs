@@ -86,7 +86,7 @@ public static class Runtime
                 Access.Instance.Execute(input.type, input.portId, x, y);
         }
         else
-            Debug.WriteLine($"Point ({x},{y}) not found in Inputs");
+            Access.Instance.Notify($"Point ({x},{y}) not found in Inputs");
     }
 
     private static void HitOutput(int portId)
@@ -96,7 +96,7 @@ public static class Runtime
         if (IOGraph.Outputs.TryGetValue(portId, out var output))
             Access.Instance.Execute(output.type, portId, output.pos.x, output.pos.y);
         else
-            Debug.WriteLine($"Port ({portId}) not found in Outputs");
+            Access.Instance.Notify($"Port ({portId}) not found in Outputs");
     }
 
     public static void SyncTo()
@@ -113,7 +113,7 @@ public static class Runtime
         CheckAck("Backend sync from failed", ack);
 
         if (!payload.hash.SequenceEqual(IOGraph.Hash.Span))
-            Debug.WriteLine("Hash not match, sync failed");
+            Access.Instance.Notify("Hash not match, sync failed");
         else
         {
             WiringFile.Load();
@@ -135,7 +135,7 @@ public static class Runtime
         IOFrame.Clean();
 
         if (!WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
-            Debug.WriteLine($"Hash not match, reset failed");
+            Access.Instance.Notify($"Hash not match, reset failed");
         else
         {
             WWorldFile.Load();
@@ -190,6 +190,6 @@ public static class Runtime
     {
         if (ack.status == 0) return;
         if (@throw) throw new Exception($"{prefix}: {ack.status} {ack.message}");
-        Debug.WriteLine($"{prefix}: {ack.status} {ack.message}");
+        Access.Instance.Notify($"{prefix}: {ack.status} {ack.message}");
     }
 }

@@ -37,21 +37,21 @@ public static class IOExtra
         {
             var op = WiringGraph.OutputPorts.FirstOrDefault(p => p.PortId == portId);
             if (op is not null) WiringExtra.Teleporter[op] = v;
-            else Debug.WriteLine($"IOExtra.Resolve: Teleporter port {portId} not found in WiringGraph");
+            else Access.Instance.Notify($"IOExtra.Resolve: Teleporter port {portId} not found in WiringGraph");
         }
 
         foreach (var (portId, v) in _pumps)
         {
             var op = WiringGraph.OutputPorts.FirstOrDefault(p => p.PortId == portId);
             if (op is not null) WiringExtra.Pumps[op] = v;
-            else Debug.WriteLine($"IOExtra.Resolve: Pumps port {portId} not found in WiringGraph");
+            else Access.Instance.Notify($"IOExtra.Resolve: Pumps port {portId} not found in WiringGraph");
         }
 
         foreach (var (portId, v) in _wireBulb)
         {
             var op = WiringGraph.OutputPorts.FirstOrDefault(p => p.PortId == portId);
             if (op is not null) WiringExtra.WireBulb[op] = v;
-            else Debug.WriteLine($"IOExtra.Resolve: WireBulb port {portId} not found in WiringGraph");
+            else Access.Instance.Notify($"IOExtra.Resolve: WireBulb port {portId} not found in WiringGraph");
         }
     }
 

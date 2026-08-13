@@ -75,7 +75,7 @@ public static class IOGraph
                 lamp.Origin = pos;
                 WiringGraph.LampPos[pos] = lamp;
             }
-            else Debug.WriteLine($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
+            else Access.Instance.Notify($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
         }
 
         foreach (var (id, pos) in _gatePos)
@@ -85,7 +85,7 @@ public static class IOGraph
                 gate.Origin = pos;
                 WiringGraph.GatePos[pos] = gate;
             }
-            else Debug.WriteLine($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
+            else Access.Instance.Notify($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
         }
 
         // Inputs and outputs are resolved by world load, not reconstructed here.

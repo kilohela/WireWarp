@@ -30,7 +30,7 @@ public static class WWorldFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"WorldFile.Save failed: {e}");
+            Access.Instance.Notify($"WorldFile.Save failed: {e}");
             return false;
         }
     }
@@ -56,7 +56,7 @@ public static class WWorldFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"WorldFile.Load failed: {e}");
+            Access.Instance.Notify($"WorldFile.Load failed: {e}");
             return false;
         }
     }

@@ -23,7 +23,7 @@ public static class WiringFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"WiringFile.Save failed: {e}");
+            Access.Instance.Notify($"WiringFile.Save failed: {e}");
             return false;
         }
     }
@@ -42,7 +42,7 @@ public static class WiringFile
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"WiringFile.Load failed: {e}");
+            Access.Instance.Notify($"WiringFile.Load failed: {e}");
             WiringGraph.Clean();
             return false;
         }

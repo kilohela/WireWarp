@@ -20,7 +20,7 @@ internal static class Apply
     private static void ApplyLogicLamp(Lamp lamp)
     {
         if (lamp.Type == LampID.None)
-            Debug.WriteLine($"{Validate.At(lamp)} Type expect lamp");
+            Access.Instance.Notify($"{Validate.At(lamp)} Type expect lamp");
 
         short frameX = lamp.Type switch
         {
@@ -36,7 +36,7 @@ internal static class Apply
     private static void ApplyLogicGate(Gate gate)
     {
         if (gate.Type == GateID.None)
-            Debug.WriteLine($"{Validate.At(gate)} Type expect gate");
+            Access.Instance.Notify($"{Validate.At(gate)} Type expect gate");
         
         if (gate.Type == GateID.Fault)
         {

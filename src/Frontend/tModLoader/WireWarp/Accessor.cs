@@ -63,4 +63,7 @@ internal sealed class Accessor : Access
 
     public override void Tick() => RuntimeGeneral.Tick();
     public override void Reset() => RuntimeGeneral.Reset();
+
+    public override void Status(string message) => Terraria.Main.statusText = message;
+    public override void Notify(string message) => Terraria.Main.NewText(message);
 }

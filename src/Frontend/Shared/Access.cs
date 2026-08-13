@@ -27,4 +27,7 @@ public abstract class Access
 
     public abstract void Tick();
     public abstract void Reset();
+
+    public abstract void Status(string message);
+    public abstract void Notify(string message);
 }
