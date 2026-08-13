@@ -73,7 +73,7 @@ public static class Runtime
 
     public static void Tick()
     {
-        if (!_isOpen) return;
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
 
         if (!_isRun)
         {
@@ -108,6 +108,7 @@ public static class Runtime
 
     public static void HitInput(int x, int y, bool hitPoint = true)
     {
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
         if (!_isRun) { Access.Instance.Notify("Frontend not running"); return; }
 
         if (IOGraph.Inputs.TryGetValue((x, y), out var input))
@@ -122,7 +123,8 @@ public static class Runtime
 
     private static void HitOutput(int portId)
     {
-        if (!_isRun) return;
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
+        if (!_isRun) { Access.Instance.Notify("Frontend not running"); return; }
 
         if (IOGraph.Outputs.TryGetValue(portId, out var output))
             Access.Instance.Execute(output.type, portId, output.pos.x, output.pos.y);
@@ -132,7 +134,7 @@ public static class Runtime
 
     public static void SyncTo()
     {
-        if (!_isRun) return;
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
 
         Access.Instance.Notify("Saving world...");
         Access.Instance.SaveWorld();
@@ -152,7 +154,7 @@ public static class Runtime
 
     public static void SyncFrom()
     {
-        if (!_isRun) return;
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
 
         Access.Instance.Notify("Waiting for backend...");
         var (ack, payload) = Transport.SendSyncFrom();
@@ -176,7 +178,7 @@ public static class Runtime
 
     public static void Reset()
     {
-        if (!_isRun) return;
+        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
 
         CheckAck("Backend reset failed", Transport.SendReset());
 
@@ -248,7 +250,7 @@ public static class Runtime
                 yield return portId;
     }
 
-    public static void CheckAck(string prefix, (int status, string message) ack)
+    private static void CheckAck(string prefix, (int status, string message) ack)
     {
         if (ack.status == 0) return;
         throw new Exception($"{prefix}: {ack.status} {ack.message}");
