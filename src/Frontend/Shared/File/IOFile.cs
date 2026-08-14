@@ -55,6 +55,7 @@ public static class IOFile
 
     public static byte[]? LoadHeader()
     {
+        if (!System.IO.File.Exists(PathName)) return null;
         try
         {
             using var fs = new FileStream(PathName, FileMode.Open);

@@ -212,18 +212,29 @@ public static class WiringGraph
     {
         Clean();
 
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
         // preprocess
         Scan.Execute();
+        Access.Instance.Status($"Scan time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Trace.Execute();
+        Access.Instance.Status($"Trace time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
         // postprocess
         Prune.Execute();
+        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Normalize.Execute();
+        Access.Instance.Status($"Normalize time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Prune.Execute();
+        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Applier.Execute();
+        Access.Instance.Status($"Applier time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Prune.Execute();
+        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Assign.Execute();
+        Access.Instance.Status($"Assign time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         Validate.Execute();
+        Access.Instance.Status($"Validate time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
     }
 
     public static void Resolve()

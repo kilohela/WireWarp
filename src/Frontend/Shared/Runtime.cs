@@ -211,21 +211,31 @@ public static class Runtime
 
     private static void UpdateFile()
     {
+        var sw = Stopwatch.StartNew();
+
         Access.Instance.Status("Hashing wiring...");
         var hash = WiringHash.GetHash();
+        Access.Instance.Status($"Hash time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
         if (!WiringFile.MatchHash(hash) || !IOFile.MatchHash(hash))
         {
             Access.Instance.Status("Building wiring graph...");
             WiringGraph.Build();
+            Access.Instance.Status($"Graph time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+            
             WiringGraph.SetHash(hash);
+            
             Access.Instance.Status("Building io graph...");
             IOGraph.Build();
+            Access.Instance.Status($"IO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
             Access.Instance.Status("Saving wiring graph...");
             WiringFile.Save();
+            Access.Instance.Status($"SaveWiring time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+            
             Access.Instance.Status("Saving io graph...");
             IOFile.Save();
+            Access.Instance.Status($"SaveIO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
             WiringGraph.Clean();
         }
@@ -233,10 +243,12 @@ public static class Runtime
         {
             Access.Instance.Status("Loading io graph...");
             IOFile.Load();
+            Access.Instance.Status($"LoadIO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
         }
 
         Access.Instance.Status("Saving world snapshot...");
         WWorldFile.Save();
+        Access.Instance.Status($"Snapshot time: {sw.Elapsed.TotalSeconds:F2}s");
     }
 
     private static List<(int portId, int count)> PackRLE(IReadOnlyList<int> ids)
