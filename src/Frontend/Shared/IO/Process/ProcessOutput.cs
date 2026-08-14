@@ -21,7 +21,13 @@ internal static partial class ProcessOutput
 
     public static void Execute()
     {
+        var total = WiringGraph.Outputs.Count;
+        var i = 0;
         foreach (var output in WiringGraph.Outputs)
+        {
+            if (i++ % Math.Max(1, total / 100) == 0)
+                Access.Instance.Status($"Applying outputs {i * 100 / total}%");
             _processors[(int)output.Type]?.Invoke(output);
+        }
     }
 }
