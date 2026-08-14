@@ -8,16 +8,18 @@ public static class Runtime
 {
     private const int TimeoutWindow = 600;
     public const double FrameTimeoutBudget = 16.67;
+    
+    private static readonly Stopwatch _frameTimer = Stopwatch.StartNew();
 
     private static bool _isOpen;
     private static bool _isRun;
     private static long _time;
-    private static int _frameTimeoutCount;
+    private static int _frontendTimeoutCount;
+    private static int _backendTimeoutCount;
 
     public static bool IsOpen => _isOpen;
     public static bool IsRun => _isRun;
     public static long Time => _time;
-    public static int FrameTimeoutCount => _frameTimeoutCount;
 
     public static void Run() { if (_isOpen) _isRun = true; }
     public static void Stop() { if (_isOpen) _isRun = false; }
@@ -44,7 +46,9 @@ public static class Runtime
         _isOpen = true;
         _isRun = true;
         _time = 0;
-        _frameTimeoutCount = 0;
+        _frontendTimeoutCount = 0;
+        _backendTimeoutCount = 0;
+        _frameTimer.Restart();
 
         Access.Instance.Reset();
         IOFrame.Clean();
@@ -57,7 +61,8 @@ public static class Runtime
         _isOpen = false;
         _isRun = false;
         _time = 0;
-        _frameTimeoutCount = 0;
+        _frontendTimeoutCount = 0;
+        _backendTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
@@ -78,6 +83,9 @@ public static class Runtime
     {
         if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
 
+        if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _frontendTimeoutCount++;
+        _frameTimer.Restart();
+
         if (!_isRun)
         {
             CheckAck("Backend frame failed", 
@@ -90,10 +98,7 @@ public static class Runtime
 
             var inputs = PackRLE(IOFrame.ReadInputs());
 
-            var sw = Stopwatch.StartNew();
             var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
-            sw.Stop();
-            if (sw.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _frameTimeoutCount++;
 
             CheckAck("Backend frame failed", ack);
 
@@ -105,12 +110,16 @@ public static class Runtime
 
             _time++;
 
-            if (_time % TimeoutWindow == 0 && _frameTimeoutCount > 0)
+            if (_time % TimeoutWindow == 0 && (_frontendTimeoutCount > 0 || _backendTimeoutCount > 0))
             {
-                Access.Instance.Notify($"Backend slow: {_frameTimeoutCount} frames timed out in last {TimeoutWindow} ticks");
-                _frameTimeoutCount = 0;
+                Access.Instance.Notify($"Slow frames: frontend {_frontendTimeoutCount}, backend {_backendTimeoutCount} in last {TimeoutWindow} ticks");
+                _frontendTimeoutCount = 0;
+                _backendTimeoutCount = 0;
             }
         }
+
+        if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _backendTimeoutCount++;
+        _frameTimer.Restart();
     }
 
     public static void HitInput(int x, int y, bool hitPoint = true)
@@ -190,7 +199,9 @@ public static class Runtime
         CheckAck("Backend reset failed", Transport.SendReset());
 
         _time = 0;
-        _frameTimeoutCount = 0;
+        _frontendTimeoutCount = 0;
+        _backendTimeoutCount = 0;
+        _frameTimer.Restart();
 
         Access.Instance.Reset();
         IOFrame.Clean();
