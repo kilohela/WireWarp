@@ -4,8 +4,4 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>WireWarp.Backend.CSharp</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-
-    <ProjectReference Include="..\Shared\WireWarp.Backend.Shared.csproj" />
-  </ItemGroup>
 </Project>

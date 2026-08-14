@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO.Pipes;
 
 namespace WireWarp.Frontend.Shared;
@@ -13,9 +12,6 @@ public static class Transport
     private static long _sendId;
     private static long _lastId;
 
-    public static double FrameTimeoutBudget { get; set; } = 16.67;
-    public static int FrameTimeoutCount { get; set; }
-
     public static bool IsOpen => _pipe?.IsConnected ?? false;
 
     public static void Open()
@@ -29,16 +25,6 @@ public static class Transport
     {
         _pipe?.Dispose();
         _pipe = null;
-    }
-
-    private enum Tag : ushort
-    {
-        Startup = 1, StartupAck = 2,
-        SyncTo = 3, SyncToAck = 4,
-        SyncFrom = 5, SyncFromAck = 6,
-        Reset = 7, ResetAck = 8,
-        Frame = 9, FrameAck = 10,
-        Shutdown = 11, ShutdownAck = 12,
     }
 
     public static (int status, string message) SendStartup() => 
@@ -75,11 +61,7 @@ public static class Transport
     public static ((int status, string message) ack, IReadOnlyList<(int portId, int count)> payload) SendFrame(
         bool run, long tick, IReadOnlyList<(int portId, int count)> inputs)
     {
-        var sw = Stopwatch.StartNew();
         var body = Request(Tag.Frame, PackFrame(run, tick, inputs));
-        sw.Stop();
-
-        if (sw.ElapsedMilliseconds > FrameTimeoutBudget) FrameTimeoutCount++;
 
         var (ack, payload) = UnpackAck(body);
         if (ack.status == 0)
@@ -187,5 +169,15 @@ public static class Transport
             result.Add((r.ReadInt32(), r.ReadInt32()));
 
         return result;
+    }
+
+    private enum Tag : ushort
+    {
+        Startup = 1, StartupAck = 2,
+        SyncTo = 3, SyncToAck = 4,
+        SyncFrom = 5, SyncFromAck = 6,
+        Reset = 7, ResetAck = 8,
+        Frame = 9, FrameAck = 10,
+        Shutdown = 11, ShutdownAck = 12,
     }
 }

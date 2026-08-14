@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using WireWarp.Frontend.Shared.Data;
 using WireWarp.Frontend.Shared.File;
 
@@ -6,14 +7,17 @@ namespace WireWarp.Frontend.Shared;
 public static class Runtime
 {
     private const int TimeoutWindow = 600;
+    public const double FrameTimeoutBudget = 16.67;
 
     private static bool _isOpen;
     private static bool _isRun;
     private static long _time;
+    private static int _frameTimeoutCount;
 
     public static bool IsOpen => _isOpen;
     public static bool IsRun => _isRun;
     public static long Time => _time;
+    public static int FrameTimeoutCount => _frameTimeoutCount;
 
     public static void Run() { if (_isOpen) _isRun = true; }
     public static void Stop() { if (_isOpen) _isRun = false; }
@@ -39,8 +43,7 @@ public static class Runtime
         _isOpen = true;
         _isRun = true;
         _time = 0;
-
-        Transport.FrameTimeoutCount = 0;
+        _frameTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
@@ -53,8 +56,7 @@ public static class Runtime
         _isOpen = false;
         _isRun = false;
         _time = 0;
-
-        Transport.FrameTimeoutCount = 0;
+        _frameTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
@@ -86,8 +88,12 @@ public static class Runtime
                 HitOutput(output);
 
             var inputs = PackRLE(IOFrame.ReadInputs());
-            
+
+            var sw = Stopwatch.StartNew();
             var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
+            sw.Stop();
+            if (sw.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _frameTimeoutCount++;
+
             CheckAck("Backend frame failed", ack);
 
             foreach (var output in UnPackRLE(outputs))
@@ -98,10 +104,10 @@ public static class Runtime
 
             _time++;
 
-            if (_time % TimeoutWindow == 0 && Transport.FrameTimeoutCount > 0)
+            if (_time % TimeoutWindow == 0 && _frameTimeoutCount > 0)
             {
-                Access.Instance.Notify($"Backend slow: {Transport.FrameTimeoutCount} frames timed out in last {TimeoutWindow} ticks");
-                Transport.FrameTimeoutCount = 0;
+                Access.Instance.Notify($"Backend slow: {_frameTimeoutCount} frames timed out in last {TimeoutWindow} ticks");
+                _frameTimeoutCount = 0;
             }
         }
     }
@@ -183,7 +189,7 @@ public static class Runtime
         CheckAck("Backend reset failed", Transport.SendReset());
 
         _time = 0;
-        Transport.FrameTimeoutCount = 0;
+        _frameTimeoutCount = 0;
 
         Access.Instance.Reset();
         IOFrame.Clean();
