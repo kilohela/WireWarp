@@ -6,9 +6,9 @@ namespace WireWarp.Frontend.Shared.Conversion;
 
 internal static class Apply
 {
-
     public static void Execute()
     {
+        Access.Instance.Status("Applying wiring...");
         foreach (var lamp in WiringGraph.Lamps)
             ApplyLogicLamp(lamp);
         foreach (var gate in WiringGraph.Gates)

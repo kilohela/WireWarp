@@ -218,10 +218,12 @@ public static class Runtime
             Access.Instance.Status("Building wiring graph...");
             WiringGraph.Build();
             WiringGraph.SetHash(hash);
+            Access.Instance.Status("Building io graph...");
             IOGraph.Build();
 
             Access.Instance.Status("Saving wiring graph...");
             WiringFile.Save();
+            Access.Instance.Status("Saving io graph...");
             IOFile.Save();
 
             WiringGraph.Clean();

@@ -11,25 +11,25 @@ public static class WiringGraph
     private static readonly Dictionary<int, IConnectable> _components = [];
     private static int _nextComponentId;
 
-    private static readonly List<Wire> _wires = [];
-    private static readonly List<Gate> _gates = [];
-    private static readonly List<Lamp> _lamps = [];
-    private static readonly List<Input> _inputs = [];
-    private static readonly List<InputPort> _inputPorts = [];
-    private static readonly List<Output> _outputs = [];
-    private static readonly List<OutputPort> _outputPorts = [];
+    private static readonly HashSet<Wire> _wires = [];
+    private static readonly HashSet<Gate> _gates = [];
+    private static readonly HashSet<Lamp> _lamps = [];
+    private static readonly HashSet<Input> _inputs = [];
+    private static readonly HashSet<InputPort> _inputPorts = [];
+    private static readonly HashSet<Output> _outputs = [];
+    private static readonly HashSet<OutputPort> _outputPorts = [];
 
     public static ReadOnlyMemory<byte> Hash => _hash;
 
     public static IReadOnlyDictionary<int, IConnectable> Components => _components;
 
-    public static IReadOnlyList<Wire> Wires => _wires;
-    public static IReadOnlyList<Gate> Gates => _gates;
-    public static IReadOnlyList<Lamp> Lamps => _lamps;
-    public static IReadOnlyList<Input> Inputs => _inputs;
-    public static IReadOnlyList<InputPort> InputPorts => _inputPorts;
-    public static IReadOnlyList<Output> Outputs => _outputs;
-    public static IReadOnlyList<OutputPort> OutputPorts => _outputPorts;
+    public static IReadOnlySet<Wire> Wires => _wires;
+    public static IReadOnlySet<Gate> Gates => _gates;
+    public static IReadOnlySet<Lamp> Lamps => _lamps;
+    public static IReadOnlySet<Input> Inputs => _inputs;
+    public static IReadOnlySet<InputPort> InputPorts => _inputPorts;
+    public static IReadOnlySet<Output> Outputs => _outputs;
+    public static IReadOnlySet<OutputPort> OutputPorts => _outputPorts;
 
     internal static Dictionary<(int x, int y), Gate> GatePos { get; } = [];
     internal static Dictionary<(int x, int y), Lamp> LampPos { get; } = [];

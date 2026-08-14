@@ -10,11 +10,21 @@ internal static class Trace
     {
         var wireByTile = new Dictionary<((int x, int y) pos, WireID color), Wire>();
 
+        var j = 0;
         foreach (var pos in WiringGraph.InputPos.Keys)
+        {
+            if (j++ % Math.Max(1, WiringGraph.GatePos.Keys.Count / 100) == 0)
+                Access.Instance.Status($"Tracing input {j * 1f / WiringGraph.GatePos.Keys.Count:P1}");
             TraceSource(pos, wireByTile);
+        }
 
+        var i = 0;
         foreach (var pos in WiringGraph.GatePos.Keys)
+        {
+            if (i++ % Math.Max(1, WiringGraph.GatePos.Keys.Count / 100) == 0)
+                Access.Instance.Status($"Tracing gate {i * 1f / WiringGraph.GatePos.Keys.Count:P1}");
             TraceSource(pos, wireByTile);
+        }
     }
 
     private static void TraceSource(

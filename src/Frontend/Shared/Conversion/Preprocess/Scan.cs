@@ -21,6 +21,8 @@ internal static class Scan
 
         for (var x = 0; x < w; x++)
         {
+            if (x % Math.Max(1, w / 100) == 0)
+                Access.Instance.Status($"Scanning components {x * 1f / w:P1}");
             for (var y = 0; y < h; y++)
             {
                 var tile = Access.Instance.GetTile(x, y);

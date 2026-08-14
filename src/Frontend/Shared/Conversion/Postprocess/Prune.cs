@@ -6,6 +6,7 @@ internal static class Prune
 {
     public static void Execute()
     {
+        Access.Instance.Status("Pruning wiring...");
         bool changed;
         do
         {
@@ -21,18 +22,16 @@ internal static class Prune
         while (changed);
     }
 
-    private static bool PruneWhere<T>(IReadOnlyList<T> nodes) where T : IConnectable
+    private static bool PruneWhere<T>(IReadOnlySet<T> nodes) where T : IConnectable
     {
-        var removed = false;
-        for (var i = nodes.Count - 1; i >= 0; i--)
-        {
-            if (IsDead(nodes[i]))
-            {
-                WiringGraph.RemoveNode(nodes[i]);
-                removed = true;
-            }
-        }
-        return removed;
+        var dead = new List<IConnectable>();
+        foreach (var node in nodes)
+            if (IsDead(node)) dead.Add(node);
+
+        foreach (var node in dead)
+            WiringGraph.RemoveNode(node);
+
+        return dead.Count > 0;
     }
 
     private static bool IsDead(IConnectable node) => node switch

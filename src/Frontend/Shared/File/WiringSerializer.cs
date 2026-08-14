@@ -33,7 +33,7 @@ public static class WiringSerializer
             w.Write((uint)starts[i]);
     }
 
-    private static long WriteNodes(BinaryWriter w, IReadOnlyList<IConnectable> nodes)
+    private static long WriteNodes<T>(BinaryWriter w, IReadOnlySet<T> nodes) where T : IConnectable
     {
         var start = w.BaseStream.Position;
 

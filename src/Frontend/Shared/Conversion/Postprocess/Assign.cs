@@ -6,15 +6,18 @@ internal static class Assign
 {
     public static void Execute()
     {
+        Access.Instance.Status("Assigning wiring...");
         AssignPortIds();
     }
 
     private static void AssignPortIds()
     {
-        for (var i = 0; i < WiringGraph.InputPorts.Count; i++)
-            WiringGraph.InputPorts[i].PortId = i;
+        var i = 0;
+        foreach (var port in WiringGraph.InputPorts)
+            port.PortId = i++;
 
-        for (var i = 0; i < WiringGraph.OutputPorts.Count; i++)
-            WiringGraph.OutputPorts[i].PortId = i;
+        var j = 0;
+        foreach (var port in WiringGraph.OutputPorts)
+            port.PortId = j++;
     }
 }

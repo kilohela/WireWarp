@@ -7,6 +7,7 @@ internal static class Validate
 {
     public static void Execute()
     {
+        Access.Instance.Status("Validating wiring...");
         ValidateConstraints();
         ValidateSymmetry();
         ValidateFaultGates();
