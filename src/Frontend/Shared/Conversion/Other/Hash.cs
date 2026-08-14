@@ -2,11 +2,11 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using WireWarp.Frontend.Shared.Terraria;
 
-namespace WireWarp.Frontend.Shared.File;
+namespace WireWarp.Frontend.Shared.Conversion;
 
-public static class WiringHash
+public static class Hash
 {
-    public static byte[] GetHash()
+    public static byte[] Execute()
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> cell = stackalloc byte[15];

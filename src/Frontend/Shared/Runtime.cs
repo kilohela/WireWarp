@@ -214,7 +214,7 @@ public static class Runtime
         var sw = Stopwatch.StartNew();
 
         Access.Instance.Status("Hashing wiring...");
-        var hash = WiringHash.GetHash();
+        var hash = Conversion.Hash.Execute();
         Access.Instance.Status($"Hash time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
         if (!WiringFile.MatchHash(hash) || !IOFile.MatchHash(hash))
