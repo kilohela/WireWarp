@@ -11,9 +11,14 @@ public static class WiringHash
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> cell = stackalloc byte[15];
 
-        for (var y = 0; y < Access.Instance.MaxTilesY; y++)
+        var w = Access.Instance.MaxTilesX;
+        var h = Access.Instance.MaxTilesY;
+
+        for (var x = 0; x < w; x++)
         {
-            for (var x = 0; x < Access.Instance.MaxTilesX; x++)
+            if (x % Math.Max(1, w / 100) == 0)
+                Access.Instance.Status($"Hashing tiles {x * 100 / w}%");
+            for (var y = 0; y < h; y++)
             {
                 var tile = Access.Instance.GetTile(x, y);
                 if (!Detector.HasWiring(tile)) continue;

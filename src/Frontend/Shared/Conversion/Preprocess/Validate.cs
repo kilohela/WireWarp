@@ -16,8 +16,13 @@ internal static class Validate
 
     private static void ValidateConstraints()
     {
+        var total = WiringGraph.Components.Count;
+        var i = 0;
         foreach (var node in WiringGraph.Components.Values)
         {
+            if (i++ % Math.Max(1, total / 100) == 0)
+                Access.Instance.Status($"Validating constraints {i * 100 / total}%");
+            
             switch (node)
             {
                 case Input:
@@ -123,11 +128,17 @@ internal static class Validate
 
     private static void ValidateSkipWire()
     {
+        var total = WiringGraph.Wires.Count;
+        var i = 0;
         foreach (var wire in WiringGraph.Wires)
         {
+            if (i++ % Math.Max(1, total / 100) == 0)
+                Access.Instance.Status($"Validating skip wire {i * 100 / total}%");
+
             var inputs = new HashSet<Input>();
             foreach (var pos in wire.Sources)
             {
+                if (WiringGraph.GatePos.ContainsKey(pos)) continue;
                 if (!WiringGraph.InputPos.TryGetValue(pos, out var input))
                     Access.Instance.Notify($"{At(wire)} source point ({pos.X},{pos.Y}) not found in InputPos");
                 else if (!inputs.Add(input))
@@ -137,6 +148,7 @@ internal static class Validate
             var outputs = new HashSet<Output>();
             foreach (var pos in wire.Drains)
             {
+                if (WiringGraph.LampPos.ContainsKey(pos)) continue;
                 if (!WiringGraph.OutputPos.TryGetValue(pos, out var output))
                     Access.Instance.Notify($"{At(wire)} drain point ({pos.X},{pos.Y}) not found in OutputPos");
                 else if (!outputs.Add(output))
@@ -147,8 +159,13 @@ internal static class Validate
 
     private static void ValidateSymmetry()
     {
+        var total = WiringGraph.Components.Count;
+        var i = 0;
         foreach (var node in WiringGraph.Components.Values)
         {
+            if (i++ % Math.Max(1, total / 100) == 0)
+                Access.Instance.Status($"Validating symmetry {i * 100 / total}%");
+
             foreach (var target in node.Fanout)
                 if (!target.Fanin.Contains(node))
                     Access.Instance.Notify($"{At(node)} edge asymmetry: {At(target)}");

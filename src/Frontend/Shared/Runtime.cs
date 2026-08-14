@@ -26,18 +26,19 @@ public static class Runtime
     {
         if (_isOpen) return;
 
+        UpdateFile();
+
         if (!Transport.IsOpen)
         {
-            Access.Instance.Status("Waiting for backend...");
+            Access.Instance.Status("Waiting for backend open...");
             Transport.Open();
         }
-
-        UpdateFile();
-        Access.Instance.Status("Waiting for backend...");
+        
+        Access.Instance.Status("Waiting for backend sync...");
         CheckAck("Backend sync to failed", 
             Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
 
-        Access.Instance.Status("Backend initializing...");
+        Access.Instance.Status("Waiting for backend startup...");
         CheckAck("Backend startup failed", Transport.SendStartup());
 
         _isOpen = true;

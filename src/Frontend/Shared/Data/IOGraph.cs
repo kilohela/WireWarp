@@ -48,7 +48,7 @@ public static class IOGraph
         {
             var output = op.Fanout.OfType<Output>().First();
             var wire = op.Fanin.OfType<Wire>().First();
-            var pos = wire.Drains.First(d => WiringGraph.OutputPos[d] == output);
+            var pos = wire.Drains.First(d => WiringGraph.OutputPos.TryGetValue(d, out var o) && o == output);
             _outputs[op.PortId] = (pos, output.Type);
         }
 
