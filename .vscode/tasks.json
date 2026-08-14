@@ -2,9 +2,27 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build-tml",
             "command": "dotnet",
             "args": ["build", "src/Frontend/tModLoader/WireWarp/WireWarp.Frontend.tModLoader.csproj"],
+            "type": "shell",
+            "group": "build",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-csharp",
+            "command": "dotnet",
+            "args": ["build", "src/Backend/CSharp/WireWarp.Backend.CSharp.csproj"],
+            "type": "shell",
+            "group": "build",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-all",
+            "command": "dotnet",
+            "args": ["build", "src/WireWarp.slnx"],
             "type": "shell",
             "group": "build",
             "presentation": { "reveal": "silent" },

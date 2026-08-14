@@ -13,10 +13,13 @@ public static class WiringFile
     {
         try
         {
-            using var fs = new FileStream(TempPathName, FileMode.Create);
-            using var w = new BinaryWriter(fs);
-            HeaderFile.Write(w, WiringGraph.Hash.Span);
-            WiringSerializer.Serialize(w);
+            using (var fs = new FileStream(TempPathName, FileMode.Create))
+            using (var w = new BinaryWriter(fs))
+            {
+                HeaderFile.Write(w, WiringGraph.Hash.Span);
+                WiringSerializer.Serialize(w);
+            }
+
             System.IO.File.Move(TempPathName, PathName, overwrite: true);
             return true;
         }

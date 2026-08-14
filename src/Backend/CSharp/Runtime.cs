@@ -70,8 +70,11 @@ public static class Runtime
         if (!_started)
             Console.WriteLine("[WIRING] no startup received, simulation not running");
 
-        var inputs = string.Join(", ", pairs.Select(p => $"{p.portId}x{p.count}"));
-        Console.WriteLine($"[INFO] run={run} tick={tick} count={count} inputs=[{inputs}]");
+        if (count != 0)
+        {
+            var inputs = string.Join(", ", pairs.Select(p => $"{p.portId}x{p.count}"));
+            Console.WriteLine($"[INFO] run={run} tick={tick} count={count} inputs=[{inputs}]");
+        }
 
         using var ackMs = new MemoryStream();
         using var ackW = new BinaryWriter(ackMs);
@@ -88,7 +91,7 @@ public static class Runtime
 
     public static (int status, string message, byte[]? payload) Shutdown()
     {
-        Console.WriteLine("[SHUTDOWN] session end");
+        Console.WriteLine("[INFO] session end");
 
         _started = false;
         _synced = false;

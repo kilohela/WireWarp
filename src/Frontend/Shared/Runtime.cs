@@ -216,8 +216,8 @@ public static class Runtime
         if (!WiringFile.MatchHash(hash) || !IOFile.MatchHash(hash))
         {
             Access.Instance.Status("Building wiring graph...");
-            WiringGraph.SetHash(hash);
             WiringGraph.Build();
+            WiringGraph.SetHash(hash);
             IOGraph.Build();
 
             Access.Instance.Status("Saving wiring graph...");
