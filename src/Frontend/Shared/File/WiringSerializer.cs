@@ -49,8 +49,8 @@ public static class WiringSerializer
         w.Write(node.Type);
         w.Write(node.Id);
 
-        if (node is InputPort ip) w.Write(ip.PortId);
-        if (node is OutputPort op) w.Write(op.PortId);
+        if (node is InputPort ip) { w.Write(ip.PortId); }
+        if (node is OutputPort op) { w.Write(op.PortId); w.Write(0); return; }
 
         var fanoutIds = node.Fanout.Select(n => n.Id).OrderBy(id => id).ToList();
         w.Write(fanoutIds.Count);
