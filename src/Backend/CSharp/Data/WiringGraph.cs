@@ -1,0 +1,87 @@
+namespace WireWarp.Backend.CSharp.Data;
+
+public static class WiringGraph
+{
+    private static readonly byte[] _hash = new byte[32];
+
+    public static ReadOnlySpan<byte> Hash => _hash;
+
+    private static int[] _sourceWireOffsets = [];
+    private static int[] _sourceWireSegments = [];
+    private static int[] _wireFaultOffsets = [];
+    private static int[] _wireFaultSegments = [];
+    private static int[] _wireNormOffsets = [];
+    private static int[] _wireNormSegments = [];
+    private static int[] _wireOutputOffsets = [];
+    private static int[] _wireOutputSegments = [];
+
+    public static ReadOnlySpan<int> SourceWireOffsets => _sourceWireOffsets;
+    public static ReadOnlySpan<int> SourceWireSegments => _sourceWireSegments;
+    public static ReadOnlySpan<int> WireFaultOffsets => _wireFaultOffsets;
+    public static ReadOnlySpan<int> WireFaultSegments => _wireFaultSegments;
+    public static ReadOnlySpan<int> WireNormOffsets => _wireNormOffsets;
+    public static ReadOnlySpan<int> WireNormSegments => _wireNormSegments;
+    public static ReadOnlySpan<int> WireOutputOffsets => _wireOutputOffsets;
+    public static ReadOnlySpan<int> WireOutputSegments => _wireOutputSegments;
+
+    private static GateType[] _gateTypes = [];
+    private static int[] _gateWireLampBaseOffsets = [];
+    private static byte[] _gateWireLampBaseSegments = [];
+    private static int[] _gateWireRefOffsets = [];
+    private static int[] _gateWireRefSegments = [];
+
+    public static ReadOnlySpan<GateType> GateTypes => _gateTypes;
+    public static ReadOnlySpan<int> GateWireLampBaseOffsets => _gateWireLampBaseOffsets;
+    public static ReadOnlySpan<byte> GateWireLampBaseSegments => _gateWireLampBaseSegments;
+    public static ReadOnlySpan<int> GateWireRefOffsets => _gateWireRefOffsets;
+    public static ReadOnlySpan<int> GateWireRefSegments => _gateWireRefSegments;
+
+    private static int _inputPortCount;
+    private static int _outputPortCount;
+    private static int _lampCount;
+    private static int _gateCount;
+    private static int _wireCount;
+
+    public static int InputPortCount => _inputPortCount;
+    public static int OutputPortCount => _outputPortCount;
+    public static int LampCount => _lampCount;
+    public static int GateCount => _gateCount;
+    public static int WireCount => _wireCount;
+
+    public static void Clean()
+    {
+        Array.Clear(_hash);
+
+        _sourceWireOffsets = [];
+        _sourceWireSegments = [];
+        _wireFaultOffsets = [];
+        _wireFaultSegments = [];
+        _wireNormOffsets = [];
+        _wireNormSegments = [];
+        _wireOutputOffsets = [];
+        _wireOutputSegments = [];
+
+        _gateTypes = [];
+        _gateWireLampBaseOffsets = [];
+        _gateWireLampBaseSegments = [];
+        _gateWireRefOffsets = [];
+        _gateWireRefSegments = [];
+
+        _inputPortCount = 0;
+        _outputPortCount = 0;
+        _lampCount = 0;
+        _gateCount = 0;
+        _wireCount = 0;
+    }
+
+    public enum GateType : byte
+    {
+        Norm_1 = 0,
+        Norm_2_AND, // and, nand, or, nor
+        Norm_2_XOR, // xor, xnor
+        Norm_n_AND,
+        Norm_n_XOR,
+        Fault_1,
+        Fault_n,
+    }
+}

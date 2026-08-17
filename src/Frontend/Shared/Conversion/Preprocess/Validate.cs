@@ -121,6 +121,8 @@ internal static class Validate
                 .Where(l => l.Type == LampID.Fault)
                 .ToList();
 
+            if (gate.Fanin.Count < 2)
+                Access.Instance.Notify($"{At(gate)} lamp expect >= 2, got {gate.Fanin.Count}");
             if (faultLamps.Count != 1)
                 Access.Instance.Notify($"{At(gate)} expect exactly 1 fault lamp, got {faultLamps.Count}");
         }
