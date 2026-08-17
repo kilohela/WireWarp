@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public class Gate : IConnectable
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
     
     public GateID Type { get; init; }
     byte IConnectable.Type => (byte)Type;

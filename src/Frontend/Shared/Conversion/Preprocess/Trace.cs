@@ -38,7 +38,7 @@ internal static class Trace
             if (!Detector.HasWire(Access.Instance.GetTile(start.x, start.y), color)) continue;
             if (wireByTile.ContainsKey((start, color))) continue;
 
-            var wire = WiringGraph.AddWire(color);
+            var wire = WiringGraph.AddNode(new Wire { Type = color });
             var founds = TraceWire(wire, start, start, wireByTile);
             ConnectComponents(wire, founds);
         }
@@ -62,7 +62,7 @@ internal static class Trace
 
                 case Output output:
                     var op = output.Fanin.OfType<OutputPort>().FirstOrDefault() ?? 
-                        WiringGraph.AddOutputPort();
+                        WiringGraph.AddNode(new OutputPort());
                     WiringGraph.AddEdge(wire, op);
                     WiringGraph.AddEdge(op, output);
                     wire.Drains.Add(active);
@@ -76,7 +76,7 @@ internal static class Trace
 
                 case Input input:
                     var ip = input.Fanout.OfType<InputPort>().FirstOrDefault() ?? 
-                        WiringGraph.AddInputPort();
+                        WiringGraph.AddNode(new InputPort());
                     WiringGraph.AddEdge(input, ip);
                     WiringGraph.AddEdge(ip, wire);
                     wire.Sources.Add(active);

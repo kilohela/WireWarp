@@ -31,14 +31,16 @@ internal static class Scan
                 var gateType = Detector.DetectGate(tile);
                 if (gateType != GateID.None)
                 {
-                    WiringGraph.GatePos[(x, y)] = WiringGraph.AddGate(gateType, (x, y));
+                    WiringGraph.GatePos[(x, y)] = 
+                        WiringGraph.AddNode(new Gate { Type = gateType, Origin = (x, y) });
                     continue;
                 }
 
                 var lampType = Detector.DetectLamp(tile);
                 if (lampType != LampID.None)
                 {
-                    WiringGraph.LampPos[(x, y)] = WiringGraph.AddLamp(lampType, (x, y));
+                    WiringGraph.LampPos[(x, y)] = 
+                        WiringGraph.AddNode(new Lamp { Type = lampType, Origin = (x, y) });
                     continue;
                 }
 
@@ -52,7 +54,7 @@ internal static class Scan
 
                     var input = inRange && inputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : WiringGraph.AddInput(inputType, origin);
+                        : WiringGraph.AddNode(new Input { Type = inputType, Origin = origin });
 
                     if (inRange) inputByOrigin[key] = input;
                     WiringGraph.InputPos[(x, y)] = input;
@@ -68,7 +70,7 @@ internal static class Scan
 
                     var output = inRange && outputByOrigin.TryGetValue(key, out var merged)
                         ? merged
-                        : WiringGraph.AddOutput(outputType, origin);
+                        : WiringGraph.AddNode(new Output { Type = outputType, Origin = origin });
 
                     if (inRange) outputByOrigin[key] = output;
                     WiringGraph.OutputPos[(x, y)] = output;

@@ -1,15 +1,10 @@
-using WireWarp.Frontend.Shared.ID;
 using WireWarp.Frontend.Shared.Conversion;
-using WireWarp.Frontend.Shared.File;
 
 namespace WireWarp.Frontend.Shared.Data;
 
 public static class WiringGraph
 {
     private static readonly byte[] _hash = new byte[32];
-
-    private static readonly Dictionary<int, IConnectable> _components = [];
-    private static int _nextComponentId;
 
     private static readonly HashSet<Wire> _wires = [];
     private static readonly HashSet<Gate> _gates = [];
@@ -21,7 +16,13 @@ public static class WiringGraph
 
     public static ReadOnlyMemory<byte> Hash => _hash;
 
-    public static IReadOnlyDictionary<int, IConnectable> Components => _components;
+    public static int InputPortOffset => 0;
+    public static int OutputPortOffset => InputPortOffset + _inputPorts.Count;
+    public static int LampOffset => OutputPortOffset + _outputPorts.Count;
+    public static int GateOffset => LampOffset + _lamps.Count;
+    public static int WireOffset => GateOffset + _gates.Count;
+    public static int InputOffset => WireOffset + _wires.Count;
+    public static int OutputOffset => InputOffset + _inputs.Count;
 
     public static IReadOnlySet<Wire> Wires => _wires;
     public static IReadOnlySet<Gate> Gates => _gates;
@@ -30,6 +31,8 @@ public static class WiringGraph
     public static IReadOnlySet<InputPort> InputPorts => _inputPorts;
     public static IReadOnlySet<Output> Outputs => _outputs;
     public static IReadOnlySet<OutputPort> OutputPorts => _outputPorts;
+
+    public static Dictionary<int, IConnectable> Components { get; } = [];
 
     internal static Dictionary<(int x, int y), Gate> GatePos { get; } = [];
     internal static Dictionary<(int x, int y), Lamp> LampPos { get; } = [];
@@ -52,135 +55,19 @@ public static class WiringGraph
         to.Fanin.Remove(from);
     }
 
-    // node
-
-    internal static Wire AddWire(WireID type)
+    internal static T AddNode<T>(T node) where T : IConnectable
     {
-        var node = new Wire { Id = _nextComponentId++, Type = type };
-        _components[node.Id] = node;
-        _wires.Add(node);
-        return node;
-    }
-
-    internal static Wire AddWire(WireID type, int id)
-    {
-        var node = new Wire { Id = id, Type = type };
-        _components[id] = node;
-        _wires.Add(node);
-        UpdateMaxId(id);
-        return node;
-    }
-
-    internal static Gate AddGate(GateID type, (int x, int y) orgin)
-    {
-        var node = new Gate { Id = _nextComponentId++, Type = type, Origin = orgin };
-        _components[node.Id] = node;
-        _gates.Add(node);
-        return node;
-    }
-
-    internal static Gate AddGate(GateID type, int id)
-    {
-        var node = new Gate { Id = id, Type = type };
-        _components[id] = node;
-        _gates.Add(node);
-        UpdateMaxId(id);
-        return node;
-    }
-
-    internal static Lamp AddLamp(LampID type, (int x, int y) orgin)
-    {
-        var node = new Lamp { Id = _nextComponentId++, Type = type, Origin = orgin };
-        _components[node.Id] = node;
-        _lamps.Add(node);
-        return node;
-    }
-
-    internal static Lamp AddLamp(LampID type, int id)
-    {
-        var node = new Lamp { Id = id, Type = type };
-        _components[id] = node;
-        _lamps.Add(node);
-        UpdateMaxId(id);
-        return node;
-    }
-
-    internal static Input AddInput(InputID type, (int x, int y) orgin)
-    {
-        var node = new Input { Id = _nextComponentId++, Type = type, Origin = orgin };
-        _components[node.Id] = node;
-        _inputs.Add(node);
-        return node;
-    }
-
-    internal static InputPort AddInputPort()
-    {
-        var node = new InputPort { Id = _nextComponentId++ };
-        _components[node.Id] = node;
-        _inputPorts.Add(node);
-        return node;
-    }
-
-    internal static InputPort AddInputPort(int id, int portId)
-    {
-        var node = new InputPort { Id = id, PortId = portId };
-        _components[id] = node;
-        _inputPorts.Add(node);
-        UpdateMaxId(id);
-        return node;
-    }
-
-    internal static Output AddOutput(OutputID type, (int x, int y) orgin)
-    {
-        var node = new Output { Id = _nextComponentId++, Type = type, Origin = orgin };
-        _components[node.Id] = node;
-        _outputs.Add(node);
-        return node;
-    }
-
-    internal static OutputPort AddOutputPort()
-    {
-        var node = new OutputPort { Id = _nextComponentId++ };
-        _components[node.Id] = node;
-        _outputPorts.Add(node);
-        return node;
-    }
-
-    internal static OutputPort AddOutputPort(int id, int portId)
-    {
-        var node = new OutputPort { Id = id, PortId = portId };
-        _components[id] = node;
-        _outputPorts.Add(node);
-        UpdateMaxId(id);
-        return node;
-    }
-
-    private static void UpdateMaxId(int id)
-    {
-        if (id >= _nextComponentId) _nextComponentId = id + 1;
-    }
-
-    internal static IConnectable CopyNode(IConnectable node)
-    {
-        IConnectable copy = node switch
+        switch (node)
         {
-            Wire w => AddWire(w.Type),
-            Gate g => AddGate(g.Type, g.Origin),
-            Lamp l => AddLamp(l.Type, l.Origin),
-            Input i => AddInput(i.Type, i.Origin),
-            Output o => AddOutput(o.Type, o.Origin),
-            InputPort => AddInputPort(),
-            OutputPort => AddOutputPort(),
-            _ => node
-        };
-
-        foreach (var source in node.Fanin)
-            AddEdge(source, copy);
-
-        foreach (var target in node.Fanout)
-            AddEdge(copy, target);
-
-        return copy;
+            case Wire w: _wires.Add(w); break;
+            case Gate g: _gates.Add(g); break;
+            case Lamp l: _lamps.Add(l); break;
+            case Input i: _inputs.Add(i); break;
+            case Output o: _outputs.Add(o); break;
+            case InputPort ip: _inputPorts.Add(ip); break;
+            case OutputPort op: _outputPorts.Add(op); break;
+        }
+        return node;
     }
 
     internal static void RemoveNode(IConnectable node)
@@ -193,8 +80,6 @@ public static class WiringGraph
 
         node.Fanin.Clear();
         node.Fanout.Clear();
-
-        _components.Remove(node.Id);
 
         switch (node)
         {
@@ -252,13 +137,11 @@ public static class WiringGraph
         _outputs.Clear();
         _outputPorts.Clear();
 
+        Components.Clear();
         GatePos.Clear();
         LampPos.Clear();
         InputPos.Clear();
         OutputPos.Clear();
-
-        _components.Clear();
-        _nextComponentId = 0;
 
         Array.Clear(_hash);
 

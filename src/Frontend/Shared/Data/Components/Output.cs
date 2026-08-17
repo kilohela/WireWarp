@@ -4,7 +4,7 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public class Output : IConnectable
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
     
     public OutputID Type { get; init; }
     byte IConnectable.Type => (byte)Type;

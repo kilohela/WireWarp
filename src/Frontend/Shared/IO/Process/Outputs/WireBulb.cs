@@ -10,7 +10,7 @@ partial class ProcessOutput
         
         foreach (var wire in oldOp.Fanin.OfType<Wire>().ToList())
         {
-            var newOp = WiringGraph.AddOutputPort();
+            var newOp = WiringGraph.AddNode(new OutputPort());
             WiringGraph.AddEdge(wire, newOp);
             WiringGraph.AddEdge(newOp, output);
         }

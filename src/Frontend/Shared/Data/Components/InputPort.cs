@@ -4,8 +4,8 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public class InputPort : IConnectable
 {
-    public int Id { get; init; }
-    public int PortId { get; set; }
+    public int Id { get; set; }
+    public int PortId => Id - WiringGraph.InputPortOffset;
 
     InputID Type => Fanin.OfType<Input>().FirstOrDefault() 
         is Input i ? i.Type : InputID.None;

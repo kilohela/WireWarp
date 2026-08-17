@@ -37,8 +37,8 @@ partial class ProcessOutput
 
             if (!horizontal.Contains(source) || !vertical.Contains(source)) continue;
 
-            var newWire = WiringGraph.AddWire(wire.Type);
-            var newOp = WiringGraph.AddOutputPort();
+            var newWire = WiringGraph.AddNode(new Wire { Type = wire.Type });
+            var newOp = WiringGraph.AddNode(new OutputPort());
             var newSource = source is Input input
                 ? input.Fanout.OfType<InputPort>().First()
                 : source;

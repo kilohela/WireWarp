@@ -37,8 +37,8 @@ partial class ProcessOutput
                 ? (IConnectable)gate
                 : WiringGraph.InputPos[sourcePos].Fanout.OfType<InputPort>().First();
 
-            var newWire = WiringGraph.AddWire(wire.Type);
-            var newOp = WiringGraph.AddOutputPort();
+            var newWire = WiringGraph.AddNode(new Wire { Type = wire.Type });
+            var newOp = WiringGraph.AddNode(new OutputPort());
 
             WiringGraph.AddEdge(source, newWire);
             WiringGraph.AddEdge(newWire, newOp);

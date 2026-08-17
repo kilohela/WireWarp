@@ -4,8 +4,8 @@ namespace WireWarp.Frontend.Shared.Data;
 
 public class OutputPort : IConnectable
 {
-    public int Id { get; init; }
-    public int PortId { get; set; }
+    public int Id { get; set; }
+    public int PortId => Id - WiringGraph.OutputPortOffset;
 
     OutputID Type => Fanout.OfType<Output>().FirstOrDefault()
         is Output o ? o.Type : OutputID.None;

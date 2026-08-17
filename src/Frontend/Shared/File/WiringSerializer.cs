@@ -38,7 +38,7 @@ public static class WiringSerializer
         var start = w.BaseStream.Position;
 
         w.Write(nodes.Count);
-        foreach (var node in nodes)
+        foreach (var node in nodes.OrderBy(n => n.Id))
             WriteNode(w, node);
 
         return start;
@@ -49,8 +49,7 @@ public static class WiringSerializer
         w.Write(node.Type);
         w.Write(node.Id);
 
-        if (node is InputPort ip) { w.Write(ip.PortId); }
-        if (node is OutputPort op) { w.Write(op.PortId); w.Write(0); return; }
+        if (node is OutputPort) { w.Write(0); return; }
 
         var fanoutIds = node.Fanout.Select(n => n.Id).OrderBy(id => id).ToList();
         w.Write(fanoutIds.Count);
@@ -98,25 +97,23 @@ public static class WiringSerializer
         var type = r.ReadByte();
         var id = r.ReadInt32();
 
-        var portId = group is Group.InputPorts or Group.OutputPorts
-            ? r.ReadInt32() : 0;
-
         var fanoutCount = r.ReadInt32();
         for (var j = 0; j < fanoutCount; j++)
             edges.Add((id, r.ReadInt32()));
 
+        var components = WiringGraph.Components;
         switch (group)
         {
             case Group.InputPorts:
-                WiringGraph.AddInputPort(id, portId); break;
+                components[id] = WiringGraph.AddNode(new InputPort {Id = id}); break;
             case Group.OutputPorts:
-                WiringGraph.AddOutputPort(id, portId); break;
+                components[id] = WiringGraph.AddNode(new OutputPort {Id = id}); break;
             case Group.Lamps:
-                WiringGraph.AddLamp((LampID)type, id); break;
+                components[id] = WiringGraph.AddNode(new Lamp {Id = id, Type = (LampID)type}); break;
             case Group.Gates:
-                WiringGraph.AddGate((GateID)type, id); break;
+                components[id] = WiringGraph.AddNode(new Gate {Id = id, Type = (GateID)type}); break;
             case Group.Wires:
-                WiringGraph.AddWire((WireID)type, id); break;
+                components[id] = WiringGraph.AddNode(new Wire {Id = id, Type = (WireID)type}); break;
         }
     }
 }
