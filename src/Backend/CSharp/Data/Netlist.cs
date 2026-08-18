@@ -50,7 +50,7 @@ public static class Netlist
     public static ReadOnlySpan<int> GateWireRefOffsets => _gateWireRefOffsets;
     public static ReadOnlySpan<int> GateWireRefSegments => _gateWireRefSegments;
 
-    internal static void SetGateTables(
+    public static void SetGateTables(
         GateType[] gateTypes,
         int[] gateWireLampBaseOffsets, byte[] gateWireLampBaseSegments,
         int[] gateWireRefOffsets, int[] gateWireRefSegments)
@@ -72,11 +72,18 @@ public static class Netlist
     public static int GateCount => _gateCount;
     public static int WireCount => _wireCount;
 
-    internal static void SetCounts(int inputPortCount, int outputPortCount, 
+    public static void SetCounts(int inputPortCount, int outputPortCount, 
         int lampCount, int gateCount, int wireCount)
     {
         _inputPortCount = inputPortCount; _outputPortCount = outputPortCount;
         _lampCount = lampCount; _gateCount = gateCount; _wireCount = wireCount;
+    }
+
+    public static void Build()
+    {
+        Clean();
+        
+        Conversion.Execute();
     }
 
     public static void Clean()
