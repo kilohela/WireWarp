@@ -38,8 +38,10 @@ public static class WiringFile
 
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
+            
             WiringGraph.SetHash(HeaderFile.Read(r));
             WiringSerializer.Deserialize(r);
+
             return true;
         }
         catch (Exception e)
@@ -48,20 +50,5 @@ public static class WiringFile
             WiringGraph.Clean();
             return false;
         }
-    }
-
-    public static bool MatchHash(byte[] hash) => 
-        LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
-
-    public static byte[]? LoadHeader()
-    {
-        if (!System.IO.File.Exists(PathName)) return null;
-        try
-        {
-            using var fs = new FileStream(PathName, FileMode.Open);
-            using var r = new BinaryReader(fs);
-            return HeaderFile.Read(r);
-        }
-        catch { return null; }
     }
 }

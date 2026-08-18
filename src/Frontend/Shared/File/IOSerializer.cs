@@ -14,11 +14,6 @@ public static partial class IOSerializer
 
     public static void Deserialize(BinaryReader r)
     {
-        ReadGroups(r);
-    }
-
-    private static void ReadGroups(BinaryReader r)
-    {
         if (r.ReadInt32() != GroupCount) throw new InvalidDataException("IO serializer group count mismatch");
 
         var starts = new int[GroupCount];

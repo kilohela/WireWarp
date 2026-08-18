@@ -206,7 +206,7 @@ public static class Runtime
         Access.Instance.Reset();
         IOFrame.Clean();
 
-        if (!WWorldFile.MatchHash(IOGraph.Hash.Span.ToArray()))
+        if (!HeaderFile.MatchHash(WWorldFile.PathName, IOGraph.Hash.Span.ToArray()))
             Access.Instance.Notify("World hash mismatch, reset failed");
         else
         {
@@ -228,7 +228,7 @@ public static class Runtime
         var hash = Conversion.Hash.Execute();
         Access.Instance.Status($"Hash time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
 
-        if (!WiringFile.MatchHash(hash) || !IOFile.MatchHash(hash))
+        if (!HeaderFile.MatchHash(WiringFile.PathName, hash) || !HeaderFile.MatchHash(IOFile.PathName, hash))
         {
             Access.Instance.Status("Building wiring graph...");
             WiringGraph.Build();

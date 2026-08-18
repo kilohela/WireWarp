@@ -14,8 +14,6 @@ public static class WWorldFile
     {
         try
         {
-            // WorldFile.SaveWorld();
-
             using (var src = new FileStream(Access.Instance.WorldPathName, FileMode.Open))
             using (var dst = new FileStream(WWLDTempPathName, FileMode.Create))
             using (var w = new BinaryWriter(dst))
@@ -43,14 +41,11 @@ public static class WWorldFile
             using (var r = new BinaryReader(src))
             {
                 var hash = HeaderFile.Read(r);
-                // if (!IOGraph.Hash.Span.SequenceEqual(hash)) throw new InvalidDataException("Header hash mismatch");
-
                 src.CopyTo(dst);
             }
 
             System.IO.File.Move(WLDTempPathName, Access.Instance.WorldPathName, overwrite: true);
 
-            // WorldFile.LoadWorld();
             return true;
         }
         catch (Exception e)
@@ -58,19 +53,5 @@ public static class WWorldFile
             Access.Instance.Notify($"WorldFile.Load failed: {e}");
             return false;
         }
-    }
-
-    public static bool MatchHash(byte[] hash) => 
-        LoadHeader() is { } fileHash && fileHash.AsSpan().SequenceEqual(hash);
-
-    public static byte[]? LoadHeader()
-    {
-        try
-        {
-            using var fs = new FileStream(PathName, FileMode.Open);
-            using var r = new BinaryReader(fs);
-            return HeaderFile.Read(r);
-        }
-        catch { return null; }
     }
 }

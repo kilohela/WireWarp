@@ -20,4 +20,16 @@ public static class HeaderFile
 
         return r.ReadBytes(HashSize);
     }
+
+    public static bool MatchHash(string path, byte[] hash)
+    {
+        if (!System.IO.File.Exists(path)) return false;
+        try
+        {
+            using var fs = new FileStream(path, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            return Read(r).AsSpan().SequenceEqual(hash);
+        }
+        catch { return false; }
+    }
 }

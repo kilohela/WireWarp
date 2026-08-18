@@ -104,15 +104,15 @@ public static class Netlist
         _gateCount = 0;
         _wireCount = 0;
     }
+}
 
-    public enum GateType : byte
-    {
-        Norm_1 = 0,
-        Norm_2_AND, // and, nand, or, nor
-        Norm_2_XOR, // xor, xnor
-        Norm_n_AND,
-        Norm_n_XOR,
-        Fault_1,
-        Fault_n,
-    }
+public enum GateType : byte
+{
+    Norm_1 = 0,
+    Norm_2_AND, // and, nand, or, nor
+    Norm_2_XOR, // xor, xnor
+    Norm_n_AND,
+    Norm_n_XOR,
+    Fault_1,
+    Fault_n,
 }

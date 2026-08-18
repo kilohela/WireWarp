@@ -1,13 +1,82 @@
-using WireWarp.Frontend.Shared.Data;
-using WireWarp.Frontend.Shared.ID;
+using WireWarp.Backend.CSharp.Data;
 
-namespace WireWarp.Frontend.Shared.File;
+namespace WireWarp.Backend.CSharp.File;
 
-public static class WiringSerializer
+public static class WiringFile
 {
-    const int GroupCount = 6;
+    private const uint Magic = 0xBADBEEF;
+    private const uint Version = 1;
+    private const int HashSize = 32;
+    private const int GroupCount = 6;
 
-    public static void Serialize(BinaryWriter w)
+    public static bool MatchHash(string path, byte[] hash)
+    {
+        if (!System.IO.File.Exists(path)) return false;
+        try {
+            using var fs = new FileStream(path, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            return ReadHeader(r).AsSpan().SequenceEqual(hash);
+        } catch { return false; }
+    }
+
+    public static bool Load(string path)
+    {
+        try
+        {
+            WiringGraph.Clean();
+
+            using var fs = new FileStream(path, FileMode.Open);
+            using var r = new BinaryReader(fs);
+            WiringGraph.SetHash(ReadHeader(r));
+            Deserialize(r);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[ERROR] WiringFile.Load failed: {e}");
+            WiringGraph.Clean();
+            return false;
+        }
+    }
+
+    public static bool Save(string path)
+    {
+        try
+        {
+            var temp = path + ".tmp";
+
+            using (var fs = new FileStream(temp, FileMode.Create))
+            using (var w = new BinaryWriter(fs))
+            {
+                WriteHeader(w, WiringGraph.Hash);
+                WriteGroups(w);
+            }
+
+            System.IO.File.Move(temp, path, overwrite: true);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[ERROR] WiringFile.Save failed: {e}");
+            return false;
+        }
+    }
+
+    private static void WriteHeader(BinaryWriter w, ReadOnlySpan<byte> hash)
+    {
+        w.Write(Magic);
+        w.Write(Version);
+        w.Write(hash);
+    }
+
+    private static byte[] ReadHeader(BinaryReader r)
+    {
+        if (r.ReadUInt32() != Magic) throw new InvalidDataException("Header magic mismatch");
+        if (r.ReadUInt32() != Version) throw new InvalidDataException("Header version mismatch");
+        return r.ReadBytes(HashSize);
+    }
+
+    private static void WriteGroups(BinaryWriter w)
     {
         w.Write(GroupCount);
         var groupStartPos = w.BaseStream.Position;
@@ -28,7 +97,7 @@ public static class WiringSerializer
             w.Write((uint)starts[i]);
     }
 
-    private static long WriteNodes<T>(BinaryWriter w, IReadOnlySet<T> nodes) where T : IConnectable
+    private static long WriteNodes<T>(BinaryWriter w, IReadOnlyList<T> nodes) where T : IConnectable
     {
         var start = w.BaseStream.Position;
 
@@ -51,7 +120,7 @@ public static class WiringSerializer
 
     private enum Group { InputPorts, OutputPorts, Lamps, Gates, Wires }
 
-    public static void Deserialize(BinaryReader r)
+    private static void Deserialize(BinaryReader r)
     {
         if (r.ReadInt32() != GroupCount) throw new InvalidDataException("Wiring group count mismatch");
 
@@ -83,19 +152,18 @@ public static class WiringSerializer
             for (var j = 0; j < fanoutCount; j++)
                 edges.Add((id, r.ReadInt32()));
 
-            var components = WiringGraph.Components;
             switch (group)
             {
                 case Group.InputPorts:
-                    components[id] = WiringGraph.AddNode(new InputPort {Id = id}); break;
+                    WiringGraph.AddNode(new InputPort { Id = id, Type = (InputID)type }); break;
                 case Group.OutputPorts:
-                    components[id] = WiringGraph.AddNode(new OutputPort {Id = id}); break;
+                    WiringGraph.AddNode(new OutputPort { Id = id, Type = (OutputID)type }); break;
                 case Group.Lamps:
-                    components[id] = WiringGraph.AddNode(new Lamp {Id = id, Type = (LampID)type}); break;
+                    WiringGraph.AddNode(new Lamp { Id = id, Type = (LampID)type }); break;
                 case Group.Gates:
-                    components[id] = WiringGraph.AddNode(new Gate {Id = id, Type = (GateID)type}); break;
+                    WiringGraph.AddNode(new Gate { Id = id, Type = (GateID)type }); break;
                 case Group.Wires:
-                    components[id] = WiringGraph.AddNode(new Wire {Id = id, Type = (WireID)type}); break;
+                    WiringGraph.AddNode(new Wire { Id = id, Type = (WireID)type }); break;
             }
         }
         return r.BaseStream.Position;
