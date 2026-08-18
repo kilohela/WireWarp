@@ -2,35 +2,33 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.File;
 
-public static class WiringFile
+public static partial class WiringFile
 {
     public static string PathName =>
         Path.ChangeExtension(Access.Instance.WorldPathName, ".wwir");
 
-    private static string TempPathName => PathName + ".tmp";
-
-    public static bool Save()
+    public static void Save()
     {
+        var temp = PathName + ".tmp";
         try
         {
-            using (var fs = new FileStream(TempPathName, FileMode.Create))
+            using (var fs = new FileStream(temp, FileMode.Create))
             using (var w = new BinaryWriter(fs))
             {
                 HeaderFile.Write(w, WiringGraph.Hash.Span);
-                WiringSerializer.Serialize(w);
+                Serialize(w);
             }
 
-            System.IO.File.Move(TempPathName, PathName, overwrite: true);
-            return true;
+            System.IO.File.Move(temp, PathName, overwrite: true);
         }
         catch (Exception e)
         {
-            Access.Instance.Notify($"WiringFile.Save failed: {e}");
-            return false;
+            try { if (System.IO.File.Exists(temp)) System.IO.File.Delete(temp); } catch { }
+            throw new Exception($"Failed to save {PathName}: {e.Message}", e);
         }
     }
 
-    public static bool Load()
+    public static void Load()
     {
         try
         {
@@ -38,17 +36,14 @@ public static class WiringFile
 
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
-            
-            WiringGraph.SetHash(HeaderFile.Read(r));
-            WiringSerializer.Deserialize(r);
 
-            return true;
+            WiringGraph.SetHash(HeaderFile.Read(r));
+            Deserialize(r);
         }
         catch (Exception e)
         {
-            Access.Instance.Notify($"WiringFile.Load failed: {e}");
             WiringGraph.Clean();
-            return false;
+            throw new Exception($"Failed to load {PathName}: {e.Message}", e);
         }
     }
 }

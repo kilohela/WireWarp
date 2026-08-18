@@ -8,66 +8,100 @@ public static class Transport
     private const ushort Version = 1;
     private const string PipeName = "WireWarp";
 
-    private static NamedPipeServerStream? _pipe;
     private static long _sendId;
     private static long _lastId;
 
+    private static NamedPipeServerStream? _pipe;
     public static bool IsOpen => _pipe?.IsConnected ?? false;
 
     public static void Open()
     {
-        _pipe = new NamedPipeServerStream(
-            PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-        _pipe.WaitForConnection();
+        Close();
+
+        try
+        {
+            _pipe = new NamedPipeServerStream(
+                PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            _pipe.WaitForConnection();
+        }
+        catch (Exception e)
+        {
+            Close();
+            throw new Exception($"Failed to open backend pipe: {e.Message}", e);
+        }
     }
 
     public static void Close()
     {
+        _sendId = 0;
+        _lastId = 0;
+
         _pipe?.Dispose();
         _pipe = null;
     }
 
-    public static (int status, string message) SendStartup() => 
-        UnpackAck(Request(Tag.Startup, [])).ack;
+    public static (int status, string message) SendStartup() 
+    {
+        try { return UnpackAck(Request(Tag.Startup, [])).ack; }
+        catch (Exception e) { throw new Exception($"Backend startup failed: {e.Message}", e); }
+    }         
 
     public static (int status, string message) SendSyncTo(byte[] hash, string path)
     {
-        using var ms = new MemoryStream();
-        using var w = new BinaryWriter(ms);
-        w.Write(hash);
-        w.Write(path);
-        return UnpackAck(Request(Tag.SyncTo, ms.ToArray())).ack;
+        try
+        {
+            using var ms = new MemoryStream();
+            using var w = new BinaryWriter(ms);
+            w.Write(hash);
+            w.Write(path);
+            return UnpackAck(Request(Tag.SyncTo, ms.ToArray())).ack;
+        }
+        catch (Exception e) { throw new Exception($"Backend sync to failed: {e.Message}", e); }
     }
 
     public static ((int status, string message) ack, (byte[] hash, string path) payload) SendSyncFrom()
     {
-        var (ack, payload) = UnpackAck(Request(Tag.SyncFrom, []));
-        if (ack.status == 0)
+        try
         {
-            using var ms = new MemoryStream(payload);
-            using var r = new BinaryReader(ms);
-            return (ack, (r.ReadBytes(32), r.ReadString()));
+            var (ack, payload) = UnpackAck(Request(Tag.SyncFrom, []));
+            if (ack.status == 0)
+            {
+                using var ms = new MemoryStream(payload);
+                using var r = new BinaryReader(ms);
+                return (ack, (r.ReadBytes(32), r.ReadString()));
+            }
+            else
+                return (ack, ([], "")); 
         }
-        else
-            return (ack, ([], ""));
+        catch (Exception e) { throw new Exception($"Backend sync from failed: {e.Message}", e); }
     }
 
-    public static (int status, string message) SendReset() => 
-        UnpackAck(Request(Tag.Reset, [])).ack;
-
-    public static (int status, string message) SendShutdown() => 
-        UnpackAck(Request(Tag.Shutdown, [])).ack;
-
-    public static ((int status, string message) ack, IReadOnlyList<(int portId, int count)> payload) SendFrame(
-        bool run, long tick, IReadOnlyList<(int portId, int count)> inputs)
+    public static (int status, string message) SendReset()
     {
-        var body = Request(Tag.Frame, PackFrame(run, tick, inputs));
+        try { return UnpackAck(Request(Tag.Reset, [])).ack; }
+        catch (Exception e) { throw new Exception($"Backend reset failed: {e.Message}", e); }
+    }  
 
-        var (ack, payload) = UnpackAck(body);
-        if (ack.status == 0)
-            return (ack, UnpackFrameAck(payload));
-        else
-            return (ack, []);
+    public static (int status, string message) SendShutdown()
+    {
+        try { return UnpackAck(Request(Tag.Shutdown, [])).ack; }
+        catch (Exception e) { throw new Exception($"Backend shutdown failed: {e.Message}", e); }
+    }
+
+    public static ((int status, string message) ack, IReadOnlyList<(int portId, int count)> payload)
+    SendFrame(bool run, long tick, IReadOnlyList<(int portId, int count)> inputs)
+    {
+        try
+        {
+            var body = Request(Tag.Frame, PackFrame(run, tick, inputs));
+
+            var (ack, payload) = UnpackAck(body);
+            if (ack.status == 0)
+                return (ack, UnpackFrameAck(payload));
+            else
+                return (ack, []);
+        }
+        catch (Exception e) { throw new Exception($"Backend frame failed: {e.Message}", e); }
     }
 
     private static byte[] Request(Tag tag, byte[] body)
@@ -92,7 +126,7 @@ public static class Transport
 
         using var ms = new MemoryStream(20 + body.Length);
         using var w = new BinaryWriter(ms);
-        
+
         w.Write(Magic);
         w.Write(Version);
         w.Write((ushort)tag);
@@ -113,7 +147,7 @@ public static class Transport
 
         using var ms = new MemoryStream(header);
         using var r = new BinaryReader(ms);
-        
+
         magic = r.ReadUInt32();
         version = r.ReadUInt16();
         tag = r.ReadUInt16();
@@ -122,7 +156,7 @@ public static class Transport
 
         if (magic != Magic) throw new InvalidDataException("Header magic mismatch");
         if (version != Version) throw new InvalidDataException("Header version mismatch");
-        
+
         var body = new byte[length];
         _pipe.ReadExactly(body);
         return ((Tag)tag, id, body);

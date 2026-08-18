@@ -6,21 +6,21 @@ public static class IOGraph
 {
     private static readonly byte[] _hash = new byte[32];
 
+    public static ReadOnlyMemory<byte> Hash => _hash;
+
+    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
+
     private static readonly Dictionary<(int x, int y), (int portId, InputID type)> _inputs = [];
     private static readonly Dictionary<int, ((int x, int y) pos, OutputID type)> _outputs = [];
 
     private static readonly Dictionary<int, (int x, int y)> _gatePos = [];
     private static readonly Dictionary<int, (int x, int y)> _lampPos = [];
 
-    public static ReadOnlyMemory<byte> Hash => _hash;
-
     public static IReadOnlyDictionary<(int x, int y), (int portId, InputID type)> Inputs => _inputs;
     public static IReadOnlyDictionary<int, ((int x, int y) pos, OutputID type)> Outputs => _outputs;
 
     public static IReadOnlyDictionary<int, (int x, int y)> GatePos => _gatePos;
     public static IReadOnlyDictionary<int, (int x, int y)> LampPos => _lampPos;
-
-    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
 
     internal static void SetInput((int x, int y) pos, int portId, InputID type) =>
         _inputs[pos] = (portId, type);
@@ -74,7 +74,7 @@ public static class IOGraph
                 lamp.Origin = pos;
                 WiringGraph.LampPos[pos] = lamp;
             }
-            else Access.Instance.Notify($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
+            else throw new Exception($"IOGraph.Resolve: Lamp {id} not found in WiringGraph");
         }
 
         foreach (var (id, pos) in _gatePos)
@@ -84,7 +84,7 @@ public static class IOGraph
                 gate.Origin = pos;
                 WiringGraph.GatePos[pos] = gate;
             }
-            else Access.Instance.Notify($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
+            else throw new Exception($"IOGraph.Resolve: Gate {id} not found in WiringGraph");
         }
 
         // Inputs and outputs are resolved by world load, not reconstructed here.
@@ -94,11 +94,13 @@ public static class IOGraph
 
     public static void Clean()
     {
+        Array.Clear(_hash);
+
         _inputs.Clear();
         _outputs.Clear();
         _gatePos.Clear();
         _lampPos.Clear();
-        
+
         IOExtra.Clean();
     }
 }

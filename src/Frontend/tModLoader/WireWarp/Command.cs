@@ -1,4 +1,3 @@
-using System;
 using Terraria.ModLoader;
 using WireWarp.Frontend.Shared;
 
@@ -8,7 +7,7 @@ internal sealed class WireWarpCommand : ModCommand
 {
     public override CommandType Type => CommandType.World;
     public override string Command => "ww";
-    public override string Usage => "/ww <startup|shutdown|run|stop|syncto|syncfrom|reset>";
+    public override string Usage => "/ww <startup|shutdown|run|stop|syncto|syncfrom|reset|report>";
     public override string Description => "WireWarp control commands";
 
     public override void Action(CommandCaller caller, string input, string[] args)
@@ -56,6 +55,11 @@ internal sealed class WireWarpCommand : ModCommand
                 case "reset":
                     Runtime.Reset();
                     caller.Reply("WireWarp reset");
+                    break;
+
+                case "report":
+                    Runtime.Report();
+                    caller.Reply("WireWarp report written");
                     break;
 
                 default:

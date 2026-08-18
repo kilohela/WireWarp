@@ -1,4 +1,3 @@
-using System;
 using Terraria;
 using Terraria.ModLoader;
 using WireWarp.Frontend.Shared;
@@ -20,9 +19,14 @@ internal sealed class WireWarp : Mod
 
     private static void OnHitSwitch(On_Wiring.orig_HitSwitch orig, int i, int j)
     {
-        try { Runtime.HitInput(i, j); }
+        try
+        {
+            Runtime.HitInput(i, j);
+        }
         catch (Exception e) 
-        { ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp hit switch failed: {e}"); }
+        {
+            ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp hit switch failed: {e}");
+        }
     }
 }
 
@@ -30,9 +34,15 @@ internal sealed class WireWarpSystem : ModSystem
 {
     public override void OnWorldLoad()
     {
-        try { Runtime.Startup(); }
+        try
+        {
+            Runtime.Startup();
+        }
         catch (Exception e)
-        { ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp startup failed: {e}"); }
+        {
+            ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp startup failed: {e}");
+            throw;
+        }
     }
 
     public override void PostUpdateWorld()
@@ -44,14 +54,18 @@ internal sealed class WireWarpSystem : ModSystem
         catch (Exception e)
         {
             ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp tick failed: {e}");
-            try { Runtime.Shutdown(); } catch { }
         }
     }
 
     public override void OnWorldUnload()
     {
-        try { Runtime.Shutdown(); }
+        try
+        {
+            Runtime.Shutdown();
+        }
         catch (Exception e)
-        { ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp shutdown failed: {e}"); }
+        {
+            ModContent.GetInstance<WireWarp>().Logger.Error($"WireWarp shutdown failed: {e}");
+        }
     }
 }

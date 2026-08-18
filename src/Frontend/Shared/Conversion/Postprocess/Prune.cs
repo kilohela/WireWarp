@@ -29,7 +29,10 @@ internal static class Prune
             if (IsDead(node)) dead.Add(node);
 
         foreach (var node in dead)
+        {
+            Report.AddPruned(node.GetType().Name);
             WiringGraph.RemoveNode(node);
+        }
 
         return dead.Count > 0;
     }

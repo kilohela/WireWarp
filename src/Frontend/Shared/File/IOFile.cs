@@ -2,35 +2,33 @@ using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.File;
 
-public static class IOFile
+public static partial class IOFile
 {
     public static string PathName =>
         Path.ChangeExtension(Access.Instance.WorldPathName, ".wwio");
 
-    private static string TempPathName => PathName + ".tmp";
-
-    public static bool Save()
+    public static void Save()
     {
+        var temp = PathName + ".tmp";
         try
         {
-            using (var fs = new FileStream(TempPathName, FileMode.Create))
+            using (var fs = new FileStream(temp, FileMode.Create))
             using (var w = new BinaryWriter(fs))
             {
                 HeaderFile.Write(w, IOGraph.Hash.Span);
-                IOSerializer.Serialize(w);
+                Serialize(w);
             }
 
-            System.IO.File.Move(TempPathName, PathName, overwrite: true);
-            return true;
+            System.IO.File.Move(temp, PathName, overwrite: true);
         }
         catch (Exception e)
         {
-            Access.Instance.Notify($"IOFile.Save failed: {e}");
-            return false;
+            try { if (System.IO.File.Exists(temp)) System.IO.File.Delete(temp); } catch { }
+            throw new Exception($"Failed to save {PathName}: {e.Message}", e);
         }
     }
 
-    public static bool Load()
+    public static void Load()
     {
         try
         {
@@ -38,17 +36,14 @@ public static class IOFile
 
             using var fs = new FileStream(PathName, FileMode.Open);
             using var r = new BinaryReader(fs);
-            
+
             IOGraph.SetHash(HeaderFile.Read(r));
-            IOSerializer.Deserialize(r);
-            
-            return true;
+            Deserialize(r);
         }
         catch (Exception e)
         {
-            Access.Instance.Notify($"IOFile.Load failed: {e}");
             IOGraph.Clean();
-            return false;
+            throw new Exception($"Failed to load {PathName}: {e.Message}", e);
         }
     }
 }

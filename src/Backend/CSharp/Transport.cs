@@ -8,14 +8,17 @@ public static class Transport
     private const ushort Version = 1;
     private const string PipeName = "WireWarp";
 
-    private static NamedPipeClientStream? _pipe;
     private static long _sendId;
     private static long _lastId;
 
+    private static NamedPipeClientStream? _pipe;
     public static bool IsOpen => _pipe?.IsConnected ?? false;
 
     public static void Open()
     {
+        _sendId = 0;
+        _lastId = 0;
+
         _pipe = new NamedPipeClientStream(
             ".", PipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
         _pipe.Connect(-1);
@@ -23,6 +26,9 @@ public static class Transport
 
     public static void Close()
     {
+        _sendId = 0;
+        _lastId = 0;
+        
         _pipe?.Dispose();
         _pipe = null;
     }

@@ -3,7 +3,7 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.File;
 
-public static partial class IOSerializer
+public static partial class IOFile
 {
     private static long ReadTeleporter(BinaryReader r)
     {

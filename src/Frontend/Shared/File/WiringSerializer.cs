@@ -3,7 +3,7 @@ using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.File;
 
-public static class WiringSerializer
+public static partial class WiringFile
 {
     const int GroupCount = 6;
 

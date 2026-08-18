@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using WireWarp.Frontend.Shared.Conversion;
 
 namespace WireWarp.Frontend.Shared.Data;
@@ -6,6 +7,10 @@ public static class WiringGraph
 {
     private static readonly byte[] _hash = new byte[32];
 
+    public static ReadOnlyMemory<byte> Hash => _hash;
+
+    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
+
     private static readonly HashSet<Wire> _wires = [];
     private static readonly HashSet<Gate> _gates = [];
     private static readonly HashSet<Lamp> _lamps = [];
@@ -13,8 +18,6 @@ public static class WiringGraph
     private static readonly HashSet<InputPort> _inputPorts = [];
     private static readonly HashSet<Output> _outputs = [];
     private static readonly HashSet<OutputPort> _outputPorts = [];
-
-    public static ReadOnlyMemory<byte> Hash => _hash;
 
     public static int InputPortOffset => 0;
     public static int OutputPortOffset => InputPortOffset + _inputPorts.Count;
@@ -38,10 +41,6 @@ public static class WiringGraph
     internal static Dictionary<(int x, int y), Lamp> LampPos { get; } = [];
     internal static Dictionary<(int x, int y), Input> InputPos { get; } = [];
     internal static Dictionary<(int x, int y), Output> OutputPos { get; } = [];
-
-    internal static void SetHash(byte[] hash) => hash.CopyTo(_hash, 0);
-
-    // edge
 
     internal static void AddEdge(IConnectable from, IConnectable to)
     {
@@ -96,30 +95,49 @@ public static class WiringGraph
     public static void Build()
     {
         Clean();
+        Report.Clean();
 
-        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var sw = Stopwatch.StartNew();
 
-        // preprocess
-        Scan.Execute();
-        Access.Instance.Status($"Scan time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Trace.Execute();
-        Access.Instance.Status($"Trace time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+        try
+        {
+            // preprocess
+            Scan.Execute();
+            Report.AddStage("BuildWiring.Scan", sw.Elapsed.TotalMilliseconds); sw.Restart();
 
-        // postprocess
-        Prune.Execute();
-        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Normalize.Execute();
-        Access.Instance.Status($"Normalize time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Prune.Execute();
-        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Applier.Execute();
-        Access.Instance.Status($"Applier time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Prune.Execute();
-        Access.Instance.Status($"Prune time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Assign.Execute();
-        Access.Instance.Status($"Assign time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        Validate.Execute();
-        Access.Instance.Status($"Validate time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+            Conversion.Trace.Execute();
+            Report.AddStage("BuildWiring.Trace", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            // postprocess
+            Prune.Execute();
+            Report.AddStage("BuildWiring.Prune.1", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Normalize.Execute();
+            Report.AddStage("BuildWiring.Normalize", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Prune.Execute();
+            Report.AddStage("BuildWiring.Prune.2", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Applier.Execute();
+            Report.AddStage("BuildWiring.Applier", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Prune.Execute();
+            Report.AddStage("BuildWiring.Prune.3", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Assign.Execute();
+            Report.AddStage("BuildWiring.Assign", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            if (!Validate.Execute()) throw new Exception("Wiring validation failed, see report.");
+            Report.AddStage("BuildWiring.Validate", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+            Reporter.Execute();
+            Report.AddStage("BuildWiring.Reporter", sw.Elapsed.TotalMilliseconds); sw.Restart();
+        }
+        catch
+        {
+            Reporter.Execute();
+            throw;
+        }
     }
 
     public static void Resolve()

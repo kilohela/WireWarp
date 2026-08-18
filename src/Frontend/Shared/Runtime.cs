@@ -6,10 +6,13 @@ namespace WireWarp.Frontend.Shared;
 
 public static class Runtime
 {
-    private const int TimeoutWindow = 600;
-    public const double FrameTimeoutBudget = 16.67;
-    
+    private const int FrameTimeoutWindow = 600;
+    private const double FrameTimeoutBudget = 16.67;
+
     private static readonly Stopwatch _frameTimer = Stopwatch.StartNew();
+    
+    private static readonly byte[] _hash = new byte[32];
+    public static ReadOnlyMemory<byte> Hash => _hash;
 
     private static bool _isOpen;
     private static bool _isRun;
@@ -21,48 +24,67 @@ public static class Runtime
     public static bool IsRun => _isRun;
     public static long Time => _time;
 
-    public static void Run() { if (_isOpen) _isRun = true; }
-    public static void Stop() { if (_isOpen) _isRun = false; }
+    public static void Run()
+    {
+        if (!_isOpen) throw new Exception("Frontend not open.");
+        else _isRun = true;
+    }
+
+    public static void Stop()
+    {
+        if (!_isOpen) throw new Exception("Frontend not open.");
+        else _isRun = false;
+    }
 
     public static void Startup()
     {
         if (_isOpen) return;
 
-        UpdateFile();
-
-        if (!Transport.IsOpen)
+        var sw = Stopwatch.StartNew();
+        try
         {
+            Access.Instance.Status("Updating files...");
+            UpdateFile();
+
             Access.Instance.Status("Waiting for backend open...");
             Transport.Open();
+
+            Access.Instance.Status("Waiting for backend sync...");
+            CheckAck("Backend sync to failed", Transport.SendSyncTo(_hash, WiringFile.PathName));
+
+            Access.Instance.Status("Waiting for backend startup...");
+            CheckAck("Backend startup failed", Transport.SendStartup());
+
+            _isOpen = true;
+            _isRun = true;
+
+            _time = 0;
+
+            _frontendTimeoutCount = 0;
+            _backendTimeoutCount = 0;
+
+            _frameTimer.Restart();
+
+            Access.Instance.Reset();
+            IOFrame.Clean();
         }
+        catch
+        { try { Shutdown(); } catch { } throw; }
         
-        Access.Instance.Status("Waiting for backend sync...");
-        CheckAck("Backend sync to failed", 
-            Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
-
-        Access.Instance.Status("Waiting for backend startup...");
-        CheckAck("Backend startup failed", Transport.SendStartup());
-
-        _isOpen = true;
-        _isRun = true;
-        _time = 0;
-        _frontendTimeoutCount = 0;
-        _backendTimeoutCount = 0;
-        _frameTimer.Restart();
-
-        Access.Instance.Reset();
-        IOFrame.Clean();
-
-        Access.Instance.Notify("Frontend started");
+        Access.Instance.Notify($"Frontend started in {sw.Elapsed.TotalSeconds:F2}s");
     }
 
     public static void Shutdown()
     {
         _isOpen = false;
         _isRun = false;
+
         _time = 0;
+
         _frontendTimeoutCount = 0;
         _backendTimeoutCount = 0;
+        
+        Array.Clear(_hash);
 
         Access.Instance.Reset();
         IOFrame.Clean();
@@ -70,196 +92,260 @@ public static class Runtime
         IOGraph.Clean();
         WiringGraph.Clean();
 
-        if (Transport.IsOpen)
-        {
-            try { CheckAck("Backend shutdown failed", Transport.SendShutdown()); }
-            finally { Transport.Close(); }
-        }
+        try { CheckAck("Backend shutdown failed", Transport.SendShutdown()); }
+        finally { Transport.Close(); }
 
         Access.Instance.Notify("Frontend shutdown");
     }
 
     public static void Tick()
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
+        if (!_isOpen) return;
 
         if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _frontendTimeoutCount++;
         _frameTimer.Restart();
 
-        if (!_isRun)
+        try
         {
-            CheckAck("Backend frame failed", 
-                Transport.SendFrame(false, _time, []).ack);
-        }
-        else
-        {
-            foreach (var output in IOFrame.ReadOutputs())
-                HitOutput(output);
-
-            var inputs = PackRLE(IOFrame.ReadInputs());
-
-            var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
-
-            CheckAck("Backend frame failed", ack);
-
-            foreach (var output in UnPackRLE(outputs))
-                IOFrame.WriteOutput(output);
-
-            Access.Instance.Tick();
-            IOFrame.Tick();
-
-            _time++;
-
-            if (_time % TimeoutWindow == 0 && (_frontendTimeoutCount > 0 || _backendTimeoutCount > 0))
+            if (!_isRun)
             {
-                Access.Instance.Notify($"Slow frames: frontend {_frontendTimeoutCount}, backend {_backendTimeoutCount} in last {TimeoutWindow} ticks");
-                _frontendTimeoutCount = 0;
-                _backendTimeoutCount = 0;
+                CheckAck("Backend frame failed", Transport.SendFrame(false, _time, []).ack);
+            }
+            else
+            {
+                foreach (var output in IOFrame.ReadOutputs())
+                    HitOutput(output);
+
+                var inputs = PackRLE(IOFrame.ReadInputs());
+
+                var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
+
+                CheckAck("Backend frame failed", ack);
+
+                foreach (var output in UnPackRLE(outputs))
+                    IOFrame.WriteOutput(output);
+
+                Access.Instance.Tick();
+                IOFrame.Tick();
+
+                _time++;
+
+                if (_time % FrameTimeoutWindow == 0 && (_frontendTimeoutCount > 0 || _backendTimeoutCount > 0))
+                {
+                    Access.Instance.Notify($"Slow frames: frontend {_frontendTimeoutCount}, backend {_backendTimeoutCount} in last {FrameTimeoutWindow} ticks");
+                    _frontendTimeoutCount = 0;
+                    _backendTimeoutCount = 0;
+                }
             }
         }
+        catch
+        { try { Shutdown(); } catch { } throw; }
 
         if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _backendTimeoutCount++;
         _frameTimer.Restart();
     }
 
-    public static void HitInput(int x, int y, bool hitPoint = true)
+    public static bool HitInput(int x, int y, bool hitPoint = true)
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
-        if (!_isRun) { Access.Instance.Notify("Frontend not running"); return; }
+        if (!_isOpen || !_isRun) return false;
 
         if (IOGraph.Inputs.TryGetValue((x, y), out var input))
         {
+            if (hitPoint) Access.Instance.Execute(input.type, input.portId, x, y);
             IOFrame.WriteInput(input.portId);
-            if (hitPoint)
-                Access.Instance.Execute(input.type, input.portId, x, y);
+            return true;
         }
-        else
-            Access.Instance.Notify($"Point ({x},{y}) not found in Inputs");
+
+        Access.Instance.Notify($"Point ({x},{y}) not found in Inputs");
+        return false;
     }
 
-    private static void HitOutput(int portId)
+    private static bool HitOutput(int portId)
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
-        if (!_isRun) { Access.Instance.Notify("Frontend not running"); return; }
+        if (!_isOpen || !_isRun) return false;
 
         if (IOGraph.Outputs.TryGetValue(portId, out var output))
+        {
             Access.Instance.Execute(output.type, portId, output.pos.x, output.pos.y);
-        else
-            Access.Instance.Notify($"Port ({portId}) not found in Outputs");
+            return true;
+        }
+
+        Access.Instance.Notify($"Port ({portId}) not found in Outputs");
+        return false;
     }
 
     public static void SyncTo()
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
+        if (!_isOpen) throw new Exception("Frontend not open.");
 
-        Access.Instance.Notify("Saving world...");
-        Access.Instance.SaveWorld();
-        
-        Access.Instance.Notify("Updating wiring files...");
-        UpdateFile();
+        var sw = Stopwatch.StartNew();
 
-        Access.Instance.Notify("Waiting for backend...");
-        CheckAck("Backend sync to failed", 
-            Transport.SendSyncTo(IOGraph.Hash.ToArray(), WiringFile.PathName));
-        
-        Access.Instance.Status("Backend initializing...");
-        CheckAck("Backend startup failed", Transport.SendStartup());
+        try
+        {
+            Access.Instance.Notify("Saving world...");
+            try { Access.Instance.SaveWorld(); }
+            catch (Exception e) { throw new Exception($"Failed to save world: {e.Message}", e); }
 
-        Access.Instance.Notify("Wiring synced to backend");
+            Access.Instance.Notify("Updating wiring files...");
+            UpdateFile();
+
+            Access.Instance.Notify("Waiting for backend...");
+            CheckAck("Backend sync to failed", Transport.SendSyncTo(_hash, WiringFile.PathName));
+
+            Access.Instance.Status("Backend initializing...");
+            CheckAck("Backend startup failed", Transport.SendStartup());
+        }
+        catch
+        {
+            try { Shutdown(); } catch { }
+            throw;
+        }
+
+        Access.Instance.Notify($"Wiring synced to backend in {sw.Elapsed.TotalSeconds:F2}s");
     }
 
     public static void SyncFrom()
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
+        if (!_isOpen) throw new Exception("Frontend not open.");
 
-        Access.Instance.Notify("Waiting for backend...");
-        var (ack, payload) = Transport.SendSyncFrom();
-        CheckAck("Backend sync from failed", ack);
-
-        if (!payload.hash.SequenceEqual(IOGraph.Hash.Span))
-            Access.Instance.Notify("Wiring hash mismatch, sync failed");
-        else
+        var sw = Stopwatch.StartNew();
+        try
         {
+            Access.Instance.Notify("Waiting for backend...");
+            var (ack, payload) = Transport.SendSyncFrom();
+            CheckAck("Backend sync from failed", ack);
+
+            if (!payload.hash.AsSpan().SequenceEqual(_hash))
+                throw new Exception("Wiring hash mismatch, sync failed.");
+
             Access.Instance.Notify("Applying wiring state to world...");
             WiringFile.Load();
 
             IOGraph.Resolve();
             WiringGraph.Resolve();
-
-            WiringGraph.Clean();
-
-            Access.Instance.Notify("Wiring state applied to world");
         }
+        catch
+        {
+            { try { Shutdown(); } catch { } throw; }
+            throw;
+        }
+
+        Access.Instance.Notify($"Wiring state applied to world in {sw.Elapsed.TotalSeconds:F2}s");
     }
 
     public static void Reset()
     {
-        if (!_isOpen) { Access.Instance.Notify("Frontend not openning"); return; }
+        if (!_isOpen) throw new Exception("Frontend not open.");
 
-        CheckAck("Backend reset failed", Transport.SendReset());
-
-        _time = 0;
-        _frontendTimeoutCount = 0;
-        _backendTimeoutCount = 0;
-        _frameTimer.Restart();
-
-        Access.Instance.Reset();
-        IOFrame.Clean();
-
-        if (!HeaderFile.MatchHash(WWorldFile.PathName, IOGraph.Hash.Span.ToArray()))
-            Access.Instance.Notify("World hash mismatch, reset failed");
-        else
+        var sw = Stopwatch.StartNew();
+        try
         {
+            CheckAck("Backend reset failed", Transport.SendReset());
+
+            _time = 0;
+            _frontendTimeoutCount = 0;
+            _backendTimeoutCount = 0;
+            _frameTimer.Restart();
+
+            Access.Instance.Reset();
+            IOFrame.Clean();
+
+            if (!HeaderFile.MatchHash(WWorldFile.PathName, _hash))
+                throw new Exception("World snapshot hash mismatch, reset aborted.");
+
             Access.Instance.Notify("Loading world snapshot...");
             WWorldFile.Load();
 
             Access.Instance.Notify("Reloading world...");
-            Access.Instance.LoadWorld();
-            
-            Access.Instance.Notify("Reset complete");
+            try { Access.Instance.LoadWorld(); }
+            catch (Exception e) { throw new Exception($"Failed to reload world: {e.Message}", e);  }
         }
+        catch
+        {
+            { try { Shutdown(); } catch { } throw; }
+            throw;
+        }
+
+        Access.Instance.Notify($"Reset complete in {sw.Elapsed.TotalSeconds:F2}s");
+    }
+
+    public static void Report()
+    {
+        ReportFile.Write();
+        Access.Instance.Notify($"Report written to {ReportFile.PathName}");
     }
 
     private static void UpdateFile()
     {
         var sw = Stopwatch.StartNew();
+        byte[] hash = [];
 
-        Access.Instance.Status("Hashing wiring...");
-        var hash = Conversion.Hash.Execute();
-        Access.Instance.Status($"Hash time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-
-        if (!HeaderFile.MatchHash(WiringFile.PathName, hash) || !HeaderFile.MatchHash(IOFile.PathName, hash))
+        try
         {
-            Access.Instance.Status("Building wiring graph...");
-            WiringGraph.Build();
-            Access.Instance.Status($"Graph time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-            
-            WiringGraph.SetHash(hash);
-            
-            Access.Instance.Status("Building io graph...");
-            IOGraph.Build();
-            Access.Instance.Status($"IO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+            Access.Instance.Status("Hashing wiring...");
+            hash = Conversion.Hash.Execute();
+            var hashTime = sw.Elapsed.TotalMilliseconds;
+            sw.Restart();
 
-            Access.Instance.Status("Saving wiring graph...");
-            WiringFile.Save();
-            Access.Instance.Status($"SaveWiring time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-            
-            Access.Instance.Status("Saving io graph...");
-            IOFile.Save();
-            Access.Instance.Status($"SaveIO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
+            Data.Report.SetWorldPath(Access.Instance.WorldPathName);
 
-            WiringGraph.Clean();
+            var built = false;
+            if (!HeaderFile.MatchHash(WiringFile.PathName, hash) ||
+                !HeaderFile.MatchHash(IOFile.PathName, hash))
+            {
+                built = true;
+
+                Access.Instance.Status("Building wiring graph...");
+                WiringGraph.Build();
+                
+                Data.Report.Stages.Insert(0, ("Hash", hashTime));
+
+                Data.Report.SetHash(hash);
+                WiringGraph.SetHash(hash);
+
+                Access.Instance.Status("Building io graph...");
+                IOGraph.Build();
+                Data.Report.AddStage("BuildIO", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+                Access.Instance.Status("Saving wiring graph...");
+                WiringFile.Save();
+                Data.Report.AddStage("SaveWiring", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+                Access.Instance.Status("Saving io graph...");
+                IOFile.Save();
+                Data.Report.AddStage("SaveIO", sw.Elapsed.TotalMilliseconds); sw.Restart();
+
+                WiringGraph.Clean();
+            }
+            else
+            {
+                Access.Instance.Status("Loading io graph...");
+                IOFile.Load();
+            }
+
+            hash.CopyTo(_hash);
+
+            Access.Instance.Status("Saving world snapshot...");
+            WWorldFile.Save();
+
+            if (built)
+            {
+                Data.Report.AddStage("Snapshot", sw.Elapsed.TotalMilliseconds);
+                Data.Report.Success = Data.Report.Errors.Count == 0;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Access.Instance.Status("Loading io graph...");
-            IOFile.Load();
-            Access.Instance.Status($"LoadIO time: {sw.Elapsed.TotalSeconds:F2}s"); sw.Restart();
-        }
+            Data.Report.Success = false;
+            if (hash.Length > 0) Data.Report.SetHash(hash);
+            Data.Report.Errors.Add($"{e.GetType().Name}: {e.Message}");
 
-        Access.Instance.Status("Saving world snapshot...");
-        WWorldFile.Save();
-        Access.Instance.Status($"Snapshot time: {sw.Elapsed.TotalSeconds:F2}s");
+            try { Report(); }
+            catch (Exception reportException)
+            { Access.Instance.Notify($"Report write failed: {reportException.Message}"); }
+
+            throw;
+        }
     }
 
     private static List<(int portId, int count)> PackRLE(IReadOnlyList<int> ids)
