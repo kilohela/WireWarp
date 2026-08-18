@@ -1,10 +1,12 @@
 namespace WireWarp.Backend.CSharp.Data;
 
-public static class WiringGraph
+public static class Netlist
 {
     private static readonly byte[] _hash = new byte[32];
 
     public static ReadOnlySpan<byte> Hash => _hash;
+
+    internal static void SetHash(ReadOnlySpan<byte> hash) => hash.CopyTo(_hash);    
 
     private static int[] _sourceWireOffsets = [];
     private static int[] _sourceWireSegments = [];
@@ -24,6 +26,18 @@ public static class WiringGraph
     public static ReadOnlySpan<int> WireOutputOffsets => _wireOutputOffsets;
     public static ReadOnlySpan<int> WireOutputSegments => _wireOutputSegments;
 
+    internal static void SetWireTables(
+        int[] sourceWireOffsets, int[] sourceWireSegments,
+        int[] wireFaultOffsets, int[] wireFaultSegments,
+        int[] wireNormOffsets, int[] wireNormSegments,
+        int[] wireOutputOffsets, int[] wireOutputSegments)
+    {
+        _sourceWireOffsets = sourceWireOffsets; _sourceWireSegments = sourceWireSegments;
+        _wireFaultOffsets = wireFaultOffsets; _wireFaultSegments = wireFaultSegments;
+        _wireNormOffsets = wireNormOffsets; _wireNormSegments = wireNormSegments;
+        _wireOutputOffsets = wireOutputOffsets; _wireOutputSegments = wireOutputSegments;
+    }
+
     private static GateType[] _gateTypes = [];
     private static int[] _gateWireLampBaseOffsets = [];
     private static byte[] _gateWireLampBaseSegments = [];
@@ -36,6 +50,16 @@ public static class WiringGraph
     public static ReadOnlySpan<int> GateWireRefOffsets => _gateWireRefOffsets;
     public static ReadOnlySpan<int> GateWireRefSegments => _gateWireRefSegments;
 
+    internal static void SetGateTables(
+        GateType[] gateTypes,
+        int[] gateWireLampBaseOffsets, byte[] gateWireLampBaseSegments,
+        int[] gateWireRefOffsets, int[] gateWireRefSegments)
+    {
+        _gateTypes = gateTypes;
+        _gateWireLampBaseOffsets = gateWireLampBaseOffsets; _gateWireLampBaseSegments = gateWireLampBaseSegments;
+        _gateWireRefOffsets = gateWireRefOffsets; _gateWireRefSegments = gateWireRefSegments;
+    }
+
     private static int _inputPortCount;
     private static int _outputPortCount;
     private static int _lampCount;
@@ -47,6 +71,13 @@ public static class WiringGraph
     public static int LampCount => _lampCount;
     public static int GateCount => _gateCount;
     public static int WireCount => _wireCount;
+
+    internal static void SetCounts(int inputPortCount, int outputPortCount, 
+        int lampCount, int gateCount, int wireCount)
+    {
+        _inputPortCount = inputPortCount; _outputPortCount = outputPortCount;
+        _lampCount = lampCount; _gateCount = gateCount; _wireCount = wireCount;
+    }
 
     public static void Clean()
     {
