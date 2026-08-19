@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.ID;
 
 namespace WireWarp.Frontend.tModLoader.IO;
 
@@ -13,11 +14,11 @@ partial class RuntimeOutput
         if (!WorldGen.OpenDoor(i, j, num67))
         {
             if (WorldGen.OpenDoor(i, j, -num67))
-                NetMessage.SendData(19, -1, -1, null, 0, i, j, -num67);
+                NetMessage.SendData(/*19*/MessageID.ToggleDoorState, -1, -1, /*null,*/ number: 0, number2: i, number3: j, number4: -num67);
         }
         else
         {
-            NetMessage.SendData(19, -1, -1, null, 0, i, j, num67);
+            NetMessage.SendData(/*19*/MessageID.ToggleDoorState, -1, -1, /*null,*/ number: 0, number2: i, number3: j, number4: num67);
         }
     }
 }

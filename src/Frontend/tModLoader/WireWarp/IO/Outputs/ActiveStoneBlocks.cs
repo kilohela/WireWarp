@@ -10,7 +10,7 @@ partial class RuntimeOutput
         Tile tile = Main.tile[i, j];
         if (tile.TileType == TileID.ActiveStoneBlock)
         {
-            if (Main.tile[i, j - 1] != null && (!Main.tile[i, j - 1].HasTile || !TileID.Sets.PreventsActuationUnder[Main.tile[i, j - 1].TileType]) && WorldGen.CanKillTile(i, j))
+            if (/*Main.tile[i, j - 1] != null &&*/ (!Main.tile[i, j - 1].HasTile || !TileID.Sets.PreventsActuationUnder[Main.tile[i, j - 1].TileType]) && WorldGen.CanKillTile(i, j))
             {
                 tile.TileType = TileID.InactiveStoneBlock;
                 WorldGen.SquareTileFrame(i, j);

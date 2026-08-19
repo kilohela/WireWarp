@@ -228,7 +228,7 @@ partial class RuntimeOutput
                         {
                             Vector2 position = new Vector2(num142 - 4, num143 - 22) - new Vector2(10f);
                             Utils.PoofOfSmoke(position);
-                            NetMessage.SendData(106, -1, -1, null, (int)position.X, position.Y);
+                            NetMessage.SendData(/*106*/MessageID.PoofOfSmoke, -1, -1, /*null,*/ number: (int)position.X, number2: position.Y);
                         }
                     }
 
@@ -279,7 +279,7 @@ partial class RuntimeOutput
 
                                     Vector2 position3 = new Vector2(num142 - 4, num143 - 22) - new Vector2(10f);
                                     Utils.PoofOfSmoke(position3);
-                                    NetMessage.SendData(106, -1, -1, null, (int)position3.X, position3.Y);
+                                    NetMessage.SendData(/*106*/MessageID.PoofOfSmoke, -1, -1, /*null,*/ number: (int)position3.X, number2: position3.Y);
                                 }
                                 break;
                             case 18:
@@ -348,7 +348,7 @@ partial class RuntimeOutput
 
                                     Vector2 position2 = new Vector2(num142 - 4, num143 - 22) - new Vector2(10f);
                                     Utils.PoofOfSmoke(position2);
-                                    NetMessage.SendData(106, -1, -1, null, (int)position2.X, position2.Y);
+                                    NetMessage.SendData(/*106*/MessageID.PoofOfSmoke, -1, -1, /*null,*/ number: (int)position2.X, number2: position2.Y);
                                 }
                                 break;
                             case 2:

@@ -14,6 +14,6 @@ partial class RuntimeOutput
             num66 = -WorldGen.ShiftTrapdoor(i, j, playerAbove: false).ToInt();
 
         if (num66 != 0)
-            NetMessage.SendData(19, -1, -1, null, 3 - value.ToInt(), i, j, num66);
+            NetMessage.SendData(/*19*/MessageID.ToggleDoorState, -1, -1, /*null,*/ number: 3 - value.ToInt(), number2: i, number3: j, number4: num66);
     }
 }

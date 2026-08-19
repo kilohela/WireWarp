@@ -10,6 +10,6 @@ partial class RuntimeOutput
         Tile tile = Main.tile[i, j];
         bool flag4 = tile.TileType == TileID.TallGateOpen;
         WorldGen.ShiftTallGate(i, j, flag4);
-        NetMessage.SendData(19, -1, -1, null, 4 + flag4.ToInt(), i, j);
+        NetMessage.SendData(/*19*/MessageID.ToggleDoorState, -1, -1, /*null,*/ number: 4 + flag4.ToInt(), number2: i, number3: j);
     }
 }

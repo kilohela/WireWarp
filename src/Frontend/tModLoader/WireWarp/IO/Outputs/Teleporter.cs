@@ -53,12 +53,12 @@ partial class RuntimeOutput
                     {
                         Vector2 vector2 = Main.player[j].position + vector;
                         Main.player[j].teleporting = true;
-                        if (Main.netMode == 2)
+                        if (Main.netMode == /*2*/NetmodeID.Server)
                             RemoteClient.CheckSection(j, vector2);
 
                         Main.player[j].Teleport(vector2);
-                        if (Main.netMode == 2)
-                            NetMessage.SendData(65, -1, -1, null, 0, j, vector2.X, vector2.Y);
+                        if (Main.netMode == /*2*/NetmodeID.Server)
+                            NetMessage.SendData(/*65*/MessageID.TeleportEntity, -1, -1, /*null,*/ number: 0, number2: j, number3: vector2.X, number4: vector2.Y);
                     }
                 }
             }

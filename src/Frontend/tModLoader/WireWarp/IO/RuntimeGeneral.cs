@@ -1,4 +1,5 @@
 using Terraria;
+using Terraria.ID;
 using WireWarp.Frontend.Shared;
 
 namespace WireWarp.Frontend.tModLoader.IO;
@@ -75,13 +76,13 @@ internal static class RuntimeGeneral
             else
             {
                 Tile tile = Main.tile[num2, num3];
-                if (tile == null)
+                /*if (tile == null)
                 {
                     _numMechs--;
                 }
-                else
+                else*/
                 {
-                    if (tile.HasTile && tile.TileType == 144)
+                    if (tile.HasTile && tile.TileType == /*144*/TileID.Timers)
                     {
                         if (tile.TileFrameY == 0)
                         {
@@ -119,13 +120,13 @@ internal static class RuntimeGeneral
 
                     if (_mechTime[num] <= 0)
                     {
-                        if (tile.HasTile && tile.TileType == 144)
+                        if (tile.HasTile && tile.TileType == /*144*/TileID.Timers)
                         {
                             tile.TileFrameY = 0;
                             NetMessage.SendTileSquare(-1, _mechX[num], _mechY[num]);
                         }
 
-                        if (tile.HasTile && tile.TileType == 411)
+                        if (tile.HasTile && tile.TileType == /*411*/TileID.Detonator)
                         {
                             int num5 = tile.TileFrameX % 36 / 18;
                             int num6 = tile.TileFrameY % 36 / 18;
@@ -142,7 +143,7 @@ internal static class RuntimeGeneral
                                     if (WorldGen.InWorld(i, j, 1))
                                     {
                                         Tile tile2 = Main.tile[i, j];
-                                        if (tile2 != null)
+                                        /*if (tile2 != null)*/
                                             tile2.TileFrameX = (short)(tile2.TileFrameX + num9);
                                     }
                                 }
