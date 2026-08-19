@@ -107,23 +107,13 @@ public static class Runtime
 
         try
         {
-            if (!_isRun)
+            var (ack, outputs) = Transport.CompleteFrame();
+            CheckAck("Backend frame failed", ack);
+
+            if (_isRun)
             {
-                CheckAck("Backend frame failed", Transport.SendFrame(false, _time, []).ack);
-            }
-            else
-            {
-                foreach (var output in IOFrame.ReadOutputs())
-                    HitOutput(output);
-
-                var inputs = PackRLE(IOFrame.ReadInputs());
-
-                var (ack, outputs) = Transport.SendFrame(true, _time, inputs);
-
-                CheckAck("Backend frame failed", ack);
-
-                foreach (var output in UnPackRLE(outputs))
-                    IOFrame.WriteOutput(output);
+                foreach (var output in UnPackRLE(outputs)) HitOutput(output);
+                Transport.SendFrameAsync(true, _time, PackRLE(IOFrame.ReadInputs()));
 
                 Access.Instance.Tick();
                 IOFrame.Tick();
@@ -136,6 +126,10 @@ public static class Runtime
                     _frontendTimeoutCount = 0;
                     _backendTimeoutCount = 0;
                 }
+            }
+            else
+            {
+                Transport.SendFrameAsync(false, _time, []);
             }
         }
         catch

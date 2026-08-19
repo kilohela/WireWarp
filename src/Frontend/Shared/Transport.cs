@@ -12,6 +12,7 @@ public static class Transport
     private static long _lastId;
 
     private static NamedPipeServerStream? _pipe;
+    private static Task<(Tag tag, long messageId, byte[] body)>? _pendingFrame;
     public static bool IsOpen => _pipe?.IsConnected ?? false;
 
     public static void Open()
@@ -35,6 +36,8 @@ public static class Transport
     {
         _sendId = 0;
         _lastId = 0;
+
+        _pendingFrame = null;
 
         _pipe?.Dispose();
         _pipe = null;
@@ -88,18 +91,29 @@ public static class Transport
         catch (Exception e) { throw new Exception($"Backend shutdown failed: {e.Message}", e); }
     }
 
-    public static ((int status, string message) ack, IReadOnlyList<(int portId, int count)> payload)
-    SendFrame(bool run, long tick, IReadOnlyList<(int portId, int count)> inputs)
+    public static void SendFrameAsync(bool run, long tick, IReadOnlyList<(int portId, int count)> inputs)
     {
         try
         {
-            var body = Request(Tag.Frame, PackFrame(run, tick, inputs));
+            if (!IsOpen) throw new InvalidOperationException("Transport not open");
+            if (_pendingFrame != null) throw new InvalidOperationException("Frame already in flight");
 
-            var (ack, payload) = UnpackAck(body);
-            if (ack.status == 0)
-                return (ack, UnpackFrameAck(payload));
-            else
-                return (ack, []);
+            WriteMessage(Tag.Frame, PackFrame(run, tick, inputs));
+
+            _pendingFrame = Task.Run(ReadMessage);
+            _ = _pendingFrame.ContinueWith(static t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+        }
+        catch (Exception e) { throw new Exception($"Backend frame failed: {e.Message}", e); }
+    }
+
+    public static ((int status, string message) ack, IReadOnlyList<(int portId, int count)> payload) CompleteFrame()
+    {
+        try
+        {
+            if (!TakeFrameAck(out var ack, out var payload))
+                return ((0, ""), []);
+
+            return ack.status == 0 ? (ack, UnpackFrameAck(payload)) : (ack, []);
         }
         catch (Exception e) { throw new Exception($"Backend frame failed: {e.Message}", e); }
     }
@@ -108,16 +122,42 @@ public static class Transport
     {
         if (!IsOpen) throw new InvalidOperationException("Transport not open");
 
+        if (TakeFrameAck(out var ack, out _) && ack.status != 0)
+            throw new Exception($"Backend frame failed: {ack.status} {ack.message}");
+
         WriteMessage(tag, body);
         var (respTag, id, respBody) = ReadMessage();
 
-        if (_lastId != 0 && id != _lastId + 1) throw new InvalidDataException($"Message gap detected: expected {_lastId + 1}, got {id}");
-        _lastId = id;
-
-        var expected = (Tag)((ushort)tag + 1);
-        if (respTag != expected) throw new InvalidDataException($"Unexpected tag {(ushort)respTag}, expected {(ushort)expected}");
+        CheckResponse(tag, respTag, id);
 
         return respBody;
+    }
+
+    private static bool TakeFrameAck(out (int status, string message) ack, out byte[] payload)
+    {
+        if (_pendingFrame == null)
+        { ack = default; payload = []; return false; }
+
+        var task = _pendingFrame;
+        _pendingFrame = null;
+
+        var (respTag, id, respBody) = task.GetAwaiter().GetResult();
+
+        CheckResponse(Tag.Frame, respTag, id);
+
+        (ack, payload) = UnpackAck(respBody);
+        return true;
+    }
+
+    private static void CheckResponse(Tag requestTag, Tag responseTag, long id)
+    {
+        if (_lastId != 0 && id != _lastId + 1)
+            throw new InvalidDataException($"Message gap detected: expected {_lastId + 1}, got {id}");
+        _lastId = id;
+
+        var expected = (Tag)((ushort)requestTag + 1);
+        if (responseTag != expected)
+            throw new InvalidDataException($"Unexpected tag {(ushort)responseTag}, expected {(ushort)expected}");
     }
 
     private static void WriteMessage(Tag tag, byte[] body)
