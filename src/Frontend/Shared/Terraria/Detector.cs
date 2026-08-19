@@ -55,6 +55,7 @@ internal static class Detector
             TileID.PartyMonolith, TileID.Explosives, TileID.LandMine,
             TileID.InletPump, TileID.OutletPump, TileID.BoulderStatue, TileID.MushroomStatue,
             TileID.CatBast, TileID.Statues, TileID.Grate, TileID.GrateClosed, TileID.PixelBox,
+            TileID.Timers, TileID.Detonator, TileID.GeyserTrap, TileID.MinecartTrack,
         }) OutputTable[id] = true;
 
         for (var i = TileID.AmethystGemsparkOff; i <= TileID.AmberGemspark; i++)

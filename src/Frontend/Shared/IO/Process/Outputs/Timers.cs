@@ -9,15 +9,18 @@ partial class ProcessOutput
     {
         // Timer output cannot directly activate itself.
         var op = output.Fanin.OfType<OutputPort>().First();
-        
         foreach (var wire in op.Fanin.OfType<Wire>().ToList())
+        foreach (var ip in wire.Fanin.OfType<InputPort>().ToList())
         {
-            if (wire.Fanin.OfType<InputPort>()
-                .Any(ip => ip.Fanin.OfType<Input>()
-                .Any(input => input.Origin == output.Origin && 
-                    input.Type == InputID.Timers)))
+            var input = ip.Fanin.OfType<Input>().First();
+            if (input.Origin == output.Origin && input.Type == InputID.Timers)
             {
-                WiringGraph.RemoveEdge(wire, op);
+                var newWire = WiringGraph.CopyNode(wire);
+                WiringGraph.RemoveEdge(ip, wire);
+                WiringGraph.RemoveEdge(newWire, op);
+                foreach (var s in newWire.Fanin.ToList())
+                    if (s != ip) WiringGraph.RemoveEdge(s, newWire);
+                break;
             }
         }
     }

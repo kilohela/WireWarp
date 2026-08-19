@@ -53,6 +53,37 @@ public static class WiringGraph
         from.Fanout.Remove(to);
         to.Fanin.Remove(from);
     }
+    
+    internal static IConnectable CopyNode(IConnectable node)
+    {
+        IConnectable copy = node switch
+        {
+            Wire w => new Wire { Id = w.Id, Type = w.Type },
+            Gate g => new Gate { Id = g.Id, Type = g.Type, Origin = g.Origin },
+            Lamp l => new Lamp { Id = l.Id, Type = l.Type, Origin = l.Origin },
+            Input i => new Input { Id = i.Id, Type = i.Type, Origin = i.Origin },
+            Output o => new Output { Id = o.Id, Type = o.Type, Origin = o.Origin },
+            InputPort ip => new InputPort { Id = ip.Id },
+            OutputPort op => new OutputPort { Id = op.Id },
+            _ => throw new InvalidOperationException($"Unknown node type {node.GetType().Name}")
+        };
+
+        if (node is Wire sourceWire && copy is Wire copyWire)
+        {
+            foreach (var (x, y) in sourceWire.Sources) copyWire.Sources.Add((x, y));
+            foreach (var (x, y) in sourceWire.Drains) copyWire.Drains.Add((x, y));
+        }
+
+        AddNode(copy);
+
+        foreach (var source in node.Fanin)
+            AddEdge(source, copy);
+
+        foreach (var target in node.Fanout)
+            AddEdge(copy, target);
+
+        return copy;
+    }
 
     internal static T AddNode<T>(T node) where T : IConnectable
     {
