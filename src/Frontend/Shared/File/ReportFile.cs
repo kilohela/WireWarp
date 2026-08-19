@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text;
+using WireWarp.Frontend.Shared.Conversion;
 using WireWarp.Frontend.Shared.Data;
 
 namespace WireWarp.Frontend.Shared.File;
@@ -41,18 +43,18 @@ public static class ReportFile
         sb.AppendLine($"| World | `{Report.WorldPath}` |");
         sb.AppendLine($"| Hash | `{hash}` |");
         sb.AppendLine($"| Result | {(Report.Success ? "OK" : "FAILED")} |");
-        sb.AppendLine($"| Total ms | {total:F2} |");
+        sb.AppendLine($"| Total time | {total / 1000:F2}s |");
         sb.AppendLine();
 
         sb.AppendLine("## Stages");
         sb.AppendLine();
-        sb.AppendLine("| Stage | ms |");
+        sb.AppendLine("| Stage | Time |");
         sb.AppendLine("|---|---|");
         if (Report.Stages.Count == 0)
             sb.AppendLine("| - | - |");
         else
             foreach (var (name, ms) in Report.Stages)
-                sb.AppendLine($"| {name} | {ms:F2} |");
+                sb.AppendLine($"| {name} | {ms / 1000:F2}s ({Percent(ms, total)}) |");
         sb.AppendLine();
 
         sb.AppendLine("## Components");
@@ -65,59 +67,13 @@ public static class ReportFile
             foreach (var (component, types) in Report.Components)
             {
                 var count = types.Values.Sum();
-                var byType = types.Count == 0
-                    ? "-"
-                    : string.Join(", ", types.OrderBy(kv => kv.Key)
-                        .Select(kv => $"{kv.Key}×{kv.Value}"));
-                sb.AppendLine($"| {component} | {count} | {byType} |");
+                sb.AppendLine($"| {component} | {count} | {FormatTypes(types)} |");
             }
         sb.AppendLine();
 
-        sb.AppendLine("## Topology");
-        sb.AppendLine();
-        sb.AppendLine("| Metric | Value |");
-        sb.AppendLine("|---|---|");
-        sb.AppendLine($"| Edges | {Report.Edges} |");
-        foreach (var (component, count) in Report.Pruned.OrderBy(kv => kv.Key))
-            sb.AppendLine($"| Pruned {component} | {count} |");
-        foreach (var (name, histogram) in Report.Histograms
-                     .Where(kv => !kv.Key.StartsWith("Normal gate") &&
-                                  !kv.Key.StartsWith("Fault gate"))
-                     .OrderBy(kv => kv.Key))
-            sb.AppendLine($"| {name} distribution | {FormatHistogram(histogram)} |");
-        sb.AppendLine();
-
-        var gateTypes = Report.Components.TryGetValue("Gate", out var gates)
-            ? gates
-            : [];
-        var normalGates = gateTypes.Where(kv => kv.Key != "Fault").Sum(kv => kv.Value);
-        var faultGates = gateTypes.GetValueOrDefault("Fault");
-
-        sb.AppendLine("## Normal Gates");
-        sb.AppendLine();
-        sb.AppendLine("| Metric | Value |");
-        sb.AppendLine("|---|---|");
-        sb.AppendLine($"| Count | {normalGates} |");
-        sb.AppendLine($"| Lamp fanin distribution | {Histogram("Normal gate lamps")} |");
-        sb.AppendLine($"| Fault lamp count distribution | {Histogram("Normal gate fault lamps")} |");
-        sb.AppendLine($"| Wire fanout distribution | {Histogram("Normal gate wire fanout")} |");
-        sb.AppendLine($"| On lamp wire fanin distribution | {Histogram("Normal gate On lamp wire fanin")} |");
-        sb.AppendLine($"| Off lamp wire fanin distribution | {Histogram("Normal gate Off lamp wire fanin")} |");
-        sb.AppendLine($"| Fault lamp wire fanin distribution | {Histogram("Normal gate Fault lamp wire fanin")} |");
-        sb.AppendLine();
-
-        sb.AppendLine("## Fault Gates");
-        sb.AppendLine();
-        sb.AppendLine("| Metric | Value |");
-        sb.AppendLine("|---|---|");
-        sb.AppendLine($"| Count | {faultGates} |");
-        sb.AppendLine($"| Lamp fanin distribution | {Histogram("Fault gate lamps")} |");
-        sb.AppendLine($"| Fault lamp count distribution | {Histogram("Fault gate fault lamps")} |");
-        sb.AppendLine($"| Wire fanout distribution | {Histogram("Fault gate wire fanout")} |");
-        sb.AppendLine($"| On lamp wire fanin distribution | {Histogram("Fault gate On lamp wire fanin")} |");
-        sb.AppendLine($"| Off lamp wire fanin distribution | {Histogram("Fault gate Off lamp wire fanin")} |");
-        sb.AppendLine($"| Fault lamp wire fanin distribution | {Histogram("Fault gate Fault lamp wire fanin")} |");
-        sb.AppendLine();
+        WriteWires(sb);
+        WriteGates(sb);
+        WritePorts(sb);
 
         if (Report.Errors.Count > 0)
         {
@@ -133,11 +89,102 @@ public static class ReportFile
         return sb.ToString();
     }
 
-    private static string Histogram(string name) => 
+    private static void WriteWires(StringBuilder sb)
+    {
+        WriteSection(sb, "Wires", Types("Wire"), "Wire",
+        [
+            ("Fanin", Reporter.WiresFanin),
+            ("InputPort", Reporter.WiresInputPort),
+            ("Normal gate", Reporter.WiresNormalGate),
+            ("Fault gate", Reporter.WiresFaultGate),
+            ("Fanout", Reporter.WiresFanout),
+            ("OutputPort", Reporter.WiresOutputPort),
+            ("Normal lamp", Reporter.WiresNormalLamp),
+            ("Fault lamp", Reporter.WiresFaultLamp),
+        ]);
+    }
+
+    private static void WriteGates(StringBuilder sb)
+    {
+        var gateTypes = Types("Gate");
+        var normal = gateTypes.Where(kv => kv.Key != "Fault")
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
+        var fault = gateTypes.Where(kv => kv.Key == "Fault")
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        WriteSection(sb, "Normal Gates", normal, "Gate",
+        [
+            ("Lamp wires", Reporter.NormalGatesLampWires),
+            ("Lamps", Reporter.NormalGatesLamps),
+            ("Gate wires", Reporter.NormalGatesGateWires),
+        ]);
+
+        WriteSection(sb, "Fault Gates", fault, "FaultGate",
+        [
+            ("Fault lamp wires", Reporter.FaultGatesFaultLampWires),
+            ("Fault lamps", Reporter.FaultGatesFaultLamps),
+            ("Normal lamp wires", Reporter.FaultGatesNormalLampWires),
+            ("Normal lamps", Reporter.FaultGatesNormalLamps),
+            ("Gate wires", Reporter.FaultGatesGateWires),
+        ]);
+    }
+
+    private static void WritePorts(StringBuilder sb)
+    {
+        WriteSection(sb, "Input Ports", Types("InputPort"), "InputPort",
+            [("Wires", Reporter.InputPortsWires)]);
+
+        WriteSection(sb, "Output Ports", Types("OutputPort"), "OutputPort",
+            [("Wires", Reporter.OutputPortsWires)]);
+    }
+
+    private static void WriteSection(StringBuilder sb, string title, Dictionary<string, int> types,
+        string pruned, (string Label, string Key)[] rows)
+    {
+        var count = types.Values.Sum();
+
+        sb.AppendLine($"## {title}");
+        sb.AppendLine();
+        sb.AppendLine("| Metric | Value |");
+        sb.AppendLine("|---|---|");
+        sb.AppendLine($"| Count | {count} |");
+        sb.AppendLine($"| Pruned | {Report.Pruned.GetValueOrDefault(pruned)} |");
+        sb.AppendLine($"| Type | {FormatTypes(types)} |");
+        foreach (var (label, key) in rows)
+            sb.AppendLine($"| {label} | {Histogram(key)} |");
+        sb.AppendLine();
+    }
+
+    private static Dictionary<string, int> Types(string name) =>
+        Report.Components.TryGetValue(name, out var types) ? types : [];
+
+    private static string FormatTypes(Dictionary<string, int> types)
+    {
+        if (types.Count == 0) return "-";
+
+        var total = types.Values.Sum();
+        return string.Join(", ", types
+            .OrderByDescending(kv => kv.Value)
+            .ThenBy(kv => kv.Key)
+            .Select(kv => $"{kv.Key}×{kv.Value} ({Percent(kv.Value, total)})"));
+    }
+
+    private static string Histogram(string name) =>
         Report.Histograms.TryGetValue(name, out var histogram) ? FormatHistogram(histogram) : "-";
 
-    private static string FormatHistogram(Dictionary<int, int> histogram) =>
-        histogram.Count != 0 ? string.Join(", ", histogram
-            .OrderByDescending(kv => kv.Key)
-            .Select(kv => $"{kv.Key}->{kv.Value}")) : "-";
+    private static string FormatHistogram(Dictionary<int, int> histogram)
+    {
+        if (histogram.Count == 0) return "-";
+
+        var total = histogram.Values.Sum();
+        return string.Join(", ", histogram
+            .OrderByDescending(kv => kv.Value)
+            .ThenByDescending(kv => kv.Key)
+            .Select(kv => $"{kv.Key}->{kv.Value} ({Percent(kv.Value, total)})"));
+    }
+
+    private static string Percent(double value, double total) =>
+        total > 0
+            ? $"{(value * 100.0 / total).ToString("F2", CultureInfo.InvariantCulture)}%"
+            : "-";
 }

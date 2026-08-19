@@ -1,4 +1,5 @@
 using WireWarp.Frontend.Shared.Data;
+using WireWarp.Frontend.Shared.ID;
 
 namespace WireWarp.Frontend.Shared.Conversion;
 
@@ -30,7 +31,7 @@ internal static class Prune
 
         foreach (var node in dead)
         {
-            Report.AddPruned(node.GetType().Name);
+            Report.AddPruned(node is Gate { Type: GateID.Fault } ? "FaultGate" : node.GetType().Name);
             WiringGraph.RemoveNode(node);
         }
 

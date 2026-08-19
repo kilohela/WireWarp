@@ -17,7 +17,7 @@ internal static class Validate
         ValidateSkipWire();
 
         var count = Report.Errors.Count - start;
-        if (count > 0) Report.AddMessage($"validation found {count} error(s)");
+        if (count > 0) Report.AddError($"validation found {count} error(s)");
 
         return count == 0;
     }

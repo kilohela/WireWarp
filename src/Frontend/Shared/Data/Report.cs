@@ -16,8 +16,6 @@ public static class Report
 
     public static Dictionary<string, Dictionary<string, int>> Components { get; } = [];
     public static Dictionary<string, Dictionary<int, int>> Histograms { get; } = [];
-    
-    public static long Edges { get; internal set; }
 
     public static void Clean()
     {
@@ -28,8 +26,6 @@ public static class Report
         Components.Clear();
         Pruned.Clear();
         Histograms.Clear();
-
-        Edges = 0;
 
         Success = true;
     }
