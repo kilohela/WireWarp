@@ -105,8 +105,10 @@ public static class Runtime
         {
             var (ack, outputs) = Transport.CompleteFrame();
             var backend = Math.Max(0, Transport.LatencyTime);
-
             CheckAck("Backend frame failed", ack);
+
+            var wait = _frameTimer.Elapsed.TotalMilliseconds;
+            _frameTimer.Restart();
 
             if (_isRun)
             {
@@ -124,7 +126,7 @@ public static class Runtime
             }
 
             var frontend = _frameTimer.Elapsed.TotalMilliseconds;
-            _frameStats.Record(frontend, backend, other);
+            _frameStats.Record(frontend, backend, wait, other);
 
             if (_isRun && _time % FrameTimeoutWindow == 0)
             {
@@ -375,30 +377,34 @@ public static class Runtime
 
         private double _fSum, _fMax;
         private double _bSum, _bMax;
+        private double _wSum, _wMax;
         private double _oSum, _oMax;
         private double _tSum, _tMax;
 
         public bool HasTimeouts => _timeouts > 0;
 
-        public void Record(double frontend, double backend, double other)
+        public void Record(double frontend, double backend, double wait, double other)
         {
-            var total = frontend + other;
+            var total = frontend + wait + other;
 
             _count++;
             if (total > FrameTimeoutBudget) _timeouts++;
 
             _fSum += frontend; _fMax = Math.Max(_fMax, frontend);
             _bSum += backend; _bMax = Math.Max(_bMax, backend);
+            _wSum += wait; _wMax = Math.Max(_wMax, wait);
             _oSum += other; _oMax = Math.Max(_oMax, other);
             _tSum += total; _tMax = Math.Max(_tMax, total);
         }
 
         public string Report()
         {
-            var line = $"Slow frames: F:{_fSum / _count:F2}/{_fMax:F2}ms, " +
-                       $"B:{_bSum / _count:F2}/{_bMax:F2}ms, " +
-                       $"O:{_oSum / _count:F2}/{_oMax:F2}ms, " +
-                       $"T:{_tSum / _count:F2}/{_tMax:F2}ms";
+            var line = $"Slow frames: " +
+                       $"F:{_fSum / _count,5:F2}/{_fMax,5:F2}ms, " +
+                       $"B:{_bSum / _count,5:F2}/{_bMax,5:F2}ms, " +
+                       $"W:{_wSum / _count,5:F2}/{_wMax,5:F2}ms, " +
+                       $"O:{_oSum / _count,5:F2}/{_oMax,5:F2}ms, " +
+                       $"T:{_tSum / _count,5:F2}/{_tMax,5:F2}ms";
             Reset();
             return line;
         }
@@ -407,7 +413,7 @@ public static class Runtime
         {
             _count = 0;
             _timeouts = 0;
-            _fSum = _fMax = _bSum = _bMax = _oSum = _oMax = _tSum = _tMax = 0;
+            _fSum = _fMax = _bSum = _bMax = _wSum = _wMax = _oSum = _oMax = _tSum = _tMax = 0;
         }
     }
 }
