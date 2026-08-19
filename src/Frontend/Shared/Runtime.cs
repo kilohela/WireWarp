@@ -10,6 +10,7 @@ public static class Runtime
     private const double FrameTimeoutBudget = 16.67;
 
     private static readonly Stopwatch _frameTimer = Stopwatch.StartNew();
+    private static readonly FrameStats _frameStats = new();
     
     private static readonly byte[] _hash = new byte[32];
     public static ReadOnlyMemory<byte> Hash => _hash;
@@ -17,8 +18,6 @@ public static class Runtime
     private static bool _isOpen;
     private static bool _isRun;
     private static long _time;
-    private static int _frontendTimeoutCount;
-    private static int _backendTimeoutCount;
 
     public static bool IsOpen => _isOpen;
     public static bool IsRun => _isRun;
@@ -60,9 +59,7 @@ public static class Runtime
 
             _time = 0;
 
-            _frontendTimeoutCount = 0;
-            _backendTimeoutCount = 0;
-
+            _frameStats.Reset();
             _frameTimer.Restart();
 
             Access.Instance.Reset();
@@ -81,8 +78,7 @@ public static class Runtime
 
         _time = 0;
 
-        _frontendTimeoutCount = 0;
-        _backendTimeoutCount = 0;
+        _frameStats.Reset();
         
         Array.Clear(_hash);
 
@@ -102,12 +98,14 @@ public static class Runtime
     {
         if (!_isOpen) return;
 
-        if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _frontendTimeoutCount++;
+        var other = _frameTimer.Elapsed.TotalMilliseconds;
         _frameTimer.Restart();
 
         try
         {
             var (ack, outputs) = Transport.CompleteFrame();
+            var backend = Math.Max(0, Transport.LatencyTime);
+
             CheckAck("Backend frame failed", ack);
 
             if (_isRun)
@@ -119,23 +117,26 @@ public static class Runtime
                 IOFrame.Tick();
 
                 _time++;
-
-                if (_time % FrameTimeoutWindow == 0 && (_frontendTimeoutCount > 0 || _backendTimeoutCount > 0))
-                {
-                    Access.Instance.Notify($"Slow frames: frontend {_frontendTimeoutCount}, backend {_backendTimeoutCount} in last {FrameTimeoutWindow} ticks");
-                    _frontendTimeoutCount = 0;
-                    _backendTimeoutCount = 0;
-                }
             }
             else
             {
                 Transport.SendFrameAsync(false, _time, []);
             }
+
+            var frontend = _frameTimer.Elapsed.TotalMilliseconds;
+            _frameStats.Record(frontend, backend, other);
+
+            if (_isRun && _time % FrameTimeoutWindow == 0)
+            {
+                if (_frameStats.HasTimeouts)
+                    Access.Instance.Notify(_frameStats.Report());
+                else
+                    _frameStats.Reset();
+            }
         }
         catch
         { try { Shutdown(); } catch { } throw; }
 
-        if (_frameTimer.Elapsed.TotalMilliseconds > FrameTimeoutBudget) _backendTimeoutCount++;
         _frameTimer.Restart();
     }
 
@@ -237,8 +238,7 @@ public static class Runtime
             CheckAck("Backend reset failed", Transport.SendReset());
 
             _time = 0;
-            _frontendTimeoutCount = 0;
-            _backendTimeoutCount = 0;
+            _frameStats.Reset();
             _frameTimer.Restart();
 
             Access.Instance.Reset();
@@ -366,5 +366,48 @@ public static class Runtime
     {
         if (ack.status == 0) return;
         throw new Exception($"{prefix}: {ack.status} {ack.message}");
+    }
+
+    private sealed class FrameStats
+    {
+        private int _count;
+        private int _timeouts;
+
+        private double _fSum, _fMax;
+        private double _bSum, _bMax;
+        private double _oSum, _oMax;
+        private double _tSum, _tMax;
+
+        public bool HasTimeouts => _timeouts > 0;
+
+        public void Record(double frontend, double backend, double other)
+        {
+            var total = frontend + other;
+
+            _count++;
+            if (total > FrameTimeoutBudget) _timeouts++;
+
+            _fSum += frontend; _fMax = Math.Max(_fMax, frontend);
+            _bSum += backend; _bMax = Math.Max(_bMax, backend);
+            _oSum += other; _oMax = Math.Max(_oMax, other);
+            _tSum += total; _tMax = Math.Max(_tMax, total);
+        }
+
+        public string Report()
+        {
+            var line = $"Slow frames: F:{_fSum / _count:F2}/{_fMax:F2}ms, " +
+                       $"B:{_bSum / _count:F2}/{_bMax:F2}ms, " +
+                       $"O:{_oSum / _count:F2}/{_oMax:F2}ms, " +
+                       $"T:{_tSum / _count:F2}/{_tMax:F2}ms";
+            Reset();
+            return line;
+        }
+
+        public void Reset()
+        {
+            _count = 0;
+            _timeouts = 0;
+            _fSum = _fMax = _bSum = _bMax = _oSum = _oMax = _tSum = _tMax = 0;
+        }
     }
 }

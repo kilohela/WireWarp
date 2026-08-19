@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO.Pipes;
 
 namespace WireWarp.Frontend.Shared;
@@ -11,9 +12,14 @@ public static class Transport
     private static long _sendId;
     private static long _lastId;
 
+    private static long _sendTime;
+    private static long _ackTime;
+
     private static NamedPipeServerStream? _pipe;
     private static Task<(Tag tag, long messageId, byte[] body)>? _pendingFrame;
+
     public static bool IsOpen => _pipe?.IsConnected ?? false;
+    public static double LatencyTime => Stopwatch.GetElapsedTime(_sendTime, _ackTime).TotalMilliseconds;
 
     public static void Open()
     {
@@ -36,6 +42,9 @@ public static class Transport
     {
         _sendId = 0;
         _lastId = 0;
+
+        _sendTime = 0;
+        _ackTime = 0;
 
         _pendingFrame = null;
 
@@ -175,6 +184,7 @@ public static class Transport
         w.Write(body.Length);
         w.Write(body);
 
+        _sendTime = Stopwatch.GetTimestamp();
         _pipe!.Write(ms.GetBuffer(), 0, (int)ms.Length);
     }
 
@@ -182,6 +192,7 @@ public static class Transport
     {
         var header = new byte[20];
         _pipe!.ReadExactly(header);
+        _ackTime = Stopwatch.GetTimestamp();
 
         uint magic; ushort version; ushort tag; long id; int length;
 
